@@ -30,7 +30,7 @@ plugins {
     id 'net.minecraftforge.gradle.patcher' version '[6.0.6,6.2)' apply false
     id 'net.minecraftforge.gradle.mcp' version '[6.0.6,6.2)' apply false
     id 'net.nemerosa.versioning' version '2.8.2'
-    id 'dev.vankka.dependencydownload.plugin' version '1.2.1' apply false
+    id 'dev.vankka.dependencydownload.plugin' version '1.3.0' apply false
 }
 
 Util.init() //Init all our extension methods!
