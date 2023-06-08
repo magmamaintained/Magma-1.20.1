@@ -1,11 +1,11 @@
 <div align="center">
 <img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
-[![](https://img.shields.io/badge/Minecraft%20Forge-1.20%20--%2045.1.1%20--%20<hash_comming>-orange.svg)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.2.html)
+[![](https://img.shields.io/badge/Minecraft%20Forge-1.20%20--%2046.0.1%20--%2009de4a2-orange.svg)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.2.html)
 [![](https://img.shields.io/badge/Bukkit-1.20%203635fe1a771-blue)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse)
 [![](https://img.shields.io/badge/CraftBukkit-Build%20a345bb94089-orange)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse?at=refs%2Fheads%2Fversion%2F1.20)
 [![](https://img.shields.io/badge/Spigot-Build%2081b9def3c89-yellow)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse)
-<!-- ![TeamCity build status](https://teamcity.magmafoundation.org/app/rest/builds/buildType:id:MagmaFoundation_Magma118x_Build/statusIcon.svg) -->
+<!-- ![TeamCity build status](https://teamcity.magmafoundation.org/app/rest/builds/buildType:id:MagmaFoundation_Magma120x_Build/statusIcon.svg) -->
 [![](https://img.shields.io/discord/612695539729039411.svg?logo=discord&logoWidth=18&colorB=7289DA)](https://discord.gg/magma)
 
 <a href="https://bstats.org/plugin/server-implementation/Magma/17219"> <img src="https://bstats.org/signatures/server-implementation/Magma.svg" alt="Stats" width="800"></a>
