@@ -50,7 +50,7 @@ public class MagmaUpdater {
     private String newSha;
     private String currentSha;
 
-    private String latestVersionURL = "https://api.magmafoundation.org/api/v2/1.19/latest/";
+    private String latestVersionURL = "https://api.magmafoundation.org/api/v2/1.20/latest/";
 
     public boolean versionChecker() {
         try {
@@ -104,20 +104,21 @@ public class MagmaUpdater {
     }
 
     public static void checkForUpdates() throws IOException {
-        Path path = Paths.get("magma.yml");
-        if(Files.exists(path)) {
-            try (InputStream stream = Files.newInputStream(path)) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> data = yaml.load(stream);
-                Map<String, Object> forge = (Map<String, Object>) data.get("magma");
-                if (!forge.get("auto-update").equals(true) || MagmaConstants.VERSION.equals("dev-env"))
-                    return;
-
-                MagmaUpdater updater = new MagmaUpdater();
-                System.out.println("Checking for updates...");
-                if(updater.versionChecker())
-                    updater.downloadJar();
-            }
-        }
+//        Path path = Paths.get("magma.yml");
+//        if(Files.exists(path)) {
+//            try (InputStream stream = Files.newInputStream(path)) {
+//                Yaml yaml = new Yaml();
+//                Map<String, Object> data = yaml.load(stream);
+//                Map<String, Object> forge = (Map<String, Object>) data.get("magma");
+//                if (!forge.get("auto-update").equals(true) || MagmaConstants.VERSION.equals("dev-env"))
+//                    return;
+//
+//                MagmaUpdater updater = new MagmaUpdater();
+//                System.out.println("Checking for updates...");
+//                if(updater.versionChecker())
+//                    updater.downloadJar();
+//            }
+//        }
+        System.out.println("[Magma] Auto Updater is currently disabled!");
     }
 }

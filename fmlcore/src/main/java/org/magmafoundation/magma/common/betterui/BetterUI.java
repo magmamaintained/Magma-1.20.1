@@ -18,6 +18,7 @@
 
 package org.magmafoundation.magma.common.betterui;
 
+import java.util.Scanner;
 import org.magmafoundation.magma.common.utils.ShortenedStackTrace;
 
 import java.io.*;
@@ -89,9 +90,9 @@ public class BetterUI {
 
             int wrong = 0;
 
-            Console console = System.console();
+            Scanner console = new Scanner(System.in);
             while (true) {
-                String answer = console.readLine();
+                String answer = console.nextLine();
                 if (answer == null || answer.isBlank()) {
                     if (wrong++ >= 2) {
                         System.err.println("You have typed the wrong answer too many times. Exiting.");

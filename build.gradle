@@ -30,7 +30,7 @@ plugins {
     id 'net.minecraftforge.gradle.patcher' version '[6.0.6,6.2)' apply false
     id 'net.minecraftforge.gradle.mcp' version '[6.0.6,6.2)' apply false
     id 'net.nemerosa.versioning' version '2.8.2'
-    id 'dev.vankka.dependencydownload.plugin' version '1.3.0' apply false
+    id 'dev.vankka.dependencydownload.plugin' version '1.3.1-SNAPSHOT' apply false
 }
 
 Util.init() //Init all our extension methods!
@@ -64,7 +64,7 @@ ext {
     INSTALLERTOOLS_VERSION = '1.3.0'
     MIXIN_VERSION = '0.8.5'
     TERMINALCONSOLEAPPENDER_VERSION = '1.2.0'
-    JLINE_VERSION = '3.12.+'
+    JLINE_VERSION = '3.12.1'
     NIGHTCONFIG_VERSION = '3.6.4'
     JETBRAINS_ANNOTATIONS_VERSION = '23.0.0'
     SLF4J_API_VERSION = '1.8.0-beta4'
@@ -1482,7 +1482,7 @@ project(':forge') {
         }
     }
 
-    task generateMagmaLibraries(type: dev.vankka.dependencydownload.task.GenerateDependencyDownloadResourceTask) {
+    task generateMagmaLibraries (dependsOn: ['jar'], type: dev.vankka.dependencydownload.task.GenerateDependencyDownloadResourceTask) {
         var conf = configurations.autolibraries
         configuration = conf
         file = "data/magma_libraries.txt"
