@@ -2,7 +2,12 @@ pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenLocal()
+        maven {
+            name = 'c0d3m4513r-Maven-cache'
+            url = 'https://nexus.c0d3m4513r.com/repository/Magma/'
+        }
         maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'}
     }
 }
 
