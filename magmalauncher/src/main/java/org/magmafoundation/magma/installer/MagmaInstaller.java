@@ -107,9 +107,9 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
                         stringToUrl(loadedLibsPaths));
 
                 //Delete brigadier, we have our own implementation
-                deleteLib("com/mojang/brigadier");
+                //deleteLib("com/mojang/brigadier");
                 //Delete datafixers, we have our own implementation
-                deleteLib("com/mojang/datafixerupper");
+                //deleteLib("com/mojang/datafixerupper");
                 System.out.println();
                 unmute();
                 pb.step();
@@ -434,9 +434,7 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
                 return;
             minecraft_server.getParentFile().mkdirs();
             try {
-                // 1.19.4 = NetworkUtils.downloadFile("https://piston-data.mojang.com/v1/objects/8f3112a1049751cc472ec13e397eade5336ca7ae/server.jar", minecraft_server);
-                //TODO: Replace with 1.19.4 when updated
-                NetworkUtils.downloadFile("https://piston-data.mojang.com/v1/objects/c9df48efed58511cdd0213c56b9013a7b5c9ac1f/server.jar", minecraft_server);
+                NetworkUtils.downloadFile("https://piston-data.mojang.com/v1/objects/15c777e2cfe0556eef19aab534b186c0c6f277e1/server.jar", minecraft_server);
             } catch (Exception e) {
                 System.out.println("Can't download minecraft_server");
                 e.printStackTrace();
