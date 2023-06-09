@@ -30,8 +30,10 @@ public class DataFixerBuilder {
     private final Int2ObjectSortedMap<Schema> schemas = new Int2ObjectAVLTreeMap<>();
     private final List<DataFix> globalList = Lists.newArrayList();
     private final IntSortedSet fixerVersions = new IntAVLTreeSet();
+    private final int minDataFixPrecacheVersion; // Paper
 
     public DataFixerBuilder(final int dataVersion) {
+        this.minDataFixPrecacheVersion = Integer.getInteger("Magma.minPrecachedDatafixVersion", dataVersion + 1) * 10; // Paper - default to precache nothing - mojang stores versions * 10 to allow for 'sub versions'
         this.dataVersion = dataVersion;
     }
 
@@ -78,6 +80,7 @@ public class DataFixerBuilder {
         final IntBidirectionalIterator iterator = fixerUpper.fixerVersions().iterator();
         while (iterator.hasNext()) {
             final int versionKey = iterator.nextInt();
+            if (versionKey < minDataFixPrecacheVersion) continue; // Paper
             final Schema schema = schemas.get(versionKey);
             for (final String typeName : schema.types()) {
                 if (!requiredTypeNames.contains(typeName)) {

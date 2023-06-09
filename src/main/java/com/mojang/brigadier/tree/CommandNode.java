@@ -13,6 +13,7 @@ import com.mojang.brigadier.context.CommandContextBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
+import net.minecraft.commands.CommandSourceStack;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +33,13 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
     private final RedirectModifier<S> modifier;
     private final boolean forks;
     private Command<S> command;
+    // CraftBukkit start
+    public void removeCommand(String name) {
+        children.remove(name);
+        literals.remove(name);
+        arguments.remove(name);
+    }
+    // CraftBukkit end
 
     protected CommandNode(final Command<S> command, final Predicate<S> requirement, final CommandNode<S> redirect, final RedirectModifier<S> modifier, final boolean forks) {
         this.command = command;
@@ -61,7 +69,17 @@ public abstract class CommandNode<S> implements Comparable<CommandNode<S>> {
         return modifier;
     }
 
-    public boolean canUse(final S source) {
+    // CraftBukkit start
+    public synchronized boolean canUse(final S source) {
+        if (source instanceof CommandSourceStack stack) {
+            try {
+                stack.currentCommand = this;
+                return requirement.test(source);
+            } finally {
+                stack.currentCommand = null;
+            }
+        }
+        // CraftBukkit end
         return requirement.test(source);
     }
 
