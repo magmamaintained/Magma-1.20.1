@@ -852,11 +852,13 @@ project(':forge') {
                 srcDirs = [
                     "$rootDir/src/main/java",
                     "$rootDir/src/fmlcommon/java",
+                    SNAPSHOT ? "$rootDir/src/snapshots/java" : "$rootDir/src/snapshots_disabled/java"
                 ]
             }
             resources {
                 srcDirs = [
                     "$rootDir/src/main/resources",
+                    "$rootDir/src/generated/resources",
                     "$rootDir/src/fmlcommon/resources"
                 ]
             }
@@ -870,6 +872,7 @@ project(':forge') {
             resources {
                 srcDirs = [
                     "$rootDir/src/test/resources",
+                    "$rootDir/src/generated_test/resources"
                 ]
             }
         }
