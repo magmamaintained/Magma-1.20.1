@@ -1,10 +1,10 @@
 <div align="center">
 <img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
-[![](https://img.shields.io/badge/Minecraft%20Forge-1.20%20--%2046.0.2%20--%2018c3ea9-orange.svg)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.2.html)
-[![](https://img.shields.io/badge/Bukkit-1.20%203635fe1a771-blue)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse)
-[![](https://img.shields.io/badge/CraftBukkit-Build%20a345bb94089-orange)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse?at=refs%2Fheads%2Fversion%2F1.20)
-[![](https://img.shields.io/badge/Spigot-Build%2081b9def3c89-yellow)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse)
+[![](https://img.shields.io/badge/Minecraft%20Forge-1.20%20--%2046.0.1%20--%2009de4a2-orange.svg)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.2.html)
+[![](https://img.shields.io/badge/Bukkit-1.20%203635fe1-blue)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse)
+[![](https://img.shields.io/badge/CraftBukkit-Build%2068b32056246-orange)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse?at=refs%2Fheads%2Fversion%2F1.20)
+[![](https://img.shields.io/badge/Spigot-Build%200000000000-yellow)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse)
 <!-- ![TeamCity build status](https://teamcity.magmafoundation.org/app/rest/builds/buildType:id:MagmaFoundation_Magma120x_Build/statusIcon.svg) -->
 [![](https://img.shields.io/discord/612695539729039411.svg?logo=discord&logoWidth=18&colorB=7289DA)](https://discord.gg/magma)
 
@@ -32,14 +32,14 @@ Magma for Minecraft 1.12 and above can be found in their own repositories.
 
 - Click [here](https://git.magmafoundation.org/magmafoundation/Magma) to visit the 1.12 repository.
 - Click [here](https://git.magmafoundation.org/magmafoundation/Magma-1-16-x) to visit the 1.16 repository. (1.16 is End Of Life and not actively maintained anymore)
-- Click [here](https://git.magmafoundation.org/magmafoundation/Magma-1-18-x) to visit the 1.18 repository. 
+- Click [here](https://git.magmafoundation.org/magmafoundation/Magma-1-18-x) to visit the 1.18 repository.
 
 ## 🪣 Deployment
 
 ### Installation
 
-1. Download the recommended builds from the [**Releases** section](https://git.magmafoundation.org/magmafoundation/Magma-1-20-x/-/releases) (**Download** the one that ends in server) 
-   1. Or Download the latest jar from [Magma Site](https://magmafoundation.org/)
+1. Download the recommended builds from the [**Releases** section](https://git.magmafoundation.org/magmafoundation/Magma-1-20-x/-/releases) (**Download** the one that ends in server)
+    1. Or Download the latest jar from [Magma Site](https://magmafoundation.org/)
 2. Make a new directory (folder) for the server
 3. Move the jar that you downloaded into the new directory
 4. Run the jar with your command prompt or terminal, going to your directory and entering `java -jar Magma-[version]-server.jar`. Change [version] to your Magma version number.
@@ -55,7 +55,7 @@ Magma for Minecraft 1.12 and above can be found in their own repositories.
     - Now go and get a drink this may take some time
     - Navigate to `projects/magma/build/libs` directory of the compiled source code
     - Copy the Jar to a new server directory (see Installation)
-    
+
 ## ⚙️ Contributing
 
 If you wish to inspect Magma, submit PRs, or otherwise work with Magma itself, you're in the right place!.
