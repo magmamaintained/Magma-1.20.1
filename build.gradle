@@ -152,7 +152,6 @@ subprojects {
     }
 
     repositories {
-        mavenLocal()
         maven {
             name = 'c0d3m4513r-Maven-cache'
             url = 'https://nexus.c0d3m4513r.com/repository/Magma/'
