@@ -9,3 +9,19 @@
     private static final int f_164734_ = 3;
     private static final int f_164735_ = 128;
     private static final int f_164736_ = 16;
+@@ -40,8 +_,14 @@
+    }
+ 
+    public Optional<BlockUtil.FoundRectangle> m_192985_(BlockPos p_192986_, boolean p_192987_, WorldBorder p_192988_) {
++      // CraftBukkit start
++      return findPortalAround(p_192986_, p_192988_, p_192987_ ? 16 : 128); // Search Radius
++   }
++
++   public Optional<BlockUtil.FoundRectangle> findPortalAround(BlockPos p_192986_, WorldBorder p_192988_, int i) {
++      // int i = flag ? 16 : 128;
++      // CraftBukkit end
+       PoiManager poimanager = this.f_77648_.m_8904_();
+-      int i = p_192987_ ? 16 : 128;
+       poimanager.m_27056_(this.f_77648_, p_192986_, i);
+       Optional<PoiRecord> optional = poimanager.m_27166_((p_230634_) -> {
+          return p_230634_.m_203565_(PoiTypes.f_218064_);

@@ -1,6 +1,46 @@
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
-@@ -84,6 +_,15 @@
+@@ -1,5 +_,6 @@
+ package net.minecraft.server;
+ 
++import com.google.common.base.Charsets;
+ import com.mojang.authlib.GameProfile;
+ import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+ import com.mojang.datafixers.DataFixer;
+@@ -10,13 +_,16 @@
+ import java.awt.GraphicsEnvironment;
+ import java.io.File;
+ import java.io.IOException;
++import java.io.InputStreamReader;
+ import java.io.UncheckedIOException;
+ import java.net.Proxy;
+ import java.nio.file.Files;
+ import java.nio.file.Path;
+ import java.nio.file.Paths;
++import java.util.Arrays;
+ import java.util.Optional;
+ import java.util.UUID;
++import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.BooleanSupplier;
+ import joptsimple.OptionParser;
+ import joptsimple.OptionSet;
+@@ -39,6 +_,7 @@
+ import net.minecraft.server.dedicated.DedicatedServerProperties;
+ import net.minecraft.server.dedicated.DedicatedServerSettings;
+ import net.minecraft.server.level.progress.LoggerChunkProgressListener;
++import net.minecraft.server.packs.PackType;
+ import net.minecraft.server.packs.repository.PackRepository;
+ import net.minecraft.server.packs.repository.ServerPacksSource;
+ import net.minecraft.util.Mth;
+@@ -59,6 +_,7 @@
+ import net.minecraft.world.level.storage.LevelSummary;
+ import net.minecraft.world.level.storage.PrimaryLevelData;
+ import net.minecraft.world.level.storage.WorldData;
++import org.bukkit.configuration.file.YamlConfiguration;
+ import org.slf4j.Logger;
+ 
+ public class Main {
+@@ -84,6 +_,33 @@
        OptionSpec<Void> optionspec13 = optionparser.accepts("jfrProfile");
        OptionSpec<Path> optionspec14 = optionparser.accepts("pidFile").withRequiredArg().withValuesConvertedBy(new PathConverter());
        OptionSpec<String> optionspec15 = optionparser.nonOptions();
@@ -13,6 +53,24 @@
 +      } else {
 +          spawnPosOpt = null;
 +      }
++
++      optionparser.acceptsAll(Arrays.asList("b", "bukkit-settings"), "File for bukkit settings")
++              .withRequiredArg()
++              .ofType(File.class)
++              .defaultsTo(new File("bukkit.yml"))
++              .describedAs("Yml file");
++
++      optionparser.acceptsAll(Arrays.asList("C", "commands-settings"), "File for command settings")
++              .withRequiredArg()
++              .ofType(File.class)
++              .defaultsTo(new File("commands.yml"))
++              .describedAs("Yml file");
++
++      optionparser.acceptsAll(Arrays.asList("P", "plugins"), "Plugin directory to use")
++              .withRequiredArg()
++              .ofType(File.class)
++              .defaultsTo(new File("plugins"))
++              .describedAs("Plugin directory");
  
        try {
           OptionSet optionset = optionparser.parse(p_129699_);
@@ -30,7 +88,7 @@
  
           Path path = optionset.valueOf(optionspec14);
           if (path != null) {
-@@ -106,25 +_,24 @@
+@@ -106,25 +_,37 @@
           Bootstrap.m_135889_();
           Util.m_137584_();
           Path path1 = Paths.get("server.properties");
@@ -40,6 +98,19 @@
 -         Path path2 = Paths.get("eula.txt");
 -         Eula eula = new Eula(path2);
           if (optionset.has(optionspec1)) {
++            // CraftBukkit start - SPIGOT-5761: Create bukkit.yml and commands.yml if not present
++            File configFile = (File) optionset.valueOf("bukkit-settings");
++            YamlConfiguration configuration = YamlConfiguration.loadConfiguration(configFile);
++            configuration.options().copyDefaults(true);
++            configuration.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("configurations/bukkit.yml"), Charsets.UTF_8)));
++            configuration.save(configFile);
++
++            File commandFile = (File) optionset.valueOf("commands-settings");
++            YamlConfiguration commandsConfiguration = YamlConfiguration.loadConfiguration(commandFile);
++            commandsConfiguration.options().copyDefaults(true);
++            commandsConfiguration.setDefaults(YamlConfiguration.loadConfiguration(new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("configurations/commands.yml"), Charsets.UTF_8)));
++            commandsConfiguration.save(commandFile);
++            // CraftBukkit end
              f_129670_.info("Initialized '{}' and '{}'", path1.toAbsolutePath(), path2.toAbsolutePath());
              return;
           }
@@ -57,11 +128,44 @@
 +            return;
 +         }
           LevelStorageSource levelstoragesource = LevelStorageSource.m_78242_(file1.toPath());
-          LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = levelstoragesource.m_289864_(s);
+-         LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = levelstoragesource.m_289864_(s);
++         LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = levelstoragesource.validateAndCreateAccess(s, LevelStem.f_63971_);
 +         levelstoragesource$levelstorageaccess.readAdditionalLevelSaveData();
           LevelSummary levelsummary = levelstoragesource$levelstorageaccess.m_78308_();
           if (levelsummary != null) {
              if (levelsummary.m_193020_()) {
+@@ -145,11 +_,31 @@
+ 
+          PackRepository packrepository = ServerPacksSource.m_245786_(levelstoragesource$levelstorageaccess.m_78283_(LevelResource.f_78180_));
+ 
++         // CraftBukkit start
++         File bukkitDataPackFolder = new File(levelstoragesource$levelstorageaccess.m_78283_(LevelResource.f_78180_).toFile(), "bukkit");
++         if (!bukkitDataPackFolder.exists()) {
++            bukkitDataPackFolder.mkdirs();
++         }
++         File mcMeta = new File(bukkitDataPackFolder, "pack.mcmeta");
++         try {
++            com.google.common.io.Files.write("{\n"
++                    + "    \"pack\": {\n"
++                    + "        \"description\": \"Data pack for resources provided by Bukkit plugins\",\n"
++                    + "        \"pack_format\": " + SharedConstants.m_183709_().m_264084_(PackType.SERVER_DATA) + "\n"
++                    + "    }\n"
++                    + "}\n", mcMeta, com.google.common.base.Charsets.UTF_8);
++         } catch (java.io.IOException ex) {
++            throw new RuntimeException("Could not initialize Bukkit datapack", ex);
++         }
++         AtomicReference<WorldLoader.DataLoadContext> worldLoader = new AtomicReference<WorldLoader.DataLoadContext>();
++         // CraftBukkit end
++
+          WorldStem worldstem;
+          try {
+             WorldLoader.InitConfig worldloader$initconfig = m_245383_(dedicatedserversettings.m_139777_(), levelstoragesource$levelstorageaccess, flag, packrepository);
+             worldstem = Util.m_214679_((p_248086_) -> {
+                return WorldLoader.m_214362_(worldloader$initconfig, (p_248079_) -> {
++                  worldLoader.set(p_248079_); // CraftBukkit
+                   Registry<LevelStem> registry = p_248079_.f_243759_().m_175515_(Registries.f_256862_);
+                   DynamicOps<Tag> dynamicops = RegistryOps.m_255058_(NbtOps.f_128958_, p_248079_.f_244104_());
+                   Pair<WorldData, WorldDimensions.Complete> pair = levelstoragesource$levelstorageaccess.m_246049_(dynamicops, p_248079_.f_244127_(), registry, p_248079_.f_244104_().m_211816_());
 @@ -170,6 +_,8 @@
                          worlddimensions = dedicatedserverproperties.m_246483_(p_248079_.f_244104_());
                       }
@@ -85,7 +189,7 @@
 +               net.minecraft.core.BlockPos spawnPos = optionset.valueOf(spawnPosOpt);
 +               dedicatedserver1 = new net.minecraft.gametest.framework.GameTestServer(p_129697_, levelstoragesource$levelstorageaccess, packrepository, worldstem, testBatches, spawnPos);
 +            } else {
-+               dedicatedserver1 = new DedicatedServer(p_129697_, levelstoragesource$levelstorageaccess, packrepository, worldstem, dedicatedserversettings, DataFixers.m_14512_(), services, LoggerChunkProgressListener::new);
++               dedicatedserver1 = new DedicatedServer(optionset, worldLoader.get(), p_129697_, levelstoragesource$levelstorageaccess, packrepository, worldstem, dedicatedserversettings, DataFixers.m_14512_(), services, LoggerChunkProgressListener::new);
 +            }
              dedicatedserver1.m_236740_(optionset.has(optionspec8) ? new GameProfile((UUID)null, optionset.valueOf(optionspec8)) : null);
              dedicatedserver1.m_129801_(optionset.valueOf(optionspec11));
@@ -95,7 +199,7 @@
 -            if (flag1 && !GraphicsEnvironment.isHeadless()) {
 -               dedicatedserver1.m_139667_();
 +            if (dedicatedserver1 instanceof DedicatedServer dedicatedServer && flag1 && !GraphicsEnvironment.isHeadless()) {
-+               dedicatedServer.m_139667_();
++               //dedicatedServer.showGui(); // Magma - disable GUI - todo: Maybe make this a magma config.
              }
  
              return dedicatedserver1;

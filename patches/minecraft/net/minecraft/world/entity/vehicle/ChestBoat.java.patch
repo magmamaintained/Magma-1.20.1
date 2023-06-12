@@ -1,9 +1,78 @@
 --- a/net/minecraft/world/entity/vehicle/ChestBoat.java
 +++ b/net/minecraft/world/entity/vehicle/ChestBoat.java
-@@ -204,6 +_,28 @@
-       this.f_219864_ = NonNullList.m_122780_(this.m_6643_(), ItemStack.f_41583_);
+@@ -22,6 +_,12 @@
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.gameevent.GameEvent;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++import org.bukkit.inventory.InventoryHolder;
++
++import java.util.List;
+ 
+ public class ChestBoat extends Boat implements HasCustomInventoryScreen, ContainerEntity {
+    private static final int f_219867_ = 27;
+@@ -134,6 +_,53 @@
+       this.m_219953_();
     }
  
++   // CraftBukkit start
++   public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++   private int maxStack = MAX_STACK;
++
++   @Override
++   public List<ItemStack> getContents() {
++      return this.f_219864_;
++   }
++
++   @Override
++   public void onOpen(CraftHumanEntity who) {
++      transaction.add(who);
++   }
++
++   @Override
++   public void onClose(CraftHumanEntity who) {
++      transaction.remove(who);
++   }
++
++   @Override
++   public List<HumanEntity> getViewers() {
++      return transaction;
++   }
++
++   @Override
++   public InventoryHolder getOwner() {
++      org.bukkit.entity.Entity entity = getBukkitEntity();
++      if (entity instanceof InventoryHolder) return (InventoryHolder) entity;
++      return null;
++   }
++
++   @Override
++   public int m_6893_() {
++      return maxStack;
++   }
++
++   @Override
++   public void setMaxStackSize(int size) {
++      maxStack = size;
++   }
++
++   @Override
++   public Location getLocation() {
++      return getBukkitEntity().getLocation();
++   }
++   // CraftBukkit end
++
+    public int m_6643_() {
+       return 27;
+    }
+@@ -202,6 +_,28 @@
+ 
+    public void m_213775_() {
+       this.f_219864_ = NonNullList.m_122780_(this.m_6643_(), ItemStack.f_41583_);
++   }
++
 +   // Forge Start
 +   private net.minecraftforge.common.util.LazyOptional<?> itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> new net.minecraftforge.items.wrapper.InvWrapper(this));
 +
@@ -24,8 +93,6 @@
 +   public void reviveCaps() {
 +      super.reviveCaps();
 +      itemHandler = net.minecraftforge.common.util.LazyOptional.of(() -> new net.minecraftforge.items.wrapper.InvWrapper(this));
-+   }
-+
-    public void m_5785_(Player p_270286_) {
-       this.m_9236_().m_214171_(GameEvent.f_157802_, this.m_20182_(), GameEvent.Context.m_223717_(p_270286_));
     }
+ 
+    public void m_5785_(Player p_270286_) {

@@ -1,5 +1,58 @@
 --- a/net/minecraft/world/inventory/EnchantmentMenu.java
 +++ b/net/minecraft/world/inventory/EnchantmentMenu.java
+@@ -22,20 +_,22 @@
+ import net.minecraft.world.item.enchantment.EnchantmentInstance;
+ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.EnchantmentTableBlock;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.inventory.CraftInventoryEnchanting;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+ 
+ public class EnchantmentMenu extends AbstractContainerMenu {
+-   private final Container f_39449_ = new SimpleContainer(2) {
+-      public void m_6596_() {
+-         super.m_6596_();
+-         EnchantmentMenu.this.m_6199_(this);
+-      }
+-   };
++   private final Container f_39449_;
+    private final ContainerLevelAccess f_39450_;
+    private final RandomSource f_39451_ = RandomSource.m_216327_();
+    private final DataSlot f_39452_ = DataSlot.m_39401_();
+    public final int[] f_39446_ = new int[3];
+    public final int[] f_39447_ = new int[]{-1, -1, -1};
+    public final int[] f_39448_ = new int[]{-1, -1, -1};
++   // CraftBukkit start
++   private CraftInventoryView bukkitEntity = null;
++   private org.bukkit.entity.Player player;
++   // CraftBukkit end
+ 
+    public EnchantmentMenu(int p_39454_, Inventory p_39455_) {
+       this(p_39454_, p_39455_, ContainerLevelAccess.f_39287_);
+@@ -43,6 +_,23 @@
+ 
+    public EnchantmentMenu(int p_39457_, Inventory p_39458_, ContainerLevelAccess p_39459_) {
+       super(MenuType.f_39969_, p_39457_);
++
++      //Magma start - add location
++      this.f_39449_ = new SimpleContainer(2) {
++         public void m_6596_() {
++            super.m_6596_();
++            EnchantmentMenu.this.m_6199_(this);
++         }
++
++         // CraftBukkit start
++         @Override
++         public Location getLocation() {
++            return p_39459_.getLocation();
++         }
++         // CraftBukkit end
++      };
++      //Magma end
++
+       this.f_39450_ = p_39459_;
+       this.m_38897_(new Slot(this.f_39449_, 0, 15, 47) {
+          public boolean m_5857_(ItemStack p_39508_) {
 @@ -55,7 +_,7 @@
        });
        this.m_38897_(new Slot(this.f_39449_, 1, 35, 47) {
@@ -9,6 +62,16 @@
           }
        });
  
+@@ -79,6 +_,9 @@
+       this.m_38895_(DataSlot.m_39406_(this.f_39448_, 0));
+       this.m_38895_(DataSlot.m_39406_(this.f_39448_, 1));
+       this.m_38895_(DataSlot.m_39406_(this.f_39448_, 2));
++      // CraftBukkit start
++      player = (org.bukkit.entity.Player) p_39458_.f_35978_.getBukkitEntity();
++      // CraftBukkit end
+    }
+ 
+    public void m_6199_(Container p_39461_) {
 @@ -86,23 +_,24 @@
           ItemStack itemstack = p_39461_.m_8020_(0);
           if (!itemstack.m_41619_() && itemstack.m_41792_()) {
@@ -46,3 +109,22 @@
              if (!this.m_38903_(itemstack1, 1, 2, true)) {
                 return ItemStack.f_41583_;
              }
+@@ -264,4 +_,18 @@
+ 
+       return itemstack;
+    }
++
++   // CraftBukkit start
++   @Override
++   public CraftInventoryView getBukkitView() {
++      if (bukkitEntity != null) {
++         return bukkitEntity;
++      }
++
++      CraftInventoryEnchanting inventory = new CraftInventoryEnchanting(this.f_39449_);
++      bukkitEntity = new CraftInventoryView(this.player, inventory, this);
++      return bukkitEntity;
++   }
++   // CraftBukkit end
++
+ }

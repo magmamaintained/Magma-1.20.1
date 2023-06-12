@@ -1,6 +1,37 @@
 --- a/net/minecraft/world/food/FoodData.java
 +++ b/net/minecraft/world/food/FoodData.java
-@@ -23,9 +_,15 @@
+@@ -6,6 +_,7 @@
+ import net.minecraft.world.item.Item;
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.level.GameRules;
++import org.jetbrains.annotations.Nullable;
+ 
+ public class FoodData {
+    public int f_38696_ = 20;
+@@ -14,18 +_,38 @@
+    private int f_38699_;
+    private int f_38700_ = 20;
+ 
++   // CraftBukkit start
++   private @Nullable Player entityhuman; //Magma - add @Nullable
++   public int saturatedRegenRate = 10;
++   public int unsaturatedRegenRate = 80;
++   public int starvationRate = 80;
++   // CraftBukkit end
++
+    public FoodData() {
++      this(null); //Magma - instead of throwing an error we just set it to null
++   }
++
++   // CraftBukkit start - added Player constructor
++   public FoodData(Player player) {
++      this.entityhuman = player;
+       this.f_38697_ = 5.0F;
+    }
++   // CraftBukkit end
+ 
+    public void m_38707_(int p_38708_, float p_38709_) {
+       this.f_38696_ = Math.min(p_38708_ + this.f_38696_, 20);
        this.f_38697_ = Math.min(this.f_38697_ + (float)p_38708_ * p_38709_ * 2.0F, (float)this.f_38696_);
     }
  

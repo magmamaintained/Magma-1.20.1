@@ -1,11 +1,21 @@
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BlockEntity.java
-@@ -15,7 +_,7 @@
+@@ -13,9 +_,17 @@
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.state.BlockState;
++import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
++import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
++import org.bukkit.inventory.InventoryHolder;
++import org.magmafoundation.magma.helpers.InventoryHelper;
  import org.slf4j.Logger;
  
 -public abstract class BlockEntity {
 +public abstract class BlockEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<BlockEntity> implements net.minecraftforge.common.extensions.IForgeBlockEntity {
++   // CraftBukkit start - data containers
++   private static final CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new CraftPersistentDataTypeRegistry();
++   public CraftPersistentDataContainer persistentDataContainer;
++   // CraftBukkit end
     private static final Logger f_58854_ = LogUtils.getLogger();
     private final BlockEntityType<?> f_58855_;
     @Nullable
@@ -24,12 +34,21 @@
     }
  
     public static BlockPos m_187472_(CompoundTag p_187473_) {
-@@ -48,9 +_,13 @@
+@@ -47,15 +_,32 @@
+       return this.f_58857_ != null;
     }
  
++   // CraftBukkit start - read container
     public void m_142466_(CompoundTag p_155245_) {
 +      if (p_155245_.m_128441_("ForgeData")) this.customPersistentData = p_155245_.m_128469_("ForgeData");
 +      if (getCapabilities() != null && p_155245_.m_128441_("ForgeCaps")) deserializeCaps(p_155245_.m_128469_("ForgeCaps"));
++      // CraftBukkit start - read container
++      this.persistentDataContainer = new CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
++      net.minecraft.nbt.Tag persistentDataTag = p_155245_.m_128423_("PublicBukkitValues");
++      if (persistentDataTag instanceof CompoundTag) {
++         this.persistentDataContainer.putAll((CompoundTag) persistentDataTag);
++      }
++      // CraftBukkit end
     }
  
     protected void m_183515_(CompoundTag p_187471_) {
@@ -38,6 +57,16 @@
     }
  
     public final CompoundTag m_187480_() {
+       CompoundTag compoundtag = this.m_187482_();
+       this.m_187478_(compoundtag);
++      // CraftBukkit start - store container
++      if (this.persistentDataContainer != null && !this.persistentDataContainer.isEmpty()) {
++         compoundtag.m_128365_("PublicBukkitValues", this.persistentDataContainer.toTagCompound());
++      }
++      // CraftBukkit end
+       return compoundtag;
+    }
+ 
 @@ -163,6 +_,13 @@
  
     public void m_7651_() {
@@ -52,17 +81,26 @@
     }
  
     public void m_6339_() {
-@@ -189,6 +_,13 @@
- 
-    public BlockEntityType<?> m_58903_() {
+@@ -191,9 +_,22 @@
        return this.f_58855_;
-+   }
-+
+    }
+ 
 +   @Override
 +   public CompoundTag getPersistentData() {
 +      if (this.customPersistentData == null)
 +         this.customPersistentData = new CompoundTag();
 +      return this.customPersistentData;
-    }
- 
++   }
++
     /** @deprecated */
+    @Deprecated
+    public void m_155250_(BlockState p_155251_) {
+       this.f_58856_ = p_155251_;
+    }
++
++   // CraftBukkit start - add method
++   public InventoryHolder getOwner() {
++      return InventoryHelper.getHolder(f_58857_, f_58858_);
++   }
++   // CraftBukkit end
+ }

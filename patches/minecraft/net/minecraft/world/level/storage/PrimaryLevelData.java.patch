@@ -1,10 +1,53 @@
 --- a/net/minecraft/world/level/storage/PrimaryLevelData.java
 +++ b/net/minecraft/world/level/storage/PrimaryLevelData.java
-@@ -82,6 +_,7 @@
+@@ -17,6 +_,7 @@
+ import net.minecraft.SharedConstants;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
++import net.minecraft.core.Registry;
+ import net.minecraft.core.RegistryAccess;
+ import net.minecraft.core.UUIDUtil;
+ import net.minecraft.nbt.CompoundTag;
+@@ -27,6 +_,7 @@
+ import net.minecraft.nbt.Tag;
+ import net.minecraft.resources.RegistryOps;
+ import net.minecraft.server.MinecraftServer;
++import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.util.datafix.DataFixTypes;
+ import net.minecraft.world.Difficulty;
+ import net.minecraft.world.level.GameRules;
+@@ -35,6 +_,7 @@
+ import net.minecraft.world.level.LevelSettings;
+ import net.minecraft.world.level.WorldDataConfiguration;
+ import net.minecraft.world.level.border.WorldBorder;
++import net.minecraft.world.level.dimension.LevelStem;
+ import net.minecraft.world.level.dimension.end.EndDragonFight;
+ import net.minecraft.world.level.levelgen.WorldGenSettings;
+ import net.minecraft.world.level.levelgen.WorldOptions;
+@@ -82,6 +_,26 @@
     private boolean f_78440_;
     private final Set<String> f_276525_;
     private final TimerQueue<MinecraftServer> f_78441_;
 +   private boolean confirmedExperimentalWarning = false;
++
++   // CraftBukkit start - Add world and pdc
++   public Registry<LevelStem> customDimensions;
++   private ServerLevel world;
++   protected Tag pdc;
++
++   public void setWorld(ServerLevel world) {
++      if (this.world != null) {
++         return;
++      }
++      this.world = world;
++      world.getWorld().readBukkitValues(pdc);
++      pdc = null;
++   }
++   // CraftBukkit end
++
++   public SpecialWorldProperty getSpecialWorldProperty() {
++      return f_244368_;
++   }
  
     private PrimaryLevelData(@Nullable DataFixer p_277859_, int p_277672_, @Nullable CompoundTag p_277888_, boolean p_278109_, int p_277714_, int p_278088_, int p_278037_, float p_277542_, long p_277414_, long p_277635_, int p_277595_, int p_277794_, int p_278007_, boolean p_277943_, int p_277674_, boolean p_277644_, boolean p_277749_, boolean p_278004_, WorldBorder.Settings p_277729_, int p_277856_, int p_278051_, @Nullable UUID p_277341_, Set<String> p_277989_, Set<String> p_277399_, TimerQueue<MinecraftServer> p_277860_, @Nullable CompoundTag p_277936_, EndDragonFight.Data p_289764_, LevelSettings p_278064_, WorldOptions p_278072_, PrimaryLevelData.SpecialWorldProperty p_277548_, Lifecycle p_277915_) {
        this.f_78452_ = p_277859_;
@@ -26,11 +69,10 @@
     }
  
     private static ListTag m_277055_(Set<String> p_277880_) {
-@@ -483,6 +_,15 @@
- 
+@@ -484,6 +_,23 @@
     public LevelSettings m_5926_() {
        return this.f_78443_.m_46935_();
-+   }
+    }
 +
 +   public boolean hasConfirmedExperimentalWarning() {
 +      return this.confirmedExperimentalWarning;
@@ -39,6 +81,15 @@
 +   public PrimaryLevelData withConfirmedWarning(boolean confirmedWarning) { // Builder-like to not patch ctor
 +      this.confirmedExperimentalWarning = confirmedWarning;
 +      return this;
-    }
++   }
++
++   // CraftBukkit start - Check if the name stored in NBT is the correct one
++   public void checkName(String name) {
++      if (!this.f_78443_.f_46902_.equals(name)) {
++         this.f_78443_.f_46902_ = name;
++      }
++   }
++   // CraftBukkit end
  
     /** @deprecated */
+    @Deprecated

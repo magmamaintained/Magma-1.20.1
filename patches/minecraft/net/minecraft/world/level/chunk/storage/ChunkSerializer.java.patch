@@ -1,5 +1,17 @@
 --- a/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
 +++ b/net/minecraft/world/level/chunk/storage/ChunkSerializer.java
+@@ -108,9 +_,9 @@
+                palettedcontainer = new PalettedContainer<>(Block.f_49791_, Blocks.f_50016_.m_49966_(), PalettedContainer.Strategy.f_188137_);
+             }
+ 
+-            PalettedContainerRO<Holder<Biome>> palettedcontainerro;
++            PalettedContainer<Holder<Biome>> palettedcontainerro; // CraftBukkit - read/write
+             if (compoundtag.m_128425_("biomes", 10)) {
+-               palettedcontainerro = codec.parse(NbtOps.f_128958_, compoundtag.m_128469_("biomes")).promotePartial((p_188274_) -> {
++               palettedcontainerro = (PalettedContainer<Holder<Biome>>) codec.parse(NbtOps.f_128958_, compoundtag.m_128469_("biomes")).promotePartial((p_188274_) -> {
+                   m_188239_(p_188233_, k, p_188274_);
+                }).getOrThrow(false, f_63449_::error);
+             } else {
 @@ -159,6 +_,7 @@
              return BuiltInRegistries.f_257020_.m_6612_(ResourceLocation.m_135820_(p_258990_));
           }, p_188233_);

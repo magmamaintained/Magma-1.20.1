@@ -13,7 +13,7 @@
           }
        }
  
-@@ -60,7 +_,7 @@
+@@ -60,7 +_,11 @@
     default boolean m_142505_() {
        NonNullList<Ingredient> nonnulllist = this.m_7527_();
        return nonnulllist.isEmpty() || nonnulllist.stream().anyMatch((p_151268_) -> {
@@ -21,4 +21,8 @@
 +         return net.minecraftforge.common.ForgeHooks.hasNoElements(p_151268_);
        });
     }
++
++   default org.bukkit.inventory.Recipe toBukkitRecipe() {
++      return null; //Magma - Add a default value to prevent AbstractMethodError of mods implementing this
++   } // CraftBukkit
  }

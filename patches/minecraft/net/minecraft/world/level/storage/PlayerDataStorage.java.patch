@@ -1,5 +1,23 @@
 --- a/net/minecraft/world/level/storage/PlayerDataStorage.java
 +++ b/net/minecraft/world/level/storage/PlayerDataStorage.java
+@@ -3,13 +_,17 @@
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.logging.LogUtils;
+ import java.io.File;
++import java.io.FileInputStream;
++import java.io.InputStream;
+ import javax.annotation.Nullable;
+ import net.minecraft.Util;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.nbt.NbtIo;
+ import net.minecraft.nbt.NbtUtils;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.util.datafix.DataFixTypes;
+ import net.minecraft.world.entity.player.Player;
++import org.bukkit.craftbukkit.entity.CraftPlayer;
+ import org.slf4j.Logger;
+ 
+ public class PlayerDataStorage {
 @@ -31,6 +_,7 @@
           File file2 = new File(this.f_78427_, p_78434_.m_20149_() + ".dat");
           File file3 = new File(this.f_78427_, p_78434_.m_20149_() + ".dat_old");
@@ -8,7 +26,20 @@
        } catch (Exception exception) {
           f_78426_.warn("Failed to save player data for {}", (Object)p_78434_.m_7755_().getString());
        }
-@@ -54,6 +_,7 @@
+@@ -51,13 +_,38 @@
+       }
+ 
+       if (compoundtag != null) {
++         // CraftBukkit start
++         if (p_78436_ instanceof ServerPlayer) {
++            CraftPlayer player = (CraftPlayer) p_78436_.getBukkitEntity();
++            // Only update first played if it is older than the one we have
++            long modified = new File(this.f_78427_, p_78436_.m_20148_().toString() + ".dat").lastModified();
++            if (modified < player.getFirstPlayed()) {
++               player.setFirstPlayed(modified);
++            }
++         }
++         // CraftBukkit end
           int i = NbtUtils.m_264487_(compoundtag, -1);
           p_78436_.m_20258_(DataFixTypes.PLAYER.m_264218_(this.f_78425_, compoundtag, i));
        }
@@ -16,6 +47,24 @@
  
        return compoundtag;
     }
+ 
++   // CraftBukkit start
++   public CompoundTag getPlayerData(String s) {
++      try {
++         File file1 = new File(this.f_78427_, s + ".dat");
++         if (file1.exists()) {
++            return NbtIo.m_128939_((InputStream) (new FileInputStream(file1)));
++         }
++      } catch (Exception exception) {
++         f_78426_.warn("Failed to load player data for " + s);
++      }
++      return null;
++   }
++   // CraftBukkit end
++
+    public String[] m_78432_() {
+       String[] astring = this.f_78427_.list();
+       if (astring == null) {
 @@ -71,5 +_,9 @@
        }
  

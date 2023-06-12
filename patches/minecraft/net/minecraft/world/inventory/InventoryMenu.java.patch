@@ -1,5 +1,49 @@
 --- a/net/minecraft/world/inventory/InventoryMenu.java
 +++ b/net/minecraft/world/inventory/InventoryMenu.java
+@@ -1,6 +_,7 @@
+ package net.minecraft.world.inventory;
+ 
+ import com.mojang.datafixers.util.Pair;
++import net.minecraft.network.chat.Component;
+ import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.world.Container;
+ import net.minecraft.world.entity.EquipmentSlot;
+@@ -12,6 +_,8 @@
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.item.crafting.Recipe;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
++import org.bukkit.craftbukkit.inventory.CraftInventoryCrafting;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+ 
+ public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
+    public static final int f_150579_ = 0;
+@@ -33,15 +_,25 @@
+    public static final ResourceLocation f_39697_ = new ResourceLocation("item/empty_armor_slot_shield");
+    static final ResourceLocation[] f_39699_ = new ResourceLocation[]{f_39696_, f_39695_, f_39694_, f_39693_};
+    private static final EquipmentSlot[] f_39700_ = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
+-   private final CraftingContainer f_39701_ = new TransientCraftingContainer(this, 2, 2);
++   private final TransientCraftingContainer f_39701_ = new TransientCraftingContainer(this, 2, 2);
+    private final ResultContainer f_39702_ = new ResultContainer();
+    public final boolean f_39698_;
+    private final Player f_39703_;
++   // CraftBukkit start
++   private CraftInventoryView bukkitEntity = null;
++   private Inventory player;
++   // CraftBukkit end
+ 
+    public InventoryMenu(Inventory p_39706_, boolean p_39707_, final Player p_39708_) {
+       super((MenuType<?>)null, 0);
+       this.f_39698_ = p_39707_;
+       this.f_39703_ = p_39708_;
++      // CraftBukkit start
++      this.f_39701_.setOwner(p_39706_.f_35978_); // CraftBukkit - pass player
++      this.f_39701_.resultInventory = this.f_39702_; // CraftBukkit - let InventoryCrafting know about its result slot
++      this.player = p_39706_; // CraftBukkit - save player
++      setTitle(Component.m_237115_("container.crafting")); // SPIGOT-4722: Allocate title for player inventory
++      // CraftBukkit end
+       this.m_38897_(new ResultSlot(p_39706_.f_35978_, this.f_39701_, this.f_39702_, 0, 154, 28));
+ 
+       for(int i = 0; i < 2; ++i) {
 @@ -63,7 +_,7 @@
              }
  
@@ -9,3 +53,21 @@
              }
  
              public boolean m_8010_(Player p_39744_) {
+@@ -232,4 +_,17 @@
+    public boolean m_142157_(int p_150591_) {
+       return p_150591_ != this.m_6636_();
+    }
++
++   // CraftBukkit start
++   @Override
++   public CraftInventoryView getBukkitView() {
++      if (bukkitEntity != null) {
++         return bukkitEntity;
++      }
++
++      CraftInventoryCrafting inventory = new CraftInventoryCrafting(this.f_39701_, this.f_39702_);
++      bukkitEntity = new CraftInventoryView(this.f_39703_.getBukkitEntity(), inventory, this);
++      return bukkitEntity;
++   }
++   // CraftBukkit end
+ }

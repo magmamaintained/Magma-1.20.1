@@ -1,5 +1,81 @@
 --- a/net/minecraft/world/inventory/AbstractContainerMenu.java
 +++ b/net/minecraft/world/inventory/AbstractContainerMenu.java
+@@ -1,5 +_,6 @@
+ package net.minecraft.world.inventory;
+ 
++import com.google.common.base.Preconditions;
+ import com.google.common.base.Suppliers;
+ import com.google.common.collect.HashBasedTable;
+ import com.google.common.collect.Lists;
+@@ -19,6 +_,7 @@
+ import net.minecraft.ReportedException;
+ import net.minecraft.core.NonNullList;
+ import net.minecraft.core.registries.BuiltInRegistries;
++import net.minecraft.network.chat.Component;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.util.Mth;
+ import net.minecraft.world.Container;
+@@ -29,6 +_,9 @@
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.level.block.Block;
+ import net.minecraft.world.level.block.entity.BlockEntity;
++import org.bukkit.craftbukkit.inventory.CraftInventory;
++import org.bukkit.inventory.InventoryView;
++import org.magmafoundation.magma.helpers.InventoryViewHelper;
+ import org.slf4j.Logger;
+ 
+ public abstract class AbstractContainerMenu {
+@@ -60,6 +_,34 @@
+    private ContainerSynchronizer f_150397_;
+    private boolean f_150398_;
+ 
++   //Magma - change this from CraftInventoryView to InventoryView
++   private InventoryView bukkitView = null;
++   public boolean checkReachable = true;
++
++   public InventoryView getBukkitView(){
++      if (bukkitView == null) {
++         bukkitView = InventoryViewHelper.createInvView((AbstractContainerMenu) (Object) this);
++      }
++      return bukkitView;
++   }
++   public void transferTo(AbstractContainerMenu other, org.bukkit.craftbukkit.entity.CraftHumanEntity player) {
++      InventoryView source = this.getBukkitView(), destination = other.getBukkitView();
++      ((CraftInventory) source.getTopInventory()).getInventory().onClose(player);
++      ((CraftInventory) source.getBottomInventory()).getInventory().onClose(player);
++      ((CraftInventory) destination.getTopInventory()).getInventory().onOpen(player);
++      ((CraftInventory) destination.getBottomInventory()).getInventory().onOpen(player);
++   }
++   private Component title;
++   public final Component getTitle() {
++      Preconditions.checkState(this.title != null, "Title not set");
++      return this.title;
++   }
++   public final void setTitle(Component title) {
++      Preconditions.checkState(this.title == null, "Title already set");
++      this.title = title;
++   }
++   // CraftBukkit end
++
+    protected AbstractContainerMenu(@Nullable MenuType<?> p_38851_, int p_38852_) {
+       this.f_38843_ = p_38851_;
+       this.f_38840_ = p_38852_;
+@@ -150,6 +_,15 @@
+ 
+    }
+ 
++   // CraftBukkit start
++   public void broadcastCarriedItem() {
++      this.f_150396_ = this.m_142621_().m_41777_();
++      if (this.f_150397_ != null) {
++         this.f_150397_.m_142529_(this, this.f_150396_);
++      }
++   }
++   // CraftBukkit end
++
+    public void m_38943_(ContainerListener p_38944_) {
+       this.f_38848_.remove(p_38944_);
+    }
 @@ -229,6 +_,8 @@
              ItemStack itemstack1 = p_150438_.get();
              this.f_150394_.set(p_150436_, itemstack1);
@@ -46,3 +122,15 @@
              break;
           default:
              i = p_279172_.m_41613_();
+@@ -760,6 +_,11 @@
+    }
+ 
+    public ItemStack m_142621_() {
++      // CraftBukkit start
++      if (this.f_150393_.m_41619_()) {
++         this.m_142503_(ItemStack.f_41583_);
++      }
++      // CraftBukkit end
+       return this.f_150393_;
+    }
+ 

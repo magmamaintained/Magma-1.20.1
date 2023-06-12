@@ -1,0 +1,14 @@
+--- a/net/minecraft/world/level/levelgen/FlatLevelSource.java
++++ b/net/minecraft/world/level/levelgen/FlatLevelSource.java
+@@ -32,6 +_,11 @@
+    });
+    private final FlatLevelGeneratorSettings f_64165_;
+ 
++   public FlatLevelSource(FlatLevelGeneratorSettings p_256337_, net.minecraft.world.level.biome.BiomeSource worldchunkmanager) {
++      super(worldchunkmanager, Util.m_143827_(p_256337_::m_226294_));
++      this.f_64165_ = p_256337_;
++   }
++
+    public FlatLevelSource(FlatLevelGeneratorSettings p_256337_) {
+       super(new FixedBiomeSource(p_256337_.m_204921_()), Util.m_143827_(p_256337_::m_226294_));
+       this.f_64165_ = p_256337_;

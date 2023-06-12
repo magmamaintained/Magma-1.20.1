@@ -1,0 +1,11 @@
+--- a/net/minecraft/advancements/AdvancementList.java
++++ b/net/minecraft/advancements/AdvancementList.java
+@@ -90,7 +_,7 @@
+          }
+       }
+ 
+-      f_139325_.info("Loaded {} advancements", (int)this.f_139326_.size());
++      // LOGGER.info("Loaded {} advancements", (int)this.advancements.size()); // CraftBukkit - moved to ServerAdvancementManager#reload
+    }
+ 
+    public void m_139332_() {

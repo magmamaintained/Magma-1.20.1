@@ -1,5 +1,31 @@
 --- a/net/minecraft/world/level/entity/PersistentEntitySectionManager.java
 +++ b/net/minecraft/world/level/entity/PersistentEntitySectionManager.java
+@@ -26,6 +_,8 @@
+ import net.minecraft.util.VisibleForDebug;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.level.ChunkPos;
++import net.minecraft.world.level.chunk.storage.EntityStorage;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.slf4j.Logger;
+ 
+ public class PersistentEntitySectionManager<T extends EntityAccess> implements AutoCloseable {
+@@ -51,6 +_,16 @@
+       this.f_157496_ = new LevelEntityGetterAdapter<>(this.f_157494_, this.f_157495_);
+    }
+ 
++   // CraftBukkit start - add method to get all entities in chunk
++   public List<Entity> getEntities(ChunkPos chunkCoordIntPair) {
++      return f_157495_.m_156888_(chunkCoordIntPair.m_45588_()).flatMap(EntitySection::m_156845_).map(entity -> (Entity) entity).collect(Collectors.toList());
++   }
++
++   public boolean isPending(long pair) {
++      return f_157498_.get(pair) == ChunkLoadStatus.PENDING;
++   }
++   // CraftBukkit end
++
+    void m_157509_(long p_157510_, EntitySection<T> p_157511_) {
+       if (p_157511_.m_156833_()) {
+          this.f_157495_.m_156897_(p_157510_);
 @@ -71,7 +_,16 @@
        return this.m_157538_(p_157534_, false);
     }
@@ -32,14 +58,78 @@
        });
     }
  
-@@ -247,6 +_,7 @@
+@@ -186,6 +_,12 @@
+    }
+ 
+    private boolean m_157512_(long p_157513_, Consumer<T> p_157514_) {
++      // CraftBukkit start - add boolean for event call
++      return storeChunkSections(p_157513_, p_157514_, false);
++   }
++
++   private boolean storeChunkSections(long p_157513_, Consumer<T> p_157514_, boolean callEvent) {
++      // CraftBukkit end
+       PersistentEntitySectionManager.ChunkLoadStatus persistententitysectionmanager$chunkloadstatus = this.f_157498_.get(p_157513_);
+       if (persistententitysectionmanager$chunkloadstatus == PersistentEntitySectionManager.ChunkLoadStatus.PENDING) {
+          return false;
+@@ -195,6 +_,7 @@
+          }).collect(Collectors.toList());
+          if (list.isEmpty()) {
+             if (persistententitysectionmanager$chunkloadstatus == PersistentEntitySectionManager.ChunkLoadStatus.LOADED) {
++               if (callEvent) CraftEventFactory.callEntitiesUnloadEvent(((EntityStorage) f_157493_).f_156538_, new ChunkPos(p_157513_), ImmutableList.of()); // CraftBukkit
+                this.f_157493_.m_141971_(new ChunkEntities<>(new ChunkPos(p_157513_), ImmutableList.of()));
+             }
+ 
+@@ -203,6 +_,7 @@
+             this.m_157562_(p_157513_);
+             return false;
+          } else {
++            if (callEvent) CraftEventFactory.callEntitiesUnloadEvent(((EntityStorage) f_157493_).f_156538_, new ChunkPos(p_157513_), list.stream().map(entity -> (Entity) entity).collect(Collectors.toList())); // CraftBukkit
+             this.f_157493_.m_141971_(new ChunkEntities<>(new ChunkPos(p_157513_), list));
+             list.forEach(p_157514_);
+             return true;
+@@ -220,9 +_,9 @@
+    }
+ 
+    private boolean m_157568_(long p_157569_) {
+-      boolean flag = this.m_157512_(p_157569_, (p_157595_) -> {
++      boolean flag = this.storeChunkSections(p_157569_, (p_157595_) -> {
+          p_157595_.m_142429_().forEach(this::m_157585_);
+-      });
++      }, true); // CraftBukkit - add boolean for event call
+       if (!flag) {
+          return false;
+       } else {
+@@ -247,8 +_,13 @@
        while((chunkentities = this.f_157500_.poll()) != null) {
           chunkentities.m_156792_().forEach((p_157593_) -> {
              this.m_157538_(p_157593_, true);
 +            if (p_157593_ instanceof Entity entity) entity.onAddedToWorld();
           });
           this.f_157498_.put(chunkentities.m_156791_().m_45588_(), PersistentEntitySectionManager.ChunkLoadStatus.LOADED);
++         // CraftBukkit start - call entity load event
++         List<Entity> entities = getEntities(chunkentities.m_156791_());
++         CraftEventFactory.callEntitiesLoadEvent(((EntityStorage) f_157493_).f_156538_, chunkentities.m_156791_(), entities);
++         // CraftBukkit end
        }
+ 
+    }
+@@ -300,7 +_,15 @@
+    }
+ 
+    public void close() throws IOException {
+-      this.m_157561_();
++      // CraftBukkit start - add save boolean
++      close(true);
++   }
++
++   public void close(boolean save) throws IOException {
++      if (save) {
++         this.m_157561_();
++      }
++      // CraftBukkit end
+       this.f_157493_.close();
+    }
+ 
 @@ -349,11 +_,13 @@
  
     class Callback implements EntityInLevelCallback {

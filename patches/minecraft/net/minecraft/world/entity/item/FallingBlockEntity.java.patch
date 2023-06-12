@@ -1,5 +1,43 @@
 --- a/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/net/minecraft/world/entity/item/FallingBlockEntity.java
+@@ -44,6 +_,7 @@
+ import net.minecraft.world.phys.BlockHitResult;
+ import net.minecraft.world.phys.HitResult;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ import org.slf4j.Logger;
+ 
+ public class FallingBlockEntity extends Entity {
+@@ -53,8 +_,8 @@
+    public boolean f_31943_ = true;
+    private boolean f_31947_;
+    public boolean f_31939_;
+-   private int f_31940_ = 40;
+-   private float f_149641_;
++   public int f_31940_ = 40;
++   public float f_149641_;
+    @Nullable
+    public CompoundTag f_31944_;
+    protected static final EntityDataAccessor<BlockPos> f_31945_ = SynchedEntityData.m_135353_(FallingBlockEntity.class, EntityDataSerializers.f_135038_);
+@@ -76,9 +_,17 @@
+    }
+ 
+    public static FallingBlockEntity m_201971_(Level p_201972_, BlockPos p_201973_, BlockState p_201974_) {
++      // CraftBukkit start
++      return fall(p_201972_,p_201973_, p_201974_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
++   }
++
++   public static FallingBlockEntity fall(Level p_201972_, BlockPos p_201973_, BlockState p_201974_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
++      // CraftBukkit end
+       FallingBlockEntity fallingblockentity = new FallingBlockEntity(p_201972_, (double)p_201973_.m_123341_() + 0.5D, (double)p_201973_.m_123342_(), (double)p_201973_.m_123343_() + 0.5D, p_201974_.m_61138_(BlockStateProperties.f_61362_) ? p_201974_.m_61124_(BlockStateProperties.f_61362_, Boolean.valueOf(false)) : p_201974_);
++      if (CraftEventFactory.callEntityChangeBlockEvent(fallingblockentity, p_201973_, p_201974_.m_60819_().m_76188_()).isCancelled()) return fallingblockentity; // CraftBukkit
++
+       p_201972_.m_7731_(p_201973_, p_201974_.m_60819_().m_76188_(), 3);
+-      p_201972_.m_7967_(fallingblockentity);
++      p_201972_.addFreshEntity(fallingblockentity, spawnReason); // CraftBukkit
+       return fallingblockentity;
+    }
+ 
 @@ -120,11 +_,11 @@
           if (!this.m_9236_().f_46443_) {
              BlockPos blockpos = this.m_20183_();
@@ -14,3 +52,27 @@
                    blockpos = blockhitresult.m_82425_();
                    flag1 = true;
                 }
+@@ -151,6 +_,13 @@
+                            this.f_31946_ = this.f_31946_.m_61124_(BlockStateProperties.f_61362_, Boolean.valueOf(true));
+                         }
+ 
++                        // CraftBukkit start
++                        if (CraftEventFactory.callEntityChangeBlockEvent(this, blockpos, this.f_31946_).isCancelled()) {
++                           this.m_146870_(); // SPIGOT-6586 called before the event in previous versions
++                           return;
++                        }
++                        // CraftBukkit end
++
+                         if (this.m_9236_().m_7731_(blockpos, this.f_31946_, 3)) {
+                            ((ServerLevel)this.m_9236_()).m_7726_().f_8325_.m_140201_(this, new ClientboundBlockUpdatePacket(blockpos, this.m_9236_().m_8055_(blockpos)));
+                            this.m_146870_();
+@@ -228,7 +_,9 @@
+             DamageSource damagesource = damagesource1;
+             float f = (float)Math.min(Mth.m_14143_((float)i * this.f_149641_), this.f_31940_);
+             this.m_9236_().m_6249_(this, this.m_20191_(), predicate).forEach((p_149649_) -> {
++               CraftEventFactory.entityDamage = this; // CraftBukkit
+                p_149649_.m_6469_(damagesource, f);
++               CraftEventFactory.entityDamage = null; // CraftBukkit
+             });
+             boolean flag = this.f_31946_.m_204336_(BlockTags.f_13033_);
+             if (flag && f > 0.0F && this.f_19796_.m_188501_() < 0.05F + (float)i * 0.05F) {

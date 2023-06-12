@@ -9,3 +9,16 @@
        return this.f_38505_.m_45412_(p_38522_);
     }
  
+@@ -123,5 +_,12 @@
+       public boolean m_288209_() {
+          return !MinecartCommandBlock.this.m_213877_();
+       }
++
++      // CraftBukkit start
++      @Override
++      public org.bukkit.command.CommandSender getBukkitSender(CommandSourceStack wrapper) {
++         return (org.bukkit.craftbukkit.entity.CraftMinecartCommand) MinecartCommandBlock.this.getBukkitEntity();
++      }
++      // CraftBukkit end
+    }
+ }

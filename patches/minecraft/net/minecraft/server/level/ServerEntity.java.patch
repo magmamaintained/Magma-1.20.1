@@ -1,5 +1,27 @@
 --- a/net/minecraft/server/level/ServerEntity.java
 +++ b/net/minecraft/server/level/ServerEntity.java
+@@ -26,6 +_,7 @@
+ import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
+ import net.minecraft.network.protocol.game.VecDeltaCodec;
+ import net.minecraft.network.syncher.SynchedEntityData;
++import net.minecraft.server.network.ServerPlayerConnection;
+ import net.minecraft.util.Mth;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.EquipmentSlot;
+@@ -61,7 +_,12 @@
+    @Nullable
+    private List<SynchedEntityData.DataValue<?>> f_263120_;
+ 
+-   public ServerEntity(ServerLevel p_8528_, Entity p_8529_, int p_8530_, boolean p_8531_, Consumer<Packet<?>> p_8532_) {
++   // CraftBukkit start
++   private final Set<ServerPlayerConnection> trackedPlayers;
++
++   public ServerEntity(ServerLevel p_8528_, Entity p_8529_, int p_8530_, boolean p_8531_, Consumer<Packet<?>> p_8532_,Set<ServerPlayerConnection> trackedPlayers) {
++      this.trackedPlayers = trackedPlayers;
++      // CraftBukkit end
+       this.f_8509_ = p_8528_;
+       this.f_8513_ = p_8532_;
+       this.f_8510_ = p_8529_;
 @@ -92,10 +_,9 @@
        if ($$11 instanceof ItemFrame itemframe) {
           if (this.f_8521_ % 10 == 0) {

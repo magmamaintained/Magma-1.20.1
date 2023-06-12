@@ -1,0 +1,30 @@
+--- a/net/minecraft/world/entity/monster/Creeper.java
++++ b/net/minecraft/world/entity/monster/Creeper.java
+@@ -40,6 +_,7 @@
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.gameevent.GameEvent;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ 
+ public class Creeper extends Monster implements PowerableMob {
+    private static final EntityDataAccessor<Integer> f_32268_ = SynchedEntityData.m_135353_(Creeper.class, EntityDataSerializers.f_135028_);
+@@ -196,8 +_,17 @@
+ 
+    public void m_8038_(ServerLevel p_32286_, LightningBolt p_32287_) {
+       super.m_8038_(p_32286_, p_32287_);
+-      this.f_19804_.m_135381_(f_32274_, true);
+-   }
++      // CraftBukkit start
++      if (CraftEventFactory.callCreeperPowerEvent(this, p_32287_, org.bukkit.event.entity.CreeperPowerEvent.PowerCause.LIGHTNING).isCancelled()) {
++         return;
++      }
++      this.setPowered(true);
++   }
++
++   public void setPowered(boolean powered) {
++      this.f_19804_.m_135381_(Creeper.f_32274_, powered);
++   }
++   // CraftBukkit end
+ 
+    protected InteractionResult m_6071_(Player p_32301_, InteractionHand p_32302_) {
+       ItemStack itemstack = p_32301_.m_21120_(p_32302_);

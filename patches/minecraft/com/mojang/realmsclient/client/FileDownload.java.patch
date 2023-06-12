@@ -1,0 +1,27 @@
+--- a/com/mojang/realmsclient/client/FileDownload.java
++++ b/com/mojang/realmsclient/client/FileDownload.java
+@@ -292,15 +_,15 @@
+             p_86993_.delete();
+          }
+ 
+-         try (LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = p_86994_.m_289864_(s)) {
+-            levelstoragesource$levelstorageaccess.m_78297_(s.trim());
+-            Path path = levelstoragesource$levelstorageaccess.m_78283_(LevelResource.f_78178_);
+-            m_86987_(path.toFile());
+-         } catch (IOException ioexception) {
+-            f_86953_.error("Failed to rename unpacked realms level {}", s, ioexception);
+-         } catch (ContentValidationException contentvalidationexception) {
+-            f_86953_.warn("{}", (Object)contentvalidationexception.getMessage());
+-         }
++//         try (LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = p_86994_.validateAndCreateAccess(s)) {
++//            levelstoragesource$levelstorageaccess.renameLevel(s.trim());
++//            Path path = levelstoragesource$levelstorageaccess.getLevelPath(LevelResource.LEVEL_DATA_FILE);
++//            deletePlayerTag(path.toFile());
++//         } catch (IOException ioexception) {
++//            LOGGER.error("Failed to rename unpacked realms level {}", s, ioexception);
++//         } catch (ContentValidationException contentvalidationexception) {
++//            LOGGER.warn("{}", (Object)contentvalidationexception.getMessage());
++//         }
+ 
+          this.f_86959_ = new File(file1, s + File.separator + "resources.zip");
+       }

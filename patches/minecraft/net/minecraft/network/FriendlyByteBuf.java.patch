@@ -1,6 +1,10 @@
 --- a/net/minecraft/network/FriendlyByteBuf.java
 +++ b/net/minecraft/network/FriendlyByteBuf.java
-@@ -78,7 +_,7 @@
+@@ -75,10 +_,11 @@
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.BlockHitResult;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
  import org.joml.Quaternionf;
  import org.joml.Vector3f;
  
@@ -9,10 +13,20 @@
     private static final int f_178335_ = 5;
     private static final int f_178336_ = 10;
     public static final int f_178337_ = 2097152;
-@@ -622,6 +_,15 @@
+@@ -586,7 +_,7 @@
+       } else {
+          try {
+             NbtIo.m_128941_(p_130080_, new ByteBufOutputStream(this));
+-         } catch (IOException ioexception) {
++         } catch (Exception ioexception) { // CraftBukkit - IOException -> Exception
+             throw new EncoderException(ioexception);
+          }
+       }
+@@ -622,7 +_,16 @@
     }
  
     public FriendlyByteBuf m_130055_(ItemStack p_130056_) {
+-      if (p_130056_.m_41619_()) {
 +      return writeItemStack(p_130056_, true);
 +   }
 +
@@ -22,16 +36,22 @@
 +    * If you want to send the FULL tag set limitedTag to false
 +    */
 +   public FriendlyByteBuf writeItemStack(ItemStack p_130056_, boolean limitedTag) {
-       if (p_130056_.m_41619_()) {
++      if (p_130056_.m_41619_() || p_130056_.m_41720_() == null) { // CraftBukkit - NPE fix itemstack.getItem()
           this.writeBoolean(false);
        } else {
-@@ -630,8 +_,8 @@
+          this.writeBoolean(true);
+@@ -630,8 +_,13 @@
           this.m_236818_(BuiltInRegistries.f_257033_, item);
           this.writeByte(p_130056_.m_41613_());
           CompoundTag compoundtag = null;
 -         if (item.m_41465_() || item.m_41468_()) {
 -            compoundtag = p_130056_.m_41783_();
 +         if (item.isDamageable(p_130056_) || item.m_41468_()) {
++            // CraftBukkit start
++            if (p_130056_.m_41783_() != null) {
++               CraftItemStack.setItemMeta(p_130056_, CraftItemStack.getItemMeta(p_130056_));
++            }
++            // CraftBukkit end
 +            compoundtag = limitedTag ? p_130056_.getShareTag() : p_130056_.m_41783_();
           }
  

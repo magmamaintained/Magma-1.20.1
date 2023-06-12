@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/block/entity/SkullBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/SkullBlockEntity.java
+@@ -32,7 +_,7 @@
+    @Nullable
+    public GameProfile f_59757_;
+    @Nullable
+-   private ResourceLocation f_262250_;
++   public ResourceLocation f_262250_;
+    private int f_260504_;
+    private boolean f_260642_;
+ 

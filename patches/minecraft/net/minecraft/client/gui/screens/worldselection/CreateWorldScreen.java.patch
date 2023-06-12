@@ -17,6 +17,57 @@
                 }
  
              }, Component.m_237115_("dataPack.validation.failed"), CommonComponents.f_237098_, Component.m_237115_("dataPack.validation.back"), Component.m_237115_("dataPack.validation.reset")));
+@@ -416,28 +_,28 @@
+    private Optional<LevelStorageSource.LevelStorageAccess> m_232868_() {
+       String s = this.f_267389_.m_275837_();
+ 
+-      try {
+-         LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = this.f_96541_.m_91392_().m_78260_(s);
+-         if (this.f_100831_ == null) {
+-            return Optional.of(levelstoragesource$levelstorageaccess);
+-         }
+-
+-         try (Stream<Path> stream = Files.walk(this.f_100831_)) {
+-            Path path = levelstoragesource$levelstorageaccess.m_78283_(LevelResource.f_78180_);
+-            FileUtil.m_257659_(path);
+-            stream.filter((p_232921_) -> {
+-               return !p_232921_.equals(this.f_100831_);
+-            }).forEach((p_232945_) -> {
+-               m_100912_(this.f_100831_, path, p_232945_);
+-            });
+-            return Optional.of(levelstoragesource$levelstorageaccess);
+-         } catch (UncheckedIOException | IOException ioexception) {
+-            f_100848_.warn("Failed to copy datapacks to world {}", s, ioexception);
+-            levelstoragesource$levelstorageaccess.close();
+-         }
+-      } catch (UncheckedIOException | IOException ioexception1) {
+-         f_100848_.warn("Failed to create access for {}", s, ioexception1);
+-      }
++//      try {
++//         LevelStorageSource.LevelStorageAccess levelstoragesource$levelstorageaccess = this.minecraft.getLevelSource().createAccess(s);
++//         if (this.tempDataPackDir == null) {
++//            return Optional.of(levelstoragesource$levelstorageaccess);
++//         }
++//
++//         try (Stream<Path> stream = Files.walk(this.tempDataPackDir)) {
++//            Path path = levelstoragesource$levelstorageaccess.getLevelPath(LevelResource.DATAPACK_DIR);
++//            FileUtil.createDirectoriesSafe(path);
++//            stream.filter((p_232921_) -> {
++//               return !p_232921_.equals(this.tempDataPackDir);
++//            }).forEach((p_232945_) -> {
++//               copyBetweenDirs(this.tempDataPackDir, path, p_232945_);
++//            });
++//            return Optional.of(levelstoragesource$levelstorageaccess);
++//         } catch (UncheckedIOException | IOException ioexception) {
++//            LOGGER.warn("Failed to copy datapacks to world {}", s, ioexception);
++//            levelstoragesource$levelstorageaccess.close();
++//         }
++//      } catch (UncheckedIOException | IOException ioexception1) {
++//         LOGGER.warn("Failed to create access for {}", s, ioexception1);
++//      }
+ 
+       SystemToast.m_94875_(this.f_96541_, s);
+       this.m_100967_();
 @@ -481,6 +_,7 @@
        if (path != null) {
           if (this.f_100832_ == null) {

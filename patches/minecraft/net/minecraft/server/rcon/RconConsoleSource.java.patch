@@ -1,8 +1,20 @@
 --- a/net/minecraft/server/rcon/RconConsoleSource.java
 +++ b/net/minecraft/server/rcon/RconConsoleSource.java
-@@ -33,7 +_,7 @@
+@@ -32,8 +_,19 @@
+       return new CommandSourceStack(this, Vec3.m_82528_(serverlevel.m_220360_()), Vec2.f_82462_, serverlevel, 4, "Rcon", f_11500_, this.f_11502_, (Entity)null);
     }
  
++   // CraftBukkit start - Send a String
++   public void sendMessage(String message) {
++      this.f_11501_.append(message);
++   }
++
++   @Override
++   public org.bukkit.command.CommandSender getBukkitSender(CommandSourceStack wrapper) {
++      return f_11502_.remoteConsole;
++   }
++   // CraftBukkit end
++
     public void m_213846_(Component p_215653_) {
 -      this.f_11501_.append(p_215653_.getString());
 +      this.f_11501_.append(p_215653_.getString()).append("\n"); // FIX MC-7569 - RCON has no newlines in multiline output

@@ -1,5 +1,68 @@
 --- a/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/ShulkerBoxBlockEntity.java
+@@ -30,6 +_,8 @@
+ import net.minecraft.world.level.material.PushReaction;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
+ 
+ public class ShulkerBoxBlockEntity extends RandomizableContainerBlockEntity implements WorldlyContainer {
+    public static final int f_155657_ = 9;
+@@ -49,6 +_,37 @@
+    @Nullable
+    private final DyeColor f_59650_;
+ 
++   // CraftBukkit start - add fields and methods
++   public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++   private int maxStack = MAX_STACK;
++   public boolean opened;
++
++   public List<ItemStack> getContents() {
++      return this.f_59645_;
++   }
++
++   public void onOpen(CraftHumanEntity who) {
++      transaction.add(who);
++   }
++
++   public void onClose(CraftHumanEntity who) {
++      transaction.remove(who);
++   }
++
++   public List<HumanEntity> getViewers() {
++      return transaction;
++   }
++
++   @Override
++   public int m_6893_() {
++      return maxStack;
++   }
++
++   public void setMaxStackSize(int size) {
++      maxStack = size;
++   }
++   // CraftBukkit end
++
+    public ShulkerBoxBlockEntity(@Nullable DyeColor p_155666_, BlockPos p_155667_, BlockState p_155668_) {
+       super(BlockEntityType.f_58939_, p_155667_, p_155668_);
+       this.f_59650_ = p_155666_;
+@@ -152,6 +_,7 @@
+          }
+ 
+          ++this.f_59646_;
++         if (opened) return; // CraftBukkit - only animate if the ShulkerBox hasn't been forced open already by an API call.
+          this.f_58857_.m_7696_(this.f_58858_, this.m_58900_().m_60734_(), 1, this.f_59646_);
+          if (this.f_59646_ == 1) {
+             this.f_58857_.m_142346_(p_59692_, GameEvent.f_157803_, this.f_58858_);
+@@ -164,6 +_,7 @@
+    public void m_5785_(Player p_59688_) {
+       if (!this.f_58859_ && !p_59688_.m_5833_()) {
+          --this.f_59646_;
++         if (opened) return; // CraftBukkit - only animate if the ShulkerBox hasn't been forced open already by an API call.
+          this.f_58857_.m_7696_(this.f_58858_, this.m_58900_().m_60734_(), 1, this.f_59646_);
+          if (this.f_59646_ <= 0) {
+             this.f_58857_.m_142346_(p_59688_, GameEvent.f_157802_, this.f_58858_);
 @@ -211,7 +_,7 @@
     }
  

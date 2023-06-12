@@ -1,0 +1,44 @@
+--- a/net/minecraft/world/inventory/ContainerLevelAccess.java
++++ b/net/minecraft/world/inventory/ContainerLevelAccess.java
+@@ -7,6 +_,21 @@
+ import net.minecraft.world.level.Level;
+ 
+ public interface ContainerLevelAccess {
++
++   // CraftBukkit start
++   default Level getWorld() {
++      throw new UnsupportedOperationException("Not supported yet.");
++   }
++
++   default BlockPos getPosition() {
++      throw new UnsupportedOperationException("Not supported yet.");
++   }
++
++   default org.bukkit.Location getLocation() {
++      return new org.bukkit.Location(getWorld().getWorld(), getPosition().m_123341_(), getPosition().m_123342_(), getPosition().m_123343_());
++   }
++   // CraftBukkit end
++
+    ContainerLevelAccess f_39287_ = new ContainerLevelAccess() {
+       public <T> Optional<T> m_6721_(BiFunction<Level, BlockPos, T> p_39304_) {
+          return Optional.empty();
+@@ -15,6 +_,19 @@
+ 
+    static ContainerLevelAccess m_39289_(final Level p_39290_, final BlockPos p_39291_) {
+       return new ContainerLevelAccess() {
++
++         // CraftBukkit start
++         @Override
++         public Level getWorld() {
++            return p_39290_;
++         }
++
++         @Override
++         public BlockPos getPosition() {
++            return p_39291_;
++         }
++         // CraftBukkit end
++
+          public <T> Optional<T> m_6721_(BiFunction<Level, BlockPos, T> p_39311_) {
+             return Optional.of(p_39311_.apply(p_39290_, p_39291_));
+          }

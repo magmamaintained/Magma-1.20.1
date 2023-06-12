@@ -1,5 +1,15 @@
 --- a/net/minecraft/world/level/storage/loot/LootTable.java
 +++ b/net/minecraft/world/level/storage/loot/LootTable.java
+@@ -30,6 +_,9 @@
+ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
+ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+ import org.apache.commons.lang3.ArrayUtils;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.world.LootGenerateEvent;
+ import org.slf4j.Logger;
+ 
+ public class LootTable {
 @@ -39,14 +_,14 @@
     final LootContextParamSet f_79108_;
     @Nullable
@@ -44,6 +54,29 @@
        }
  
        for(int j = 0; j < this.f_79110_.length; ++j) {
+@@ -132,9 +_,22 @@
+    }
+ 
+    public void m_287188_(Container p_287662_, LootParams p_287743_, long p_287585_) {
++      // CraftBukkit start
++      this.fillInventory(p_287662_, p_287743_, p_287585_, false);
++   }
++
++   public void fillInventory(Container p_287662_, LootParams p_287743_, long p_287585_, boolean plugin) {
++      // CraftBukkit end
+       LootContext lootcontext = (new LootContext.Builder(p_287743_)).m_78965_(p_287585_).m_287259_(this.f_286958_);
+       ObjectArrayList<ItemStack> objectarraylist = this.m_230922_(lootcontext);
+       RandomSource randomsource = lootcontext.m_230907_();
++      // CraftBukkit start
++      LootGenerateEvent event = CraftEventFactory.callLootGenerateEvent(p_287662_, this, lootcontext, objectarraylist, plugin);
++      if (event.isCancelled()) {
++         return;
++      }
++      objectarraylist = event.getLoot().stream().map(CraftItemStack::asNMSCopy).collect(ObjectArrayList.toList());
++      // CraftBukkit end
+       List<Integer> list = this.m_230919_(p_287662_, randomsource);
+       this.m_230924_(objectarraylist, list.size(), randomsource);
+ 
 @@ -205,6 +_,26 @@
        return new LootTable.Builder();
     }

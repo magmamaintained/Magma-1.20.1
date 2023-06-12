@@ -1,13 +1,39 @@
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -132,6 +_,7 @@
+@@ -72,9 +_,11 @@
+ import net.minecraft.server.PlayerAdvancements;
+ import net.minecraft.server.RegistryLayer;
+ import net.minecraft.server.ServerScoreboard;
++import net.minecraft.server.dedicated.DedicatedServer;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.server.network.ServerGamePacketListenerImpl;
++import net.minecraft.server.network.ServerLoginPacketListenerImpl;
+ import net.minecraft.sounds.SoundEvents;
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.stats.ServerStatsCounter;
+@@ -102,6 +_,8 @@
+ import net.minecraft.world.scores.Objective;
+ import net.minecraft.world.scores.PlayerTeam;
+ import net.minecraft.world.scores.Team;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.CraftServer;
+ import org.slf4j.Logger;
+ 
+ public abstract class PlayerList {
+@@ -132,8 +_,12 @@
     private boolean f_11209_;
     private static final boolean f_143988_ = false;
     private int f_11210_;
 +   private final List<ServerPlayer> playersView = java.util.Collections.unmodifiableList(f_11196_);
++
++   private CraftServer cserver;
  
     public PlayerList(MinecraftServer p_203842_, LayeredRegistryAccess<RegistryLayer> p_251844_, PlayerDataStorage p_203844_, int p_203845_) {
++      this.cserver = p_203842_.server = new CraftServer((DedicatedServer) p_203842_, this); // CraftBukkit
        this.f_11195_ = p_203842_;
+       this.f_243858_ = p_251844_;
+       this.f_256838_ = (new RegistryAccess.ImmutableRegistryAccess(RegistrySynchronization.m_257599_(p_251844_))).m_203557_();
 @@ -174,6 +_,7 @@
        LevelData leveldata = serverlevel1.m_6106_();
        p_11263_.m_143427_(compoundtag);
@@ -31,7 +57,7 @@
 +      net.minecraftforge.event.ForgeEventFactory.firePlayerLoggedIn( p_11263_ );
     }
  
-    protected void m_11273_(ServerScoreboard p_11274_, ServerPlayer p_11275_) {
+    public void m_11273_(ServerScoreboard p_11274_, ServerPlayer p_11275_) {
 @@ -315,6 +_,7 @@
           compoundtag1 = compoundtag;
           p_11225_.m_20258_(compoundtag);
@@ -123,3 +149,28 @@
        this.m_11268_(new ClientboundUpdateTagsPacket(TagNetworkSerialization.m_245799_(this.f_243858_)));
        ClientboundUpdateRecipesPacket clientboundupdaterecipespacket = new ClientboundUpdateRecipesPacket(this.f_11195_.m_129894_().m_44051_());
  
+@@ -867,5 +_,24 @@
+ 
+    public boolean m_11316_() {
+       return this.f_11209_;
++   }
++
++   // Magma Stub
++   public void respawn(ServerPlayer entity, ServerLevel toWorld, boolean b, Location to, boolean b1, Object o) {
++   }
++
++   public ServerStatsCounter getPlayerStats(UUID uniqueId, String name){
++      return null;
++   }
++
++   public void broadcastAll(Packet p11271, ServerLevel world) {
++   }
++
++   public ServerPlayer canPlayerLogin(ServerLoginPacketListenerImpl serverLoginPacketListener, GameProfile gameProfile) {
++        return null;
++   }
++
++   public ServerPlayer getPlayerForLogin(GameProfile p_215625_, ServerPlayer serverPlayer) { // CraftBukkit - added ServerPlayer
++      return serverPlayer;
+    }
+ }

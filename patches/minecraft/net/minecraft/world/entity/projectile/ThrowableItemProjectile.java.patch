@@ -1,0 +1,19 @@
+--- a/net/minecraft/world/entity/projectile/ThrowableItemProjectile.java
++++ b/net/minecraft/world/entity/projectile/ThrowableItemProjectile.java
+@@ -1,5 +_,6 @@
+ package net.minecraft.world.entity.projectile;
+ 
++import net.minecraft.core.Holder;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.network.syncher.EntityDataAccessor;
+ import net.minecraft.network.syncher.EntityDataSerializers;
+@@ -61,4 +_,9 @@
+       ItemStack itemstack = ItemStack.m_41712_(p_37445_.m_128469_("Item"));
+       this.m_37446_(itemstack);
+    }
++
++   // Magma stub
++    public Holder<Item> getDefaultItemPublic() {
++      return null;
++    }
+ }

@@ -1,15 +1,43 @@
 --- a/net/minecraft/commands/arguments/selector/EntitySelectorParser.java
 +++ b/net/minecraft/commands/arguments/selector/EntitySelectorParser.java
-@@ -459,6 +_,9 @@
+@@ -194,8 +_,10 @@
+       };
+    }
+ 
+-   protected void m_121281_() throws CommandSyntaxException {
+-      this.f_121189_ = true;
++   // CraftBukkit start
++   protected void parseSelector(boolean overridePermissions) throws CommandSyntaxException {
++      this.f_121189_ = !overridePermissions;
++      // CraftBukkit end
+       this.f_121176_ = this::m_121322_;
+       if (!this.f_121201_.canRead()) {
+          throw f_121193_.createWithContext(this.f_121201_);
+@@ -451,6 +_,12 @@
+    }
+ 
+    public EntitySelector m_121377_() throws CommandSyntaxException {
++      // CraftBukkit start
++      return parse(false);
++   }
++
++   public EntitySelector parse(boolean overridePermissions) throws CommandSyntaxException {
++      // CraftBukkit end
+       this.f_121174_ = this.f_121201_.getCursor();
+       this.f_121176_ = this::m_121286_;
+       if (this.f_121201_.canRead() && this.f_121201_.peek() == '@') {
+@@ -459,7 +_,10 @@
           }
  
           this.f_121201_.skip();
+-         this.m_121281_();
 +         EntitySelector forgeSelector = net.minecraftforge.common.command.EntitySelectorManager.parseSelector(this);
 +         if (forgeSelector != null)
 +            return forgeSelector;
-          this.m_121281_();
++         this.parseSelector(overridePermissions); // CraftBukkit
        } else {
           this.m_121304_();
+       }
 @@ -474,6 +_,7 @@
        p_121248_.suggest("@r", Component.m_237115_("argument.entity.selector.randomPlayer"));
        p_121248_.suggest("@s", Component.m_237115_("argument.entity.selector.self"));

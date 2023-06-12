@@ -1,8 +1,14 @@
 --- a/net/minecraft/world/entity/item/ItemEntity.java
 +++ b/net/minecraft/world/entity/item/ItemEntity.java
-@@ -42,6 +_,10 @@
+@@ -38,10 +_,14 @@
+    public int f_31986_;
+    private int f_31987_ = 5;
     @Nullable
-    private UUID f_265881_;
+-   private UUID f_31988_;
++   public UUID f_31988_;
+    @Nullable
+-   private UUID f_265881_;
++   public UUID f_265881_;
     public final float f_31983_;
 +   /**
 +    * The maximum age of this EntityItem.  The item is expired once this is reached.

@@ -9,6 +9,21 @@
     private static final EntityDataAccessor<Integer> f_38282_ = SynchedEntityData.m_135353_(Boat.class, EntityDataSerializers.f_135028_);
     private static final EntityDataAccessor<Integer> f_38283_ = SynchedEntityData.m_135353_(Boat.class, EntityDataSerializers.f_135028_);
     private static final EntityDataAccessor<Float> f_38284_ = SynchedEntityData.m_135353_(Boat.class, EntityDataSerializers.f_135029_);
+@@ -89,6 +_,14 @@
+    private float f_38260_;
+    private float f_38261_;
+ 
++   // CraftBukkit start
++   // PAIL: Some of these haven't worked since a few updates, and since 1.9 they are less and less applicable.
++   public double maxSpeed = 0.4D;
++   public double occupiedDeceleration = 0.2D;
++   public double unoccupiedDeceleration = -1;
++   public boolean landBoats = false;
++   // CraftBukkit end
++
+    public Boat(EntityType<? extends Boat> p_38290_, Level p_38291_) {
+       super(p_38290_, p_38291_);
+       this.f_19850_ = true;
 @@ -455,7 +_,7 @@
              for(int i2 = i1; i2 < j1; ++i2) {
                 blockpos$mutableblockpos.m_122178_(l1, k1, i2);
@@ -71,12 +86,12 @@
 +
 +   // Forge: Fix MC-119811 by instantly completing lerp on board
 +   @Override
-+   protected void m_20348_(Entity passenger) {
-+      super.m_20348_(passenger);
++   protected boolean addPassenger(Entity passenger) {
 +      if (this.m_6109_() && this.f_38267_ > 0) {
 +         this.f_38267_ = 0;
 +         this.m_19890_(this.f_38268_, this.f_38269_, this.f_38270_, (float)this.f_38271_, (float)this.f_38272_);
 +      }
++      return super.addPassenger(passenger);
     }
  
     public ItemStack m_142340_() {

@@ -1,0 +1,34 @@
+--- a/net/minecraft/world/level/block/LayeredCauldronBlock.java
++++ b/net/minecraft/world/level/block/LayeredCauldronBlock.java
+@@ -5,6 +_,7 @@
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.cauldron.CauldronInteraction;
+ import net.minecraft.world.entity.Entity;
++import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.Item;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.biome.Biome;
+@@ -16,6 +_,7 @@
+ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.level.material.Fluid;
+ import net.minecraft.world.level.material.Fluids;
++import org.bukkit.event.block.CauldronLevelChangeEvent;
+ 
+ public class LayeredCauldronBlock extends AbstractCauldronBlock {
+    public static final int f_153512_ = 1;
+@@ -35,6 +_,15 @@
+       super(p_153522_, p_153524_);
+       this.f_153519_ = p_153523_;
+       this.m_49959_(this.f_49792_.m_61090_().m_61124_(f_153514_, Integer.valueOf(1)));
++   }
++
++   // Stub
++    public static boolean lowerFillLevel(BlockState p175662, Level p175663, BlockPos p175664, Player p175665, CauldronLevelChangeEvent.ChangeReason changeReason) {
++        return false;
++    }
++
++   public static boolean changeLevel(BlockState p175704, Level p175705, BlockPos p175706, BlockState cycle, Player p175707, CauldronLevelChangeEvent.ChangeReason changeReason) {
++      return false;
+    }
+ 
+    public boolean m_142596_(BlockState p_153555_) {

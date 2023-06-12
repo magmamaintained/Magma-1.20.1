@@ -1,5 +1,22 @@
 --- a/net/minecraft/commands/arguments/EntityArgument.java
 +++ b/net/minecraft/commands/arguments/EntityArgument.java
+@@ -91,9 +_,15 @@
+    }
+ 
+    public EntitySelector parse(StringReader p_91451_) throws CommandSyntaxException {
++      // CraftBukkit start
++      return parse(p_91451_, false);
++   }
++
++   public EntitySelector parse(StringReader p_91451_, boolean overridePermissions) throws CommandSyntaxException {
++      // CraftBukkit end
+       int i = 0;
+       EntitySelectorParser entityselectorparser = new EntitySelectorParser(p_91451_);
+-      EntitySelector entityselector = entityselectorparser.m_121377_();
++      EntitySelector entityselector = entityselectorparser.parse(overridePermissions); // CraftBukkit
+       if (entityselector.m_121138_() > 1 && this.f_91443_) {
+          if (this.f_91444_) {
+             p_91451_.setCursor(0);
 @@ -115,7 +_,7 @@
        if (s instanceof SharedSuggestionProvider sharedsuggestionprovider) {
           StringReader stringreader = new StringReader(p_91483_.getInput());

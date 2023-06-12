@@ -1,5 +1,67 @@
 --- a/net/minecraft/world/level/storage/LevelStorageSource.java
 +++ b/net/minecraft/world/level/storage/LevelStorageSource.java
+@@ -247,6 +_,7 @@
+          WorldDimensions.Complete worlddimensions$complete = worldgensettings.f_64605_().m_245300_(p_249363_);
+          Lifecycle lifecycle = worlddimensions$complete.m_245945_().add(p_251214_);
+          PrimaryLevelData primaryleveldata = PrimaryLevelData.m_78530_(dynamic, p_265021_, i, compoundtag2, levelsettings, levelversion, worlddimensions$complete.f_244634_(), worldgensettings.f_243992_(), lifecycle);
++         primaryleveldata.pdc = compoundtag1.m_128423_("BukkitValues"); // CraftBukkit - Add PDC to world
+          return Pair.of(primaryleveldata, worlddimensions$complete);
+       };
+    }
+@@ -333,19 +_,31 @@
+       return this.f_78195_;
+    }
+ 
+-   public LevelStorageSource.LevelStorageAccess m_289864_(String p_289980_) throws IOException, ContentValidationException {
++   // Magma start
++   public LevelStorageSource.LevelStorageAccess m_289864_(String p_289980_) throws IOException, ContentValidationException { // CraftBukkit
++        return validateAndCreateAccess(p_289980_, null);
++   }
++    // Magma end
++
++   public LevelStorageSource.LevelStorageAccess validateAndCreateAccess(String p_289980_, ResourceKey<LevelStem> dimensionType) throws IOException, ContentValidationException { // CraftBukkit
+       Path path = this.m_289874_(p_289980_);
+       List<ForbiddenSymlinkInfo> list = this.f_289816_.m_289885_(path, true);
+       if (!list.isEmpty()) {
+          throw new ContentValidationException(path, list);
+       } else {
+-         return new LevelStorageSource.LevelStorageAccess(p_289980_, path);
++         return new LevelStorageSource.LevelStorageAccess(p_289980_, path, dimensionType); // CraftBukkit
+       }
+    }
+ 
++   // Magma start
+    public LevelStorageSource.LevelStorageAccess m_78260_(String p_78261_) throws IOException {
++      return createAccess(p_78261_, null);
++   }
++   // Magma end
++
++   public LevelStorageSource.LevelStorageAccess createAccess(String p_78261_, ResourceKey<LevelStem> dimensionType) throws IOException { // CraftBukkit
+       Path path = this.m_289874_(p_78261_);
+-      return new LevelStorageSource.LevelStorageAccess(p_78261_, path);
++      return new LevelStorageSource.LevelStorageAccess(p_78261_, path, dimensionType); // CraftBukkit
+    }
+ 
+    public DirectoryValidator m_289863_() {
+@@ -394,11 +_,16 @@
+ 
+    public class LevelStorageAccess implements AutoCloseable {
+       final DirectoryLock f_78270_;
+-      final LevelStorageSource.LevelDirectory f_230867_;
++      public final LevelStorageSource.LevelDirectory f_230867_;
+       private final String f_78272_;
+       private final Map<LevelResource, Path> f_78273_ = Maps.newHashMap();
+ 
+-      LevelStorageAccess(String p_289967_, Path p_289988_) throws IOException {
++      // CraftBukkit start
++      public final ResourceKey<LevelStem> dimensionType;
++
++      LevelStorageAccess(String p_289967_, Path p_289988_, ResourceKey<LevelStem> dimensionType) throws IOException {
++         this.dimensionType = dimensionType;
++         // CraftBukkit end
+          this.f_78272_ = p_289967_;
+          this.f_230867_ = new LevelStorageSource.LevelDirectory(p_289988_);
+          this.f_78270_ = DirectoryLock.m_13640_(p_289988_);
 @@ -439,6 +_,19 @@
           return LevelStorageSource.this.m_230817_(this.f_230867_, LevelStorageSource.m_245503_(p_248747_, p_251873_, p_249187_, p_249736_));
        }

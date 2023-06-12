@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/entity/projectile/Fireball.java
++++ b/net/minecraft/world/entity/projectile/Fireball.java
+@@ -32,7 +_,7 @@
+ 
+    }
+ 
+-   protected ItemStack m_37018_() {
++   public ItemStack m_37018_() {
+       return this.m_20088_().m_135370_(f_36987_);
+    }
+ 

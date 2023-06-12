@@ -1,10 +1,47 @@
 --- a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
 +++ b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
-@@ -33,20 +_,21 @@
+@@ -10,6 +_,8 @@
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.DispenserBlock;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.block.BlockDispenseEvent;
+ 
+ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+    private final DefaultDispenseItemBehavior f_123368_ = new DefaultDispenseItemBehavior();
+@@ -33,22 +_,51 @@
        double d2 = p_123375_.m_7098_() + (double)((float)direction.m_122430_() * 1.125F);
        double d3 = p_123375_.m_7094_() + (double)direction.m_122431_() * d0;
        BlockPos blockpos = p_123375_.m_7961_().m_121945_(direction);
-+      Boat boat = (Boat)(this.f_235889_ ? new ChestBoat(level, d0, d1, d2) : new Boat(level, d0, d1, d2));
++
++      // CraftBukkit start
++      ItemStack itemstack1 = p_123376_.m_41620_(1);
++      org.bukkit.block.Block block = level.getWorld().getBlockAt(p_123375_.m_7961_().m_123341_(), p_123375_.m_7961_().m_123342_(), p_123375_.m_7961_().m_123343_());
++      CraftItemStack craftItem = CraftItemStack.asCraftMirror(itemstack1);
++      BlockDispenseEvent event = new BlockDispenseEvent(block, craftItem.clone(), new org.bukkit.util.Vector(d0, d1, d2));
++      if (!DispenserBlock.eventFired) {
++         level.getCraftServer().getPluginManager().callEvent(event);
++      }
++
++      if (event.isCancelled()) {
++         p_123376_.m_41769_(1);
++         return p_123376_;
++      }
++
++      if (!event.getItem().equals(craftItem)) {
++         p_123376_.m_41769_(1);
++         // Chain to handler for new item
++         ItemStack eventStack = CraftItemStack.asNMSCopy(event.getItem());
++         DispenseItemBehavior idispensebehavior = (DispenseItemBehavior) DispenserBlock.f_52661_.get(eventStack.m_41720_());
++         if (idispensebehavior != DispenseItemBehavior.f_123393_ && idispensebehavior != this) {
++            idispensebehavior.m_6115_(p_123375_, eventStack);
++            return p_123376_;
++         }
++      }
++
++      Boat boat = this.f_235889_ ? new ChestBoat(level, event.getVelocity().getX(), event.getVelocity().getY(), event.getVelocity().getZ()) : new Boat(level, event.getVelocity().getX(), event.getVelocity().getY(), event.getVelocity().getZ());
++      // CraftBukkit end
++
 +      boat.m_28464_(this.f_123369_);
 +      boat.m_146922_(direction.m_122435_());
        double d4;
@@ -23,7 +60,11 @@
 -      Boat boat = (Boat)(this.f_235889_ ? new ChestBoat(level, d1, d2 + d4, d3) : new Boat(level, d1, d2 + d4, d3));
 -      boat.m_28464_(this.f_123369_);
 -      boat.m_146922_(direction.m_122435_());
+-      level.m_7967_(boat);
+-      p_123376_.m_41774_(1);
 +      boat.m_6034_(d1, d2 + d4, d3);
-       level.m_7967_(boat);
-       p_123376_.m_41774_(1);
++      if (!level.m_7967_(boat)) p_123376_.m_41769_(1); // CraftBukkit
++      // p_123376_.shrink(1); // CraftBukkit - handled during event processing
        return p_123376_;
+    }
+ 

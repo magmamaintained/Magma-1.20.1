@@ -1,10 +1,12 @@
 --- a/net/minecraft/world/level/Explosion.java
 +++ b/net/minecraft/world/level/Explosion.java
-@@ -56,6 +_,7 @@
+@@ -56,6 +_,9 @@
     private final ExplosionDamageCalculator f_46019_;
     private final ObjectArrayList<BlockPos> f_46020_ = new ObjectArrayList<>();
     private final Map<Player, Vec3> f_46021_ = Maps.newHashMap();
 +   private final Vec3 position;
++
++   public boolean wasCanceled = false; // CraftBukkit - add field
  
     public Explosion(Level p_46024_, @Nullable Entity p_46025_, double p_46026_, double p_46027_, double p_46028_, float p_46029_, List<BlockPos> p_46030_) {
        this(p_46024_, p_46025_, p_46026_, p_46027_, p_46028_, p_46029_, false, Explosion.BlockInteraction.DESTROY_WITH_DECAY, p_46030_);

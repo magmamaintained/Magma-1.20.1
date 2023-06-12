@@ -1,5 +1,25 @@
 --- a/net/minecraft/world/inventory/AnvilMenu.java
 +++ b/net/minecraft/world/inventory/AnvilMenu.java
+@@ -16,6 +_,7 @@
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
+ import net.minecraft.world.level.block.AnvilBlock;
+ import net.minecraft.world.level.block.state.BlockState;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
+ import org.slf4j.Logger;
+ 
+ public class AnvilMenu extends ItemCombinerMenu {
+@@ -40,6 +_,11 @@
+    private static final int f_265878_ = 76;
+    private static final int f_265992_ = 134;
+    private static final int f_266013_ = 47;
++   // CraftBukkit start
++   public static final int DEFAULT_DENIED_COST = -1;
++   public int maximumRepairCost = 40;
++   private CraftInventoryView bukkitEntity;
++   // CraftBukkit end
+ 
+    public AnvilMenu(int p_39005_, Inventory p_39006_) {
+       this(p_39005_, p_39006_, ContainerLevelAccess.f_39287_);
 @@ -71,6 +_,8 @@
           p_150474_.m_6749_(-this.f_39002_.m_6501_());
        }
@@ -39,13 +59,25 @@
  
           this.f_39002_.m_6422_(j + i);
           if (i <= 0) {
-@@ -301,5 +_,9 @@
- 
+@@ -302,4 +_,21 @@
     public int m_39028_() {
        return this.f_39002_.m_6501_();
-+   }
+    }
 +
 +   public void setMaximumCost(int value) {
 +      this.f_39002_.m_6422_(value);
-    }
++   }
++
++   // CraftBukkit start
++   @Override
++   public CraftInventoryView getBukkitView() {
++      if (bukkitEntity != null) {
++         return bukkitEntity;
++      }
++      org.bukkit.craftbukkit.inventory.CraftInventory inventory = new org.bukkit.craftbukkit.inventory.CraftInventoryAnvil(f_39770_.getLocation(), this.f_39769_, this.f_39768_, this);
++      bukkitEntity = new CraftInventoryView(this.f_39771_.getBukkitEntity(), inventory, this);
++      return bukkitEntity;
++   }
++   // CraftBukkit end
++
  }

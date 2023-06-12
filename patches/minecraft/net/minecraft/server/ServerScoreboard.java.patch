@@ -1,0 +1,19 @@
+--- a/net/minecraft/server/ServerScoreboard.java
++++ b/net/minecraft/server/ServerScoreboard.java
+@@ -217,6 +_,16 @@
+       return this.m_180015_().m_166102_(p_180014_);
+    }
+ 
++   // CraftBukkit start - Send to players
++   private void broadcastAll(Packet packet) {
++      for (ServerPlayer entityplayer : (List<ServerPlayer>) this.f_136193_.m_6846_().f_11196_) {
++         if (entityplayer.getBukkitEntity().getScoreboard().getHandle() == this) {
++            entityplayer.f_8906_.m_9829_(packet);
++         }
++      }
++   }
++   // CraftBukkit end
++
+    public static enum Method {
+       CHANGE,
+       REMOVE;

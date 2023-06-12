@@ -1,5 +1,78 @@
 --- a/net/minecraft/commands/Commands.java
 +++ b/net/minecraft/commands/Commands.java
+@@ -1,5 +_,6 @@
+ package net.minecraft.commands;
+ 
++import com.google.common.base.Joiner;
+ import com.google.common.collect.Maps;
+ import com.mojang.brigadier.CommandDispatcher;
+ import com.mojang.brigadier.ParseResults;
+@@ -10,16 +_,20 @@
+ import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+ import com.mojang.brigadier.context.CommandContextBuilder;
+ import com.mojang.brigadier.exceptions.CommandSyntaxException;
++import com.mojang.brigadier.suggestion.SuggestionProvider;
+ import com.mojang.brigadier.tree.CommandNode;
++import com.mojang.brigadier.tree.LiteralCommandNode;
+ import com.mojang.brigadier.tree.RootCommandNode;
+ import com.mojang.logging.LogUtils;
+-import java.util.Map;
+-import java.util.Optional;
+-import java.util.Set;
++
++import java.util.*;
+ import java.util.function.Predicate;
+ import java.util.function.UnaryOperator;
+ import java.util.stream.Collectors;
+ import javax.annotation.Nullable;
++
++import io.netty.buffer.Unpooled;
++import io.netty.util.AttributeKey;
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.Util;
+@@ -31,6 +_,7 @@
+ import net.minecraft.core.Registry;
+ import net.minecraft.data.registries.VanillaRegistries;
+ import net.minecraft.gametest.framework.TestCommand;
++import net.minecraft.network.FriendlyByteBuf;
+ import net.minecraft.network.chat.ClickEvent;
+ import net.minecraft.network.chat.CommonComponents;
+ import net.minecraft.network.chat.Component;
+@@ -38,7 +_,9 @@
+ import net.minecraft.network.chat.HoverEvent;
+ import net.minecraft.network.chat.MutableComponent;
+ import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
++import net.minecraft.network.protocol.game.ClientboundCustomPayloadPacket;
+ import net.minecraft.resources.ResourceKey;
++import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.server.commands.AdvancementCommands;
+ import net.minecraft.server.commands.AttributeCommand;
+ import net.minecraft.server.commands.BanIpCommands;
+@@ -118,6 +_,11 @@
+ import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.tags.TagKey;
+ import net.minecraft.util.profiling.jfr.JvmProfiler;
++import net.minecraftforge.network.ConnectionData;
++import net.minecraftforge.server.command.CommandHelper;
++import org.bukkit.event.player.PlayerCommandSendEvent;
++import org.bukkit.event.server.ServerCommandEvent;
++import org.magmafoundation.magma.util.Wrapped;
+ import org.slf4j.Logger;
+ 
+ public class Commands {
+@@ -128,8 +_,11 @@
+    public static final int f_165685_ = 3;
+    public static final int f_165686_ = 4;
+    private final CommandDispatcher<CommandSourceStack> f_82090_ = new CommandDispatcher<>();
++   private final CommandDispatcher<CommandSourceStack> forgeDispatcher = new CommandDispatcher<>();
++
+ 
+    public Commands(Commands.CommandSelection p_230943_, CommandBuildContext p_230944_) {
++      this(); // CraftBukkit
+       AdvancementCommands.m_136310_(this.f_82090_);
+       AttributeCommand.m_245835_(this.f_82090_, p_230944_);
+       ExecuteCommand.m_214434_(this.f_82090_, p_230944_);
 @@ -193,7 +_,7 @@
           JfrCommand.m_183645_(this.f_82090_);
        }
@@ -9,18 +82,96 @@
           TestCommand.m_127946_(this.f_82090_);
           SpawnArmorTrimsCommand.m_266283_(this.f_82090_);
        }
-@@ -218,9 +_,11 @@
+@@ -218,11 +_,65 @@
        if (p_230943_.f_82144_) {
           PublishCommand.m_138184_(this.f_82090_);
        }
-+      net.minecraftforge.event.ForgeEventFactory.onCommandRegister(this.f_82090_, p_230943_, p_230944_);
++      net.minecraftforge.event.ForgeEventFactory.onCommandRegister(this.forgeDispatcher, p_230943_, p_230944_);
++
++      // CraftBukkit start
++   }
++
++   public Commands() {
++      // CraftBukkkit end
  
        this.f_82090_.setConsumer((p_230954_, p_230955_, p_230956_) -> {
           p_230954_.getSource().m_81342_(p_230954_, p_230955_, p_230956_);
 +         p_230954_.getSource().m_81342_(p_230954_, p_230955_, p_230956_);
        });
     }
++
++   // CraftBukkit start
++   public int dispatchServerCommand(CommandSourceStack sender, String command) {
++      Joiner joiner = Joiner.on(" ");
++      if (command.startsWith("/")) {
++         command = command.substring(1);
++      }
++
++      ServerCommandEvent event = new ServerCommandEvent(sender.getBukkitSender(), command);
++      org.bukkit.Bukkit.getPluginManager().callEvent(event);
++      if (event.isCancelled()) {
++         return 0;
++      }
++      command = event.getCommand();
++
++      String[] args = command.split(" ");
++
++      String cmd = args[0];
++      if (cmd.startsWith("minecraft:")) cmd = cmd.substring("minecraft:".length());
++      if (cmd.startsWith("bukkit:")) cmd = cmd.substring("bukkit:".length());
++       if (cmd.startsWith("forge:")) {
++           setForge(true);
++           cmd = cmd.substring("forge:".length());
++       }
++
++      // Block disallowed commands
++      if (cmd.equalsIgnoreCase("stop") || cmd.equalsIgnoreCase("kick") || cmd.equalsIgnoreCase("op")
++              || cmd.equalsIgnoreCase("deop") || cmd.equalsIgnoreCase("ban") || cmd.equalsIgnoreCase("ban-ip")
++              || cmd.equalsIgnoreCase("pardon") || cmd.equalsIgnoreCase("pardon-ip") || cmd.equalsIgnoreCase("reload")) {
++          setForge(false);
++          return 0;
++      }
++
++      // Handle vanilla commands;
++      if (sender.m_81372_().getCraftServer().getCommandBlockOverride(args[0])) {
++         args[0] = "minecraft:" + args[0];
++      }
++
++      String newCommand = joiner.join(args);
++      try {
++        return this.performPrefixedCommand(sender, newCommand, newCommand);
++      } finally {
++          setForge(false);
++      }
++   }
++   // CraftBukkit end
  
+    public static <S> ParseResults<S> m_242611_(ParseResults<S> p_242928_, UnaryOperator<S> p_242890_) {
+       CommandContextBuilder<S> commandcontextbuilder = p_242928_.getContext();
+@@ -231,11 +_,21 @@
+    }
+ 
+    public int m_230957_(CommandSourceStack p_230958_, String p_230959_) {
+-      p_230959_ = p_230959_.startsWith("/") ? p_230959_.substring(1) : p_230959_;
+-      return this.m_242674_(this.f_82090_.parse(p_230959_, p_230958_), p_230959_);
++      // CraftBukkit start
++      return this.performPrefixedCommand(p_230958_, p_230959_, p_230959_);
++   }
++
++   public int performPrefixedCommand(CommandSourceStack commandlistenerwrapper, String s, String label) {
++      s = s.startsWith("/") ? s.substring(1) : s;
++      return this.performCommand(this.getCurrentDispatcher(s).parse(s, commandlistenerwrapper), s, label);
++      // CraftBukkit end
+    }
+ 
+    public int m_242674_(ParseResults<CommandSourceStack> p_242844_, String p_242841_) {
++      return this.performCommand(p_242844_, p_242841_, p_242841_);
++   }
++
++   public int performCommand(ParseResults<CommandSourceStack> p_242844_, String p_242841_, String label) { // CraftBukkit
+       CommandSourceStack commandsourcestack = p_242844_.getContext().getSource();
+       commandsourcestack.m_81377_().m_129905_().m_6521_(() -> {
+          return "/" + p_242841_;
 @@ -243,7 +_,16 @@
  
        try {
@@ -39,13 +190,138 @@
           } catch (CommandRuntimeException commandruntimeexception) {
              commandsourcestack.m_81352_(commandruntimeexception.m_79226_());
              return 0;
-@@ -299,7 +_,8 @@
-       Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newHashMap();
+@@ -252,7 +_,7 @@
+             if (commandsyntaxexception.getInput() != null && commandsyntaxexception.getCursor() >= 0) {
+                int j = Math.min(commandsyntaxexception.getInput().length(), commandsyntaxexception.getCursor());
+                MutableComponent mutablecomponent1 = Component.m_237119_().m_130940_(ChatFormatting.GRAY).m_130938_((p_82134_) -> {
+-                  return p_82134_.m_131142_(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/" + p_242841_));
++                  return p_82134_.m_131142_(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND,  label)); // CraftBukkit
+                });
+                if (j > 10) {
+                   mutablecomponent1.m_7220_(CommonComponents.f_238772_);
+@@ -295,13 +_,69 @@
+       }
+    }
+ 
++    //Magma start - rewrite to add forge dispatcher support
+    public void m_82095_(ServerPlayer p_82096_) {
+-      Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newHashMap();
++       // CraftBukkit start
++       // Register Vanilla commands into builtRoot as before
++       Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newIdentityHashMap(); // Use identity to prevent aliasing issues
++
++       RootCommandNode<SharedSuggestionProvider> vanillaRoot = new RootCommandNode<>();
++       Commands vanillaCommands = p_82096_.f_8924_.vanillaCommandDispatcher;
++       map.put(vanillaCommands.m_82094_().getRoot(), vanillaRoot);
++
++       // FORGE: Use our own command node merging method to handle redirect nodes properly, see issue #7551
++       CommandHelper.mergeCommandNode(vanillaCommands.m_82094_().getRoot(), vanillaRoot, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
++
++       // Now build the global commands in a second pass
        RootCommandNode<SharedSuggestionProvider> rootcommandnode = new RootCommandNode<>();
        map.put(this.f_82090_.getRoot(), rootcommandnode);
 -      this.m_82112_(this.f_82090_.getRoot(), rootcommandnode, p_82096_.m_20203_(), map);
-+      // FORGE: Use our own command node merging method to handle redirect nodes properly, see issue #7551
-+      net.minecraftforge.server.command.CommandHelper.mergeCommandNode(this.f_82090_.getRoot(), rootcommandnode, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((com.mojang.brigadier.suggestion.SuggestionProvider<SharedSuggestionProvider>) (com.mojang.brigadier.suggestion.SuggestionProvider<?>) suggest));
-       p_82096_.f_8906_.m_9829_(new ClientboundCommandsPacket(rootcommandnode));
+-      p_82096_.f_8906_.m_9829_(new ClientboundCommandsPacket(rootcommandnode));
+-   }
++
++       CommandHelper.mergeCommandNode(this.f_82090_.getRoot(), rootcommandnode, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
++
++       LinkedHashSet<String> set = new LinkedHashSet<>();
++       for (CommandNode<SharedSuggestionProvider> child : rootcommandnode.getChildren()) {
++           set.add(child.getName());
++       }
++
++       PlayerCommandSendEvent event = new PlayerCommandSendEvent(p_82096_.getBukkitEntity(), new LinkedHashSet<>(set));
++       event.getPlayer().getServer().getPluginManager().callEvent(event);
++
++       // Remove labels that were removed during the event
++       for (String orig : set) {
++           if (!event.getCommands().contains(orig)) {
++//               rootcommandnode.removeCommand(orig);
++   }
++       }
++
++       //Now add the forge commands
++       RootCommandNode<SharedSuggestionProvider> forgeRoot = new RootCommandNode<>();
++       map.put(this.forgeDispatcher.getRoot(), forgeRoot);
++
++       CommandHelper.mergeCommandNode(this.forgeDispatcher.getRoot(), forgeRoot, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
++
++       //Add all the forge commands to the root node
++       forgeRoot.getChildren().forEach(rootcommandnode::addChild);
++       //ambassador commands start - Magma
++       ClientboundCommandsPacket packet = new ClientboundCommandsPacket(rootcommandnode);
++       try{
++           ConnectionData connectionData = (ConnectionData) p_82096_.f_8906_.f_9742_.channel().attr(AttributeKey.valueOf("fml:conndata")).get();
++           if (connectionData == null){
++               f_82089_.info("Failed to get a channel with the attribute of fml:conndata.");
++               p_82096_.f_8906_.m_9829_(packet);
++           } else if (connectionData.getChannels().keySet().stream().anyMatch((v) -> v.equals(new ResourceLocation("ambassador:commands")))) {
++               FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
++//               packet.wrapAndWrite(byteBuf);
++               p_82096_.f_8906_.m_9829_(new ClientboundCustomPayloadPacket(new ResourceLocation("ambassador:commands"), byteBuf));
++           } else {
++               p_82096_.f_8906_.m_9829_(packet);
++           }
++       }catch (ClassCastException e){
++           f_82089_.error("Failed to get connection data for player " + p_82096_.m_7755_().getString() + ". Someone registered a channel with the fml:conndata key that isn't a ConnectionData object.");
++           p_82096_.f_8906_.m_9829_(packet);
++       }
++       //ambassador commands end - Magma
++   }
++    //Magma end
+ 
+    private void m_82112_(CommandNode<CommandSourceStack> p_82113_, CommandNode<SharedSuggestionProvider> p_82114_, CommandSourceStack p_82115_, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> p_82116_) {
+       for(CommandNode<CommandSourceStack> commandnode : p_82113_.getChildren()) {
+@@ -361,6 +_,11 @@
+       return this.f_82090_;
     }
  
++    //Magma - wrap the forge dispatcher to prevent LuckPerms from using this method as the vanilla dispatcher.. thanks reflection...
++    public Wrapped<CommandDispatcher<CommandSourceStack>> getForgeDispatcher() {
++        return Wrapped.wrap(forgeDispatcher);
++    }
++
+    @Nullable
+    public static <S> CommandSyntaxException m_82097_(ParseResults<S> p_82098_) {
+       if (!p_82098_.getReader().canRead()) {
+@@ -410,6 +_,39 @@
+          throw new IllegalStateException("Unregistered argument types");
+       }
+    }
++
++    //Magma start - add forge dispatcher
++    private boolean forge = false;
++    public void setForge(boolean b) {
++        this.forge = b;
++    }
++
++    private CommandDispatcher<CommandSourceStack> getCurrentDispatcher(String string) {
++        if (forge)
++            return getForgeDispatcher().unwrap();
++
++        String literal = string.split(" ")[0]; //the command root, ex. deop
++        if (literal.startsWith("/"))
++            literal = literal.substring(1);
++        if (literal.startsWith("forge:"))
++            return getForgeDispatcher().unwrap();
++
++        final String search = literal;
++        CommandNode<CommandSourceStack> found = getForgeDispatcher().unwrap()
++                .getRoot()
++                .getChildren()
++                .stream()
++                .filter(node -> node instanceof LiteralCommandNode)
++                .filter(node -> ((LiteralCommandNode<?>) node).getLiteral().equals(search))
++                .findFirst()
++                .orElse(null);
++
++        if (found != null)
++            return getForgeDispatcher().unwrap();
++
++        return m_82094_();
++    }
++    //Magma end
+ 
+    public static enum CommandSelection {
+       ALL(true, true),

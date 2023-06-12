@@ -3,7 +3,7 @@
 @@ -29,10 +_,10 @@
     private static final CompletableFuture<Unit> f_206846_ = CompletableFuture.completedFuture(Unit.INSTANCE);
     private final CommandBuildContext.Configurable f_214300_;
-    private final Commands f_206847_;
+    public Commands f_206847_;
 -   private final RecipeManager f_206848_ = new RecipeManager();
 +   private final RecipeManager f_206848_;
     private final TagManager f_206849_;

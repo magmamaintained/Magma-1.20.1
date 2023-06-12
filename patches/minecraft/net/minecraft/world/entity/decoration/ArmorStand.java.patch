@@ -9,3 +9,12 @@
     };
     private final NonNullList<ItemStack> f_31538_ = NonNullList.m_122780_(2, ItemStack.f_41583_);
     private final NonNullList<ItemStack> f_31539_ = NonNullList.m_122780_(4, ItemStack.f_41583_);
+@@ -81,7 +_,7 @@
+    public int f_31541_;
+    public Rotations f_31542_ = f_31529_;
+    public Rotations f_31543_ = f_31530_;
+-   private Rotations f_31544_ = f_31531_;
++   public Rotations f_31544_ = f_31531_;
+    public Rotations f_31545_ = f_31532_;
+    public Rotations f_31525_ = f_31533_;
+    public Rotations f_31526_ = f_31534_;

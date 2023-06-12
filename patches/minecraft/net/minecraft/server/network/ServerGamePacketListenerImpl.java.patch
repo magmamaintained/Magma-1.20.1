@@ -1,6 +1,26 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -185,6 +_,12 @@
+@@ -21,6 +_,8 @@
+ import java.util.Set;
+ import java.util.concurrent.CancellationException;
+ import java.util.concurrent.CompletableFuture;
++import java.util.concurrent.ExecutionException;
++import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.BiFunction;
+ import java.util.function.Consumer;
+@@ -180,11 +_,23 @@
+ import net.minecraft.world.phys.shapes.BooleanOp;
+ import net.minecraft.world.phys.shapes.Shapes;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.entity.CraftPlayer;
++import org.bukkit.craftbukkit.util.CraftChatMessage;
++import org.bukkit.craftbukkit.util.Waitable;
++import org.bukkit.event.player.PlayerKickEvent;
++import org.bukkit.event.player.PlayerTeleportEvent;
+ import org.slf4j.Logger;
+ 
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
     static final Logger f_9744_ = LogUtils.getLogger();
     private static final int f_143608_ = 15000;
@@ -13,6 +33,133 @@
     public static final double f_215198_ = Mth.m_144952_(6.0D);
     private static final int f_215199_ = -1;
     private static final int f_244471_ = 4096;
+@@ -197,7 +_,9 @@
+    private long f_9747_;
+    private boolean f_9748_;
+    private long f_9749_;
+-   private int f_9750_;
++   // CraftBukkit start - multithreaded fields
++   private final AtomicInteger f_9750_ = new AtomicInteger();
++   // CraftBukkit end
+    private int f_9751_;
+    private double f_9753_;
+    private double f_9754_;
+@@ -240,8 +_,31 @@
+       this.f_9747_ = Util.m_137550_();
+       p_9772_.m_8967_().m_7674_();
+       this.f_240889_ = p_9770_.m_214005_() ? SignedMessageChain.Decoder.f_252472_ : SignedMessageChain.Decoder.m_246683_(p_9772_.m_20148_());
+-      this.f_241681_ = new FutureChain(p_9770_);
+-   }
++      this.f_241681_ = new FutureChain(p_9770_.chatExecutor); // CraftBukkit - async chat
++      // CraftBukkit start - add fields and methods
++      this.cserver = p_9770_.server;
++   }
++
++   private final org.bukkit.craftbukkit.CraftServer cserver;
++   public boolean processedDisconnect;
++   private int lastTick = MinecraftServer.currentTick;
++   private int allowedPlayerTicks = 1;
++   private int lastDropTick = MinecraftServer.currentTick;
++   private int lastBookTick  = MinecraftServer.currentTick;
++   private int dropCount = 0;
++
++   // Get position of last block hit for BlockDamageLevel.STOPPED
++   private double lastPosX = Double.MAX_VALUE;
++   private double lastPosY = Double.MAX_VALUE;
++   private double lastPosZ = Double.MAX_VALUE;
++   private float lastPitch = Float.MAX_VALUE;
++   private float lastYaw = Float.MAX_VALUE;
++   private boolean justTeleported = false;
++
++   public CraftPlayer getCraftPlayer() {
++      return (this.f_9743_ == null) ? null : (CraftPlayer) this.f_9743_.getBukkitEntity();
++   }
++   // CraftBukkit end
+ 
+    public void m_9933_() {
+       if (this.f_215200_ > -1) {
+@@ -306,15 +_,21 @@
+       }
+ 
+       this.f_9745_.m_129905_().m_7238_();
+-      if (this.f_9750_ > 0) {
+-         --this.f_9750_;
++      // CraftBukkit start
++      for (int spam; (spam = this.f_9750_.get()) > 0 && !f_9750_.compareAndSet(spam, spam - 1); ) ;
++      /* Use thread-safe field access instead
++      if (this.chatSpamTickCount > 0) {
++         --this.chatSpamTickCount;
+       }
++      */
++      // CraftBukkit end
+ 
+       if (this.f_9751_ > 0) {
+          --this.f_9751_;
+       }
+ 
+       if (this.f_9743_.m_8956_() > 0L && this.f_9745_.m_129924_() > 0 && Util.m_137550_() - this.f_9743_.m_8956_() > (long)this.f_9745_.m_129924_() * 1000L * 60L) {
++         this.f_9743_.m_9243_(); // CraftBukkit - SPIGOT-854
+          this.m_9942_(Component.m_237115_("multiplayer.disconnect.idling"));
+       }
+ 
+@@ -337,12 +_,56 @@
+       return this.f_9745_.m_7779_(this.f_9743_.m_36316_());
+    }
+ 
++   // CraftBukkit start
++   @Deprecated
+    public void m_9942_(Component p_9943_) {
++      this.disconnect(CraftChatMessage.fromComponent(p_9943_));
++   }
++   // CraftBukkit end
++
++   public void disconnect(String s) {
++      // CraftBukkit start - fire PlayerKickEvent
++      if (this.processedDisconnect) {
++         return;
++      }
++      if (!this.cserver.isPrimaryThread()) {
++         Waitable waitable = new Waitable() {
++            @Override
++            protected Object evaluate() {
++               ServerGamePacketListenerImpl.this.disconnect(s);
++               return null;
++            }
++         };
++         this.f_9745_.processQueue.add(waitable);
++         try {
++            waitable.get();
++         } catch (InterruptedException e) {
++            Thread.currentThread().interrupt();
++         } catch (ExecutionException e) {
++            throw new RuntimeException(e);
++         }
++         return;
++      }
++      String leaveMessage = ChatFormatting.YELLOW + this.f_9743_.m_6302_() + " left the game.";
++      PlayerKickEvent event = new PlayerKickEvent(this.f_9743_.getBukkitEntity(), s, leaveMessage);
++      if (this.cserver.getServer().m_130010_()) {
++         this.cserver.getPluginManager().callEvent(event);
++      }
++      if (event.isCancelled()) {
++         // Do not kick the player
++         return;
++      }
++      this.f_9743_.kickLeaveMessage = event.getLeaveMessage(); // CraftBukkit - SPIGOT-3034: Forward leave message to PlayerQuitEvent
++      // Send the possibly modified leave message
++      final Component p_9943_ = CraftChatMessage.fromString(event.getReason(), true)[0];
++      // CraftBukkit end
+       this.f_9742_.m_243124_(new ClientboundDisconnectPacket(p_9943_), PacketSendListener.m_243092_(() -> {
+          this.f_9742_.m_129507_(p_9943_);
+       }));
++      this.m_7026_(p_9943_); // CraftBukkit - fire quit instantly
+       this.f_9742_.m_129540_();
+-      this.f_9745_.m_18709_(this.f_9742_::m_129541_);
++      // CraftBukkit - Don't wait
++      this.f_9745_.m_6681_(this.f_9742_::m_129541_);
+    }
+ 
+    private <T, R> CompletableFuture<R> m_243080_(T p_243240_, BiFunction<TextFilter, T, CompletableFuture<R>> p_243271_) {
 @@ -436,9 +_,11 @@
              }
  
@@ -59,19 +206,41 @@
                       this.m_243086_(playerchatmessage1);
                    }, p_248212_);
                 });
-@@ -1440,7 +_,7 @@
+@@ -1321,8 +_,9 @@
+    }
+ 
+    private void m_215251_() {
+-      this.f_9750_ += 20;
+-      if (this.f_9750_ > 200 && !this.f_9745_.m_6846_().m_11303_(this.f_9743_.m_36316_())) {
++      // CraftBukkit start - replaced with thread safe throttle
++      // this.chatSpamTickCount += 20;
++      if (this.f_9750_.addAndGet(20) > 200 && !this.f_9745_.m_6846_().m_11303_(this.f_9743_.m_36316_())) {
+          this.m_9942_(Component.m_237115_("disconnect.spam"));
+       }
+ 
+@@ -1440,9 +_,9 @@
           }
  
           AABB aabb = entity.m_20191_();
 -         if (aabb.m_272282_(this.f_9743_.m_146892_()) < f_215198_) {
 +         if (this.f_9743_.canReach(entity, 3)) { // Vanilla padding is 3.0 (distSq < 6.0 * 6.0)
              p_9866_.m_179617_(new ServerboundInteractPacket.Handler() {
-                private void m_143678_(InteractionHand p_143679_, ServerGamePacketListenerImpl.EntityInteraction p_143680_) {
+-               private void m_143678_(InteractionHand p_143679_, ServerGamePacketListenerImpl.EntityInteraction p_143680_) {
++               private void performInteraction(InteractionHand p_143679_, ServerGamePacketListenerImpl.EntityInteraction p_143680_) {
                    ItemStack itemstack = ServerGamePacketListenerImpl.this.f_9743_.m_21120_(p_143679_);
-@@ -1463,6 +_,8 @@
+                   if (itemstack.m_246617_(serverlevel.m_246046_())) {
+                      ItemStack itemstack1 = itemstack.m_41777_();
+@@ -1458,11 +_,13 @@
+                }
+ 
+                public void m_142299_(InteractionHand p_143677_) {
+-                  this.m_143678_(p_143677_, Player::m_36157_);
++                  this.performInteraction(p_143677_, Player::m_36157_);
+                }
  
                 public void m_142143_(InteractionHand p_143682_, Vec3 p_143683_) {
-                   this.m_143678_(p_143682_, (p_143686_, p_143687_, p_143688_) -> {
+-                  this.m_143678_(p_143682_, (p_143686_, p_143687_, p_143688_) -> {
++                  this.performInteraction(p_143682_, (p_143686_, p_143687_, p_143688_) -> {
 +                     InteractionResult onInteractEntityAtResult = net.minecraftforge.common.ForgeHooks.onInteractEntityAt(f_9743_, entity, p_143683_, p_143682_);
 +                     if (onInteractEntityAtResult != null) return onInteractEntityAtResult;
                       return p_143687_.m_7111_(p_143686_, p_143683_, p_143688_);
@@ -85,3 +254,25 @@
     }
  
     public void m_7477_(ServerboundChangeDifficultyPacket p_9839_) {
+@@ -1713,6 +_,21 @@
+ 
+    public ServerPlayer m_142253_() {
+       return this.f_9743_;
++   }
++
++   // Magma Stub
++   public void chat(String msg, PlayerChatMessage system, boolean b) {
++   }
++
++   public void teleport(Location to) {
++   }
++
++   public boolean isDisconnected() {
++      return false;
++   }
++
++   public <T> boolean teleport(double d0, double d3, double d2, float yRot, float xRot, Set<T> ts, boolean b, PlayerTeleportEvent.TeleportCause cause) {
++      return false;
+    }
+ 
+    @FunctionalInterface
