@@ -258,23 +258,20 @@ def sharedDeps = {
     installer "net.minecraftforge:JarJarMetadata:${JARJAR_VERSION}"
 
     // Bukkit
-    installer 'org.apache.maven:maven-resolver-provider:3.8.5'
-    installer 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.3'
-    installer 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.3'
-    compileOnly 'org.jetbrains:annotations-java5:23.0.0'
+    installer 'org.apache.maven:maven-resolver-provider:3.9.2'
+    installer 'org.apache.maven.resolver:maven-resolver-connector-basic:1.9.10'
+    installer 'org.apache.maven.resolver:maven-resolver-transport-http:1.9.10'
+    compileOnly 'org.jetbrains:annotations-java5:24.0.1'
+    installer 'org.yaml:snakeyaml:2.0'
 
     // CraftBukkit
     installer 'org.fusesource.jansi:jansi:1.18'
     installer 'jline:jline:2.12.1'
     installer 'com.googlecode.json-simple:json-simple:1.1.1'
-    installer 'org.xerial:sqlite-jdbc:3.36.0.3'
-    installer 'mysql:mysql-connector-java:8.0.29'
+    installer 'org.xerial:sqlite-jdbc:3.42.0.0'
+    installer 'mysql:mysql-connector-java:8.0.33'
     installer 'org.apache.logging.log4j:log4j-iostreams:2.19.0'
     installer 'net.md-5:SpecialSource:1.11.0'
-    installer 'org.yaml:snakeyaml:1.33'
-
-    // Spigot
-    installer 'net.md-5:bungeecord-chat:1.16-R0.4'
 
     // Magma
     installer 'org.magma:magma-common:2.6'
@@ -1837,13 +1834,4 @@ task setup() {  //These must be strings so that we can do lazy resolution. Else 
     if (symlinkValid)
         dependsOn ':fmlonly:extractMapped'
     dependsOn ':forge:extractMapped'
-}
-
-allprojects {
-    gradle.projectsEvaluated {
-        tasks.withType(JavaCompile) {
-            options.compilerArgs << "-Xmaxerrs" << "1000"
-            options.deprecation = false
-        }
-    }
 }
