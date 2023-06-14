@@ -69,7 +69,7 @@
  import net.minecraft.util.profiling.EmptyProfileResults;
  import net.minecraft.util.profiling.ProfileResults;
  import net.minecraft.util.profiling.ProfilerFiller;
-@@ -138,24 +_,22 @@
+@@ -138,24 +_,23 @@
  import net.minecraft.world.level.block.Block;
  import net.minecraft.world.level.border.BorderChangeListener;
  import net.minecraft.world.level.border.WorldBorder;
@@ -102,6 +102,7 @@
 +import org.bukkit.event.server.ServerLoadEvent;
 +import org.magmafoundation.magma.Magma;
 +import org.magmafoundation.magma.Metrics;
++import org.magmafoundation.magma.patcher.PatcherManager;
  import org.slf4j.Logger;
  
  public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTask> implements CommandSource, AutoCloseable {
@@ -159,7 +160,7 @@
           throw new IllegalStateException("Missing Overworld dimension data");
        } else {
           this.f_129747_ = p_236727_;
-@@ -289,7 +_,34 @@
+@@ -289,7 +_,40 @@
           this.f_129725_ = p_236723_;
           this.f_129738_ = Util.m_183991_();
        }
@@ -173,6 +174,12 @@
 +         System.setProperty("jline.terminal", "jline.UnsupportedTerminal");
 +         org.bukkit.craftbukkit.Main.useJline = false;
 +      }
++
++      this.magma = Magma.getInstance();
++      this.magma.setPatcherManager(new PatcherManager());
++      this.magma.getPatcherManager().init();
++      metrics = new Metrics();
++
 +      try {
 +         reader = new ConsoleReader(System.in, System.out);
 +         reader.setExpandEvents(false); // Avoid parsing exceptions for uncommonly used event designators

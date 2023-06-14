@@ -16,7 +16,7 @@
 +   public final ServerLevel world;
 +   public final CraftPortalEvent portalEventInfo;
  
-+   @Deprecated(forRemoval = true, since = "old Method")
++   @Deprecated(forRemoval = false, since = "old Method")
     public PortalInfo(Vec3 p_77681_, Vec3 p_77682_, float p_77683_, float p_77684_) {
 +      this(p_77681_, p_77682_, p_77683_, p_77684_, null, null);
 +   }
