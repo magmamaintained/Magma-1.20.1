@@ -326,22 +326,27 @@
              iterator.remove();
           }
  
-@@ -904,21 +_,52 @@
-       return this.f_20945_.get(p_21125_);
-    }
- 
-+   // CraftBukkit start
-+   public boolean addEffect(MobEffectInstance mobeffect, EntityPotionEffectEvent.Cause cause) {
-+      return this.addEffect(mobeffect, (Entity) null, cause);
-+   }
-+
-    public final boolean m_7292_(MobEffectInstance p_21165_) {
+@@ -908,17 +_,57 @@
        return this.m_147207_(p_21165_, (Entity)null);
     }
  
-    public boolean m_147207_(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
-+      return this.addEffect(p_147208_, p_147209_, org.bukkit.event.entity.EntityPotionEffectEvent.Cause.UNKNOWN);
++   // CraftBukkit start
++   public boolean addEffect(MobEffectInstance mobEffectInstance, EntityPotionEffectEvent.Cause cause) {
++      return this.addEffect(mobEffectInstance, (Entity) null, cause);
 +   }
++
++   //Magma start - move cause to a different constructor
++   private org.bukkit.event.entity.EntityPotionEffectEvent.Cause effectCause = EntityPotionEffectEvent.Cause.UNKNOWN;
++   public void prepare(EntityPotionEffectEvent.Cause cause) {
++      this.effectCause = cause;
++   }
++
+    public boolean m_147207_(MobEffectInstance p_147208_, @Nullable Entity p_147209_) {
++      EntityPotionEffectEvent.Cause cause = effectCause;
++      effectCause = EntityPotionEffectEvent.Cause.UNKNOWN; //reset
++      return this.addEffect(p_147208_, p_147209_, effectCause);
++   }
++   //Magma end
 +
 +   public boolean addEffect(MobEffectInstance p_147208_, @Nullable Entity p_147209_, EntityPotionEffectEvent.Cause cause) {
 +      if (isTickingEffects) {

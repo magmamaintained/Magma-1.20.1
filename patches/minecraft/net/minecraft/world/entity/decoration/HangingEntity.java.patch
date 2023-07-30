@@ -1,5 +1,23 @@
 --- a/net/minecraft/world/entity/decoration/HangingEntity.java
 +++ b/net/minecraft/world/entity/decoration/HangingEntity.java
+@@ -7,6 +_,7 @@
+ import net.minecraft.core.Direction;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.server.level.ServerLevel;
++import net.minecraft.tags.DamageTypeTags;
+ import net.minecraft.util.Mth;
+ import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.entity.Entity;
+@@ -24,6 +_,9 @@
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
+ import org.apache.commons.lang3.Validate;
++import org.bukkit.entity.Hanging;
++import org.bukkit.event.hanging.HangingBreakByEntityEvent;
++import org.bukkit.event.hanging.HangingBreakEvent;
+ import org.slf4j.Logger;
+ 
+ public abstract class HangingEntity extends Entity {
 @@ -58,36 +_,47 @@
  
     protected void m_7087_() {
@@ -78,6 +96,31 @@
        return p_31710_ % 32 == 0 ? 0.5D : 0.0D;
     }
  
+@@ -97,6 +_,24 @@
+          if (this.f_31700_++ == 100) {
+             this.f_31700_ = 0;
+             if (!this.m_213877_() && !this.m_7088_()) {
++               // CraftBukkit start - fire break events
++               BlockState material = this.m_9236_().m_8055_(this.m_20183_());
++               HangingBreakEvent.RemoveCause cause;
++               if (!material.m_60795_()) {
++                  // TODO: This feels insufficient to catch 100% of suffocation cases
++                  cause = HangingBreakEvent.RemoveCause.OBSTRUCTION;
++               } else {
++                  cause = HangingBreakEvent.RemoveCause.PHYSICS;
++               }
++
++               HangingBreakEvent event = new HangingBreakEvent((Hanging) this.getBukkitEntity(), cause);
++               this.m_9236_().getCraftServer().getPluginManager().callEvent(event);
++
++               if (this.m_213877_() || event.isCancelled()) {
++                  return;
++               }
++               // CraftBukkit end
++
+                this.m_146870_();
+                this.m_5553_((Entity)null);
+             }
 @@ -121,6 +_,8 @@
                 int j1 = (j - 1) / -2;
                 blockpos$mutableblockpos.m_122190_(blockpos).m_122175_(direction, k + i1).m_122175_(Direction.UP, l + j1);
@@ -87,3 +130,49 @@
                 if (!blockstate.m_280296_() && !DiodeBlock.m_52586_(blockstate)) {
                    return false;
                 }
+@@ -152,6 +_,20 @@
+          return false;
+       } else {
+          if (!this.m_213877_() && !this.m_9236_().f_46443_) {
++            // CraftBukkit start - fire break events
++            Entity damager = (p_31715_.m_269014_()) ? p_31715_.m_7639_() : p_31715_.m_7640_();
++            HangingBreakEvent event;
++            if (damager != null) {
++               event = new HangingBreakByEntityEvent((Hanging) this.getBukkitEntity(), damager.getBukkitEntity(), p_31715_.m_269533_(DamageTypeTags.f_268415_) ? HangingBreakEvent.RemoveCause.EXPLOSION : HangingBreakEvent.RemoveCause.ENTITY);
++            } else {
++               event = new HangingBreakEvent((Hanging) this.getBukkitEntity(), p_31715_.m_269533_(DamageTypeTags.f_268415_) ? HangingBreakEvent.RemoveCause.EXPLOSION : HangingBreakEvent.RemoveCause.DEFAULT);
++            }
++            this.m_9236_().getCraftServer().getPluginManager().callEvent(event);
++            if (this.m_213877_() || event.isCancelled()) {
++               return true;
++            }
++            // CraftBukkit end
++
+             this.m_6074_();
+             this.m_5834_();
+             this.m_5553_(p_31715_.m_7639_());
+@@ -163,6 +_,15 @@
+ 
+    public void m_6478_(MoverType p_31719_, Vec3 p_31720_) {
+       if (!this.m_9236_().f_46443_ && !this.m_213877_() && p_31720_.m_82556_() > 0.0D) {
++         if (this.m_213877_()) return; // CraftBukkit
++         // CraftBukkit start - fire break events
++         // TODO - Does this need its own cause? Seems to only be triggered by pistons
++         HangingBreakEvent event = new HangingBreakEvent((Hanging) this.getBukkitEntity(), HangingBreakEvent.RemoveCause.PHYSICS);
++         this.m_9236_().getCraftServer().getPluginManager().callEvent(event);
++         if (this.m_213877_() || event.isCancelled()) {
++            return;
++         }
++         // CraftBukkit end
+          this.m_6074_();
+          this.m_5553_((Entity)null);
+       }
+@@ -170,7 +_,7 @@
+    }
+ 
+    public void m_5997_(double p_31744_, double p_31745_, double p_31746_) {
+-      if (!this.m_9236_().f_46443_ && !this.m_213877_() && p_31744_ * p_31744_ + p_31745_ * p_31745_ + p_31746_ * p_31746_ > 0.0D) {
++      if (false && !this.m_9236_().f_46443_ && !this.m_213877_() && p_31744_ * p_31744_ + p_31745_ * p_31745_ + p_31746_ * p_31746_ > 0.0D) { // CraftBukkit - not needed
+          this.m_6074_();
+          this.m_5553_((Entity)null);
+       }

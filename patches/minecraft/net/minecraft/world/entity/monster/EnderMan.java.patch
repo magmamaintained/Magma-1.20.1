@@ -1,10 +1,21 @@
 --- a/net/minecraft/world/entity/monster/EnderMan.java
 +++ b/net/minecraft/world/entity/monster/EnderMan.java
-@@ -110,7 +_,6 @@
+@@ -110,7 +_,17 @@
     }
  
     public void m_6710_(@Nullable LivingEntity p_32537_) {
 -      super.m_6710_(p_32537_);
++      // CraftBukkit start - fire event
++      setTarget(p_32537_, org.bukkit.event.entity.EntityTargetEvent.TargetReason.UNKNOWN, true);
++   }
++
++   @Override
++   public boolean setTarget(LivingEntity p_32537_, org.bukkit.event.entity.EntityTargetEvent.TargetReason reason, boolean fireEvent) {
++      if (!super.setTarget(p_32537_, reason, fireEvent)) {
++         return false;
++      }
++      p_32537_ = m_5448_();
++      // CraftBukkit end
        AttributeInstance attributeinstance = this.m_21051_(Attributes.f_22279_);
        if (p_32537_ == null) {
           this.f_32477_ = 0;
@@ -12,7 +23,7 @@
           }
        }
  
-+      super.m_6710_(p_32537_); //Forge: Moved down to allow event handlers to write data manager values.
++      return true;
     }
  
     protected void m_8097_() {
@@ -46,16 +57,25 @@
              return false;
           } else {
              return this.f_32554_.m_217043_().m_188503_(m_186073_(2000)) == 0;
-@@ -439,7 +_,7 @@
+@@ -439,17 +_,21 @@
           BlockState blockstate2 = this.f_32554_.m_32530_();
           if (blockstate2 != null) {
              blockstate2 = Block.m_49931_(blockstate2, this.f_32554_.m_9236_(), blockpos);
 -            if (this.m_32558_(level, blockpos, blockstate2, blockstate, blockstate1, blockpos1)) {
+-               level.m_7731_(blockpos, blockstate2, 3);
+-               level.m_220407_(GameEvent.f_157797_, blockpos, GameEvent.Context.m_223719_(this.f_32554_, blockstate2));
+-               this.f_32554_.m_32521_((BlockState)null);
 +            if (this.m_32558_(level, blockpos, blockstate2, blockstate, blockstate1, blockpos1) && !net.minecraftforge.event.ForgeEventFactory.onBlockPlace(f_32554_, net.minecraftforge.common.util.BlockSnapshot.create(level.m_46472_(), level, blockpos1), net.minecraft.core.Direction.UP)) {
-                level.m_7731_(blockpos, blockstate2, 3);
-                level.m_220407_(GameEvent.f_157797_, blockpos, GameEvent.Context.m_223719_(this.f_32554_, blockstate2));
-                this.f_32554_.m_32521_((BlockState)null);
-@@ -449,7 +_,7 @@
++               // CraftBukkit start - Place event
++               if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.f_32554_, blockpos, blockstate2).isCancelled()) {
++                  level.m_7731_(blockpos, blockstate2, 3);
++                  level.m_220407_(GameEvent.f_157797_, blockpos, GameEvent.Context.m_223719_(this.f_32554_, blockstate2));
++                  this.f_32554_.m_32521_((BlockState) null);
++               }
++               // CraftBukkit end
+             }
+ 
+          }
        }
  
        private boolean m_32558_(Level p_32559_, BlockPos p_32560_, BlockState p_32561_, BlockState p_32562_, BlockState p_32563_, BlockPos p_32564_) {
@@ -73,3 +93,20 @@
              return false;
           } else {
              return this.f_32583_.m_217043_().m_188503_(m_186073_(20)) == 0;
+@@ -571,9 +_,13 @@
+          BlockHitResult blockhitresult = level.m_45547_(new ClipContext(vec3, vec31, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, this.f_32583_));
+          boolean flag = blockhitresult.m_82425_().equals(blockpos);
+          if (blockstate.m_204336_(BlockTags.f_13046_) && flag) {
+-            level.m_7471_(blockpos, false);
+-            level.m_220407_(GameEvent.f_157794_, blockpos, GameEvent.Context.m_223719_(this.f_32583_, blockstate));
+-            this.f_32583_.m_32521_(blockstate.m_60734_().m_49966_());
++            // CraftBukkit start - Pickup event
++            if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.f_32583_, blockpos, Blocks.f_50016_.m_49966_()).isCancelled()) {
++               level.m_7471_(blockpos, false);
++               level.m_220407_(GameEvent.f_157794_, blockpos, GameEvent.Context.m_223719_(this.f_32583_, blockstate));
++               this.f_32583_.m_32521_(blockstate.m_60734_().m_49966_());
++            }
++            // CraftBukkit end
+          }
+ 
+       }

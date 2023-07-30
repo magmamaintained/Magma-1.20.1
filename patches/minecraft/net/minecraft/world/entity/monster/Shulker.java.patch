@@ -1,9 +1,29 @@
 --- a/net/minecraft/world/entity/monster/Shulker.java
 +++ b/net/minecraft/world/entity/monster/Shulker.java
-@@ -360,6 +_,12 @@
+@@ -55,6 +_,9 @@
+ import net.minecraft.world.level.gameevent.GameEvent;
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.util.CraftLocation;
++import org.bukkit.event.entity.EntityTeleportEvent;
+ import org.joml.Vector3f;
+ import org.joml.Vector3fc;
+ 
+@@ -360,6 +_,22 @@
              if (blockpos1.m_123342_() > this.m_9236_().m_141937_() && this.m_9236_().m_46859_(blockpos1) && this.m_9236_().m_6857_().m_61937_(blockpos1) && this.m_9236_().m_45756_(this, (new AABB(blockpos1)).m_82406_(1.0E-6D))) {
                 Direction direction = this.m_149810_(blockpos1);
                 if (direction != null) {
++                  // CraftBukkit start
++                  EntityTeleportEvent teleport = new EntityTeleportEvent(this.getBukkitEntity(), this.getBukkitEntity().getLocation(), CraftLocation.toBukkit(blockpos1, this.m_9236_().getWorld()));
++                  this.m_9236_().getCraftServer().getPluginManager().callEvent(teleport);
++                  if (!teleport.isCancelled()) {
++                     Location to = teleport.getTo();
++                     blockpos1 = BlockPos.m_274561_(to.getX(), to.getY(), to.getZ());
++                  } else {
++                     return false;
++                  }
++                  // CraftBukkit end
 +                  net.minecraftforge.event.entity.EntityTeleportEvent.EnderEntity event = net.minecraftforge.event.ForgeEventFactory.onEnderTeleport(this, blockpos1.m_123341_(), blockpos1.m_123342_(), blockpos1.m_123343_());
 +                  if (event.isCanceled()) direction = null;
 +                  blockpos1 = BlockPos.m_274561_(event.getTargetX(), event.getTargetY(), event.getTargetZ());
@@ -13,3 +33,12 @@
                    this.m_19877_();
                    this.m_149788_(direction);
                    this.m_5496_(SoundEvents.f_12418_, 1.0F, 1.0F);
+@@ -423,7 +_,7 @@
+             if (shulker != null) {
+                shulker.m_28464_(this.m_28554_());
+                shulker.m_20219_(vec3);
+-               this.m_9236_().m_7967_(shulker);
++               this.m_9236_().addFreshEntity(shulker, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.BREEDING); // CraftBukkit - the mysteries of life
+             }
+ 
+          }

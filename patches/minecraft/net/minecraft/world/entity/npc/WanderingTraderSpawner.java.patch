@@ -1,0 +1,20 @@
+--- a/net/minecraft/world/entity/npc/WanderingTraderSpawner.java
++++ b/net/minecraft/world/entity/npc/WanderingTraderSpawner.java
+@@ -104,7 +_,7 @@
+                return false;
+             }
+ 
+-            WanderingTrader wanderingtrader = EntityType.f_20494_.m_262496_(p_35916_, blockpos2, MobSpawnType.EVENT);
++            WanderingTrader wanderingtrader = EntityType.f_20494_.spawn(p_35916_, blockpos2, MobSpawnType.EVENT, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.NATURAL); // CraftBukkit
+             if (wanderingtrader != null) {
+                for(int j = 0; j < 2; ++j) {
+                   this.m_35917_(p_35916_, wanderingtrader, 4);
+@@ -125,7 +_,7 @@
+    private void m_35917_(ServerLevel p_35918_, WanderingTrader p_35919_, int p_35920_) {
+       BlockPos blockpos = this.m_35928_(p_35918_, p_35919_.m_20183_(), p_35920_);
+       if (blockpos != null) {
+-         TraderLlama traderllama = EntityType.f_20488_.m_262496_(p_35918_, blockpos, MobSpawnType.EVENT);
++         TraderLlama traderllama = EntityType.f_20488_.spawn(p_35918_, blockpos, MobSpawnType.EVENT, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.NATURAL); // CraftBukkit
+          if (traderllama != null) {
+             traderllama.m_21463_(p_35919_, true);
+          }

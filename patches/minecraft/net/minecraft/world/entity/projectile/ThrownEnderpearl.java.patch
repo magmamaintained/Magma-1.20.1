@@ -1,22 +1,72 @@
 --- a/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
 +++ b/net/minecraft/world/entity/projectile/ThrownEnderpearl.java
-@@ -46,6 +_,8 @@
-          if (entity instanceof ServerPlayer) {
-             ServerPlayer serverplayer = (ServerPlayer)entity;
-             if (serverplayer.f_8906_.m_6198_() && serverplayer.m_9236_() == this.m_9236_() && !serverplayer.m_5803_()) {
-+               net.minecraftforge.event.entity.EntityTeleportEvent.EnderPearl event = net.minecraftforge.event.ForgeEventFactory.onEnderPearlLand(serverplayer, this.m_20185_(), this.m_20186_(), this.m_20189_(), this, 5.0F, p_37504_);
-+               if (!event.isCanceled()) { // Don't indent to lower patch size
-                if (this.f_19796_.m_188501_() < 0.05F && this.m_9236_().m_46469_().m_46207_(GameRules.f_46134_)) {
-                   Endermite endermite = EntityType.f_20567_.m_20615_(this.m_9236_());
-                   if (endermite != null) {
-@@ -60,8 +_,10 @@
-                   entity.m_6021_(this.m_20185_(), this.m_20186_(), this.m_20189_());
-                }
+@@ -4,6 +_,7 @@
+ import net.minecraft.core.particles.ParticleTypes;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.server.level.ServerPlayer;
++import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraft.world.entity.LivingEntity;
+@@ -15,6 +_,10 @@
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.phys.EntityHitResult;
+ import net.minecraft.world.phys.HitResult;
++import org.bukkit.Bukkit;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.CreatureSpawnEvent;
++import org.bukkit.event.player.PlayerTeleportEvent;
  
-+               entity.m_6021_(event.getTargetX(), event.getTargetY(), event.getTargetZ());
-                entity.m_183634_();
+ public class ThrownEnderpearl extends ThrowableItemProjectile {
+    public ThrownEnderpearl(EntityType<? extends ThrownEnderpearl> p_37491_, Level p_37492_) {
+@@ -44,24 +_,35 @@
+       if (!this.m_9236_().f_46443_ && !this.m_213877_()) {
+          Entity entity = this.m_19749_();
+          if (entity instanceof ServerPlayer) {
+-            ServerPlayer serverplayer = (ServerPlayer)entity;
++            ServerPlayer serverplayer = (ServerPlayer) entity;
+             if (serverplayer.f_8906_.m_6198_() && serverplayer.m_9236_() == this.m_9236_() && !serverplayer.m_5803_()) {
+-               if (this.f_19796_.m_188501_() < 0.05F && this.m_9236_().m_46469_().m_46207_(GameRules.f_46134_)) {
+-                  Endermite endermite = EntityType.f_20567_.m_20615_(this.m_9236_());
+-                  if (endermite != null) {
+-                     endermite.m_7678_(entity.m_20185_(), entity.m_20186_(), entity.m_20189_(), entity.m_146908_(), entity.m_146909_());
+-                     this.m_9236_().m_7967_(endermite);
++               net.minecraftforge.event.entity.EntityTeleportEvent.EnderPearl event = net.minecraftforge.event.ForgeEventFactory.onEnderPearlLand(serverplayer, this.m_20185_(), this.m_20186_(), this.m_20189_(), this, 5.0F, p_37504_);
++               if (!event.isCanceled()) {
++                  // CraftBukkit start - Fire PlayerTeleportEvent
++                  org.bukkit.craftbukkit.entity.CraftPlayer player = serverplayer.getBukkitEntity();
++                  org.bukkit.Location location = getBukkitEntity().getLocation();
++                  location.setPitch(player.getLocation().getPitch());
++                  location.setYaw(player.getLocation().getYaw());
++                  PlayerTeleportEvent teleEvent = new PlayerTeleportEvent(player, player.getLocation(), location, PlayerTeleportEvent.TeleportCause.ENDER_PEARL);
++                  Bukkit.getPluginManager().callEvent(teleEvent);
++                  if (!teleEvent.isCancelled() && !serverplayer.f_8906_.isDisconnected()) {
++                     if (this.f_19796_.m_188501_() < 0.05F && this.m_9236_().m_46469_().m_46207_(GameRules.f_46134_)) {
++                        Endermite entityendermite = (Endermite) EntityType.f_20567_.m_20615_(this.m_9236_());
++                        entityendermite.m_7678_(entity.m_20185_(), entity.m_20186_(), entity.m_20189_(), entity.m_146908_(), entity.m_146909_());
++                        this.m_9236_().prepareEntity(entityendermite, CreatureSpawnEvent.SpawnReason.ENDER_PEARL); //Magma - add spawn reason
++                        this.m_9236_().m_7967_(entityendermite);
++                     }
++                     if (entity.m_20159_()) {
++                        entity.m_8127_();
++                     }
++                     serverplayer.f_8906_.teleport(teleEvent.getTo());
++                     entity.m_183634_();
++                     CraftEventFactory.entityDamage = this;
++                     entity.m_6469_(this.m_269291_().m_268989_(), 5.0F);
++                     CraftEventFactory.entityDamage = null;
+                   }
+-               }
+-
+-               if (entity.m_20159_()) {
+-                  serverplayer.m_142098_(this.m_20185_(), this.m_20186_(), this.m_20189_());
+-               } else {
+-                  entity.m_6021_(this.m_20185_(), this.m_20186_(), this.m_20189_());
+-               }
+-
+-               entity.m_183634_();
 -               entity.m_6469_(this.m_269291_().m_268989_(), 5.0F);
-+               entity.m_6469_(this.m_269291_().m_268989_(), event.getAttackDamage());
++                  // CraftBukkit end
 +               } //Forge: End
              }
           } else if (entity != null) {
@@ -28,7 +78,8 @@
 -   public Entity m_5489_(ServerLevel p_37506_) {
 +   public Entity changeDimension(ServerLevel p_37506_, net.minecraftforge.common.util.ITeleporter teleporter) {
        Entity entity = this.m_19749_();
-       if (entity != null && entity.m_9236_().m_46472_() != p_37506_.m_46472_()) {
+-      if (entity != null && entity.m_9236_().m_46472_() != p_37506_.m_46472_()) {
++      if (entity != null && p_37506_ != null && entity.m_9236_().m_46472_() != p_37506_.m_46472_()) { // CraftBukkit - SPIGOT-6113
           this.m_5602_((Entity)null);
        }
  

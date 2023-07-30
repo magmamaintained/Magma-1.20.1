@@ -1,5 +1,31 @@
 --- a/net/minecraft/world/entity/animal/sniffer/Sniffer.java
 +++ b/net/minecraft/world/entity/animal/sniffer/Sniffer.java
+@@ -79,14 +_,23 @@
+ 
+    public Sniffer(EntityType<? extends Animal> p_273717_, Level p_273562_) {
+       super(p_273717_, p_273562_);
+-      this.f_19804_.m_135372_(f_271416_, Sniffer.State.IDLING);
+-      this.f_19804_.m_135372_(f_271498_, 0);
++      // this.entityData.define(DATA_STATE, Sniffer.State.IDLING); // CraftBukkit - moved down to appropriate location
++      // this.entityData.define(DATA_DROP_SEED_AT_TICK, 0); // CraftBukkit - moved down to appropriate location
+       this.m_21573_().m_7008_(true);
+       this.m_21441_(BlockPathTypes.WATER, -1.0F);
+       this.m_21441_(BlockPathTypes.DANGER_POWDER_SNOW, -1.0F);
+       this.m_21441_(BlockPathTypes.DAMAGE_CAUTIOUS, -1.0F);
+    }
+ 
++   // CraftBukkit start - SPIGOT-7295: moved from constructor to appropriate location
++   @Override
++   protected void m_8097_() {
++      super.m_8097_();
++      this.f_19804_.m_135372_(Sniffer.f_271416_, Sniffer.State.IDLING);
++      this.f_19804_.m_135372_(Sniffer.f_271498_, 0);
++   }
++   // CraftBukkit end
++
+    protected float m_6431_(Pose p_272721_, EntityDimensions p_273353_) {
+       return this.m_6972_(p_272721_).f_20378_ * 0.6F;
+    }
 @@ -136,7 +_,7 @@
        return this.m_20182_().m_82549_(this.m_20156_().m_82490_(2.25D));
     }
@@ -27,6 +53,22 @@
        return !this.m_272223_() && !this.m_278663_() && !this.m_6162_() && !this.m_20069_() && this.m_20096_() && !this.m_20159_() && this.m_271898_(this.m_284345_().m_7495_());
     }
  
+@@ -257,6 +_,15 @@
+ 
+          for(ItemStack itemstack : list) {
+             ItemEntity itementity = new ItemEntity(serverlevel, (double)blockpos.m_123341_(), (double)blockpos.m_123342_(), (double)blockpos.m_123343_(), itemstack);
++
++            // CraftBukkit start - handle EntityDropItemEvent
++            org.bukkit.event.entity.EntityDropItemEvent event = new org.bukkit.event.entity.EntityDropItemEvent(this.getBukkitEntity(), (org.bukkit.entity.Item) itementity.getBukkitEntity());
++            org.bukkit.Bukkit.getPluginManager().callEvent(event);
++            if (event.isCancelled()) {
++               continue;
++            }
++            // CraftBukkit end
++
+             itementity.m_32060_();
+             serverlevel.m_7967_(itementity);
+          }
 @@ -289,14 +_,14 @@
        return this;
     }
