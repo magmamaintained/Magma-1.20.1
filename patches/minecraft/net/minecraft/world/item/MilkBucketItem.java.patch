@@ -1,9 +1,10 @@
 --- a/net/minecraft/world/item/MilkBucketItem.java
 +++ b/net/minecraft/world/item/MilkBucketItem.java
-@@ -17,6 +_,7 @@
+@@ -17,6 +_,8 @@
     }
  
     public ItemStack m_5922_(ItemStack p_42923_, Level p_42924_, LivingEntity p_42925_) {
++      // Magma - todo: Add Milk Effect Cause
 +      if (!p_42924_.f_46443_) p_42925_.curePotionEffects(p_42923_); // FORGE - move up so stack.shrink does not turn stack into air
        if (p_42925_ instanceof ServerPlayer serverplayer) {
           CriteriaTriggers.f_10592_.m_23682_(serverplayer, p_42923_);
