@@ -1480,7 +1480,7 @@
 +                  }
 +               } else {
 +                  // player teleport event is called in the underlining code
-+                  if (((ServerPlayer) this).f_8906_.teleport(d0, d3, d2, this.m_146908_(), this.m_146909_(), java.util.Collections.emptySet(), false, cause)) {
++                  if (((ServerPlayer) this).f_8906_.teleport(d0, d3, d2, this.m_146908_(), this.m_146909_(), java.util.Collections.emptySet(), cause)) {
 +                     return Optional.empty();
 +                  }
 +               }

@@ -123,8 +123,8 @@
  
 +      // CraftBukkit start
 +      this.m_129823_(new DedicatedPlayerList(this, this.m_247573_(), this.f_129745_));
-+//      server.loadPlugins();
-+//      server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
++      server.loadPlugins();
++      server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
 +      // CraftBukkit end
 +
        if (!this.m_129797_()) {
