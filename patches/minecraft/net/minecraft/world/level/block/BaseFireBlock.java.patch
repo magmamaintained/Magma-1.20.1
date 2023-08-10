@@ -1,6 +1,21 @@
 --- a/net/minecraft/world/level/block/BaseFireBlock.java
 +++ b/net/minecraft/world/level/block/BaseFireBlock.java
-@@ -124,8 +_,9 @@
+@@ -112,7 +_,13 @@
+       if (!p_49263_.m_5825_()) {
+          p_49263_.m_7311_(p_49263_.m_20094_() + 1);
+          if (p_49263_.m_20094_() == 0) {
+-            p_49263_.m_20254_(8);
++            // CraftBukkit start
++            org.bukkit.event.entity.EntityCombustEvent event = new org.bukkit.event.entity.EntityCombustByBlockEvent(org.bukkit.craftbukkit.block.CraftBlock.at(p_49261_, p_49262_), p_49263_.getBukkitEntity(), 8);
++            p_49261_.getCraftServer().getPluginManager().callEvent(event);
++            if (!event.isCancelled()) {
++               p_49263_.setSecondsOnFire(event.getDuration(), false);
++            }
++            // CraftBukkit end
+          }
+       }
+ 
+@@ -124,21 +_,22 @@
        if (!p_49282_.m_60713_(p_49279_.m_60734_())) {
           if (m_49248_(p_49280_)) {
              Optional<PortalShape> optional = PortalShape.m_77708_(p_49280_, p_49281_, Direction.Axis.X);
@@ -11,6 +26,21 @@
                 return;
              }
           }
+ 
+          if (!p_49279_.m_60710_(p_49280_, p_49281_)) {
+-            p_49280_.m_7471_(p_49281_, false);
++            fireExtinguished(p_49280_, p_49281_); // CraftBukkit - fuel block broke
+          }
+ 
+       }
+    }
+ 
+    private static boolean m_49248_(Level p_49249_) {
+-      return p_49249_.m_46472_() == Level.f_46428_ || p_49249_.m_46472_() == Level.f_46429_;
++      return p_49249_.getTypeKey() == net.minecraft.world.level.dimension.LevelStem.f_63971_ || p_49249_.getTypeKey() == net.minecraft.world.level.dimension.LevelStem.f_63972_; // CraftBukkit - getTypeKey()
+    }
+ 
+    protected void m_142387_(Level p_152139_, Player p_152140_, BlockPos p_152141_, BlockState p_152142_) {
 @@ -169,7 +_,7 @@
           boolean flag = false;
  
@@ -20,3 +50,17 @@
                 flag = true;
                 break;
              }
+@@ -183,4 +_,13 @@
+          }
+       }
+    }
++
++   // CraftBukkit start
++   protected void fireExtinguished(net.minecraft.world.level.LevelAccessor world, BlockPos position) {
++      if (!org.bukkit.craftbukkit.event.CraftEventFactory.callBlockFadeEvent(world, position, Blocks.f_50016_.m_49966_()).isCancelled()) {
++         world.m_7471_(position, false);
++      }
++   }
++   // CraftBukkit end
++
+ }

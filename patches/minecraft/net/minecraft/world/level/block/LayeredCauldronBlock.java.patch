@@ -8,27 +8,88 @@
  import net.minecraft.world.item.Item;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.biome.Biome;
-@@ -16,6 +_,7 @@
+@@ -16,6 +_,9 @@
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.level.material.Fluid;
  import net.minecraft.world.level.material.Fluids;
++import org.bukkit.craftbukkit.block.CraftBlockState;
++import org.bukkit.craftbukkit.block.CraftBlockStates;
 +import org.bukkit.event.block.CauldronLevelChangeEvent;
  
  public class LayeredCauldronBlock extends AbstractCauldronBlock {
     public static final int f_153512_ = 1;
-@@ -35,6 +_,15 @@
-       super(p_153522_, p_153524_);
-       this.f_153519_ = p_153523_;
-       this.m_49959_(this.f_49792_.m_61090_().m_61124_(f_153514_, Integer.valueOf(1)));
-+   }
-+
-+   // Stub
-+    public static boolean lowerFillLevel(BlockState p175662, Level p175663, BlockPos p175664, Player p175665, CauldronLevelChangeEvent.ChangeReason changeReason) {
-+        return false;
-+    }
-+
-+   public static boolean changeLevel(BlockState p175704, Level p175705, BlockPos p175706, BlockState cycle, Player p175707, CauldronLevelChangeEvent.ChangeReason changeReason) {
-+      return false;
+@@ -51,10 +_,14 @@
+ 
+    public void m_7892_(BlockState p_153534_, Level p_153535_, BlockPos p_153536_, Entity p_153537_) {
+       if (!p_153535_.f_46443_ && p_153537_.m_6060_() && this.m_151979_(p_153534_, p_153536_, p_153537_)) {
+-         p_153537_.m_20095_();
++         // CraftBukkit start
+          if (p_153537_.m_142265_(p_153535_, p_153536_)) {
+-            this.m_142266_(p_153534_, p_153535_, p_153536_);
++            if (!lowerFillLevel(p_153534_, p_153535_, p_153536_, p_153537_, CauldronLevelChangeEvent.ChangeReason.EXTINGUISH)) {
++               return;
++            }
+          }
++         p_153537_.m_20095_();
++         // CraftBukkit end
+       }
+ 
+    }
+@@ -64,17 +_,38 @@
     }
  
-    public boolean m_142596_(BlockState p_153555_) {
+    public static void m_153559_(BlockState p_153560_, Level p_153561_, BlockPos p_153562_) {
++      // CraftBukkit start
++      lowerFillLevel(p_153560_, p_153561_, p_153562_, null, CauldronLevelChangeEvent.ChangeReason.UNKNOWN);
++   }
++
++   public static boolean lowerFillLevel(BlockState p_153560_, Level p_153561_, BlockPos p_153562_, Entity entity, CauldronLevelChangeEvent.ChangeReason reason) {
+       int i = p_153560_.m_61143_(f_153514_) - 1;
+       BlockState blockstate = i == 0 ? Blocks.f_50256_.m_49966_() : p_153560_.m_61124_(f_153514_, Integer.valueOf(i));
+-      p_153561_.m_46597_(p_153562_, blockstate);
+-      p_153561_.m_220407_(GameEvent.f_157792_, p_153562_, GameEvent.Context.m_223722_(blockstate));
+-   }
++      return changeLevel(p_153560_, p_153561_, p_153562_, blockstate, entity, reason);
++   }
++
++   // CraftBukkit start
++   public static boolean changeLevel(BlockState iblockdata, Level world, BlockPos blockposition, BlockState newBlock, Entity entity, CauldronLevelChangeEvent.ChangeReason reason) {
++      CraftBlockState newState = CraftBlockStates.getBlockState(world, blockposition);
++      newState.setData(newBlock);
++      CauldronLevelChangeEvent event = new CauldronLevelChangeEvent(
++              world.getWorld().getBlockAt(blockposition.m_123341_(), blockposition.m_123342_(), blockposition.m_123343_()),
++              (entity == null) ? null : entity.getBukkitEntity(), reason, newState
++      );
++      world.getCraftServer().getPluginManager().callEvent(event);
++      if (event.isCancelled()) {
++         return false;
++      }
++      newState.update(true);
++      world.m_220407_(GameEvent.f_157792_, blockposition, GameEvent.Context.m_223722_(newBlock));
++      return true;
++   }
++   // CraftBukkit end
+ 
+    public void m_141997_(BlockState p_153539_, Level p_153540_, BlockPos p_153541_, Biome.Precipitation p_153542_) {
+       if (CauldronBlock.m_182450_(p_153540_, p_153542_) && p_153539_.m_61143_(f_153514_) != 3 && this.f_153519_.test(p_153542_)) {
+          BlockState blockstate = p_153539_.m_61122_(f_153514_);
+-         p_153540_.m_46597_(p_153541_, blockstate);
+-         p_153540_.m_220407_(GameEvent.f_157792_, p_153541_, GameEvent.Context.m_223722_(blockstate));
++         changeLevel(p_153539_, p_153540_, p_153541_, blockstate, null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL); // CraftBukkit
+       }
+    }
+ 
+@@ -89,8 +_,11 @@
+    protected void m_142310_(BlockState p_153544_, Level p_153545_, BlockPos p_153546_, Fluid p_153547_) {
+       if (!this.m_142596_(p_153544_)) {
+          BlockState blockstate = p_153544_.m_61124_(f_153514_, Integer.valueOf(p_153544_.m_61143_(f_153514_) + 1));
+-         p_153545_.m_46597_(p_153546_, blockstate);
+-         p_153545_.m_220407_(GameEvent.f_157792_, p_153546_, GameEvent.Context.m_223722_(blockstate));
++         // CraftBukkit start
++         if (!changeLevel(p_153544_, p_153545_, p_153546_, blockstate, null, CauldronLevelChangeEvent.ChangeReason.NATURAL_FILL)) {
++            return;
++         }
++         // CraftBukkit end
+          p_153545_.m_46796_(1047, p_153546_, 0);
+       }
+    }

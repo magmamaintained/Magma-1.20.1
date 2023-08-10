@@ -1,0 +1,28 @@
+--- a/net/minecraft/world/level/block/CakeBlock.java
++++ b/net/minecraft/world/level/block/CakeBlock.java
+@@ -2,6 +_,8 @@
+ 
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
++import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
+ import net.minecraft.sounds.SoundEvents;
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.stats.Stats;
+@@ -78,6 +_,16 @@
+       if (!p_51189_.m_36391_(false)) {
+          return InteractionResult.PASS;
+       } else {
++         // CraftBukkit start
++         int oldFoodLevel = p_51189_.m_36324_().f_38696_;
++
++         org.bukkit.event.entity.FoodLevelChangeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callFoodLevelChangeEvent(p_51189_, 2 + oldFoodLevel);
++
++         if (!event.isCancelled()) {
++            p_51189_.m_36324_().m_38707_(event.getFoodLevel() - oldFoodLevel, 0.1F);
++         }
++         ((ServerPlayer) p_51189_).getBukkitEntity().sendHealthUpdate();
++         // CraftBukkit end
+          p_51189_.m_36220_(Stats.f_12942_);
+          p_51189_.m_36324_().m_38707_(2, 0.1F);
+          int i = p_51188_.m_61143_(f_51180_);
