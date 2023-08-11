@@ -45,10 +45,10 @@ ext {
         ]
     }
     MAPPING_CHANNEL = 'official'
-    MAPPING_VERSION = '1.20'
-    MC_VERSION = '1.20'
+    MAPPING_VERSION = '1.20.1'
+    MC_VERSION = '1.20.1'
     MC_NEXT_VERSION = '1.21'
-    MCP_VERSION = '20230608.053357'
+    MCP_VERSION = '20230612.114412'
     SNAPSHOT = false
 
     SPI_VERSION = '7.0.0'
@@ -56,8 +56,8 @@ ext {
     ACCESSTRANSFORMERS_VERSION = '8.0.4'
     COREMODS_VERSION = '5.0.1'
     EVENTBUS_VERSION = '6.0.3'
-    MODLAUNCHER_VERSION = '10.0.8'
-    SECUREJARHANDLER_VERSION = '2.1.6'
+    MODLAUNCHER_VERSION = '10.0.9'
+    SECUREJARHANDLER_VERSION = '2.1.10'
     BOOTSTRAPLAUNCHER_VERSION = '1.1.2'
     ASM_VERSION = '9.5'
     INSTALLER_VERSION = '2.1.+'
@@ -82,9 +82,9 @@ ext {
     COMMONS_IO_VERSION = '2.11.0'
 
     GIT_INFO = gradleutils.gitInfo
-    FORGE_VERSION = '46.0.1'
-    MAGMA_VERSION = "1.20-$FORGE_VERSION-" + versioning.info.commit.substring(0, 8) // Use 8 characters for the commit hash
-    VERSION = "1.20-$FORGE_VERSION"
+    FORGE_VERSION = '47.0.0'
+    MAGMA_VERSION = "1.20.1-$FORGE_VERSION-" + versioning.info.commit.substring(0, 8) // Use 8 characters for the commit hash
+    VERSION = "1.20.1-$FORGE_VERSION"
 
     SPECIAL_SOURCE = 'net.md-5:SpecialSource:1.11.0'
     BINPATCH_TOOL = 'net.minecraftforge:binarypatcher:1.1.1:fatjar'
@@ -843,7 +843,10 @@ project(':forge') {
     apply plugin: 'org.cadixdev.licenser'
     apply plugin: 'dev.vankka.dependencydownload.plugin'
 
-    applyPatches { verbose = true }
+    applyPatches {
+        verbose = true
+        failOnError = true
+    }
 
     sourceSets {
         main {

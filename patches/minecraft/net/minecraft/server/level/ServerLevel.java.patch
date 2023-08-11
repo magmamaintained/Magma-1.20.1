@@ -107,23 +107,16 @@
        boolean flag = p_214999_.m_6365_();
        DataFixer datafixer = p_214999_.m_129933_();
        EntityPersistentStorage<Entity> entitypersistentstorage = new EntityStorage(this, p_215001_.m_197394_(p_215003_).resolve("entities"), datafixer, flag, p_214999_);
-@@ -240,6 +_,8 @@
+@@ -240,6 +_,9 @@
              return new RandomSequences(i);
           }, "random_sequences");
        });
++      this.initCapabilities();
 +
 +      this.getCraftServer().addWorld(this.getWorld()); //Magma - add world to bukkit's world list
     }
  
     /** @deprecated */
-@@ -247,6 +_,7 @@
-    @VisibleForTesting
-    public void m_287200_(@Nullable EndDragonFight p_287779_) {
-       this.f_8559_ = p_287779_;
-+      this.initCapabilities();
-    }
- 
-    public void m_8606_(int p_8607_, int p_8608_, boolean p_8609_, boolean p_8610_) {
 @@ -275,8 +_,8 @@
        int i = this.m_46469_().m_46215_(GameRules.f_151486_);
        if (this.f_143245_.m_144002_(i) && this.f_143245_.m_144004_(i, this.f_8546_)) {

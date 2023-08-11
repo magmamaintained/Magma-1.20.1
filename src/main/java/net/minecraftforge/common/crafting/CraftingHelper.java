@@ -117,8 +117,12 @@ public class CraftingHelper
             if (!vanilla.isEmpty())
                 ingredients.add(Ingredient.merge(vanilla));
 
-            if (ingredients.size() == 0)
+            if (ingredients.size() == 0) {
+                if (allowEmpty) {
+                    return Ingredient.EMPTY;
+                }
                 throw new JsonSyntaxException("Item array cannot be empty, at least one item must be defined");
+            }
 
             if (ingredients.size() == 1)
                 return ingredients.get(0);
