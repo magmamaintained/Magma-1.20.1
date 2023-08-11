@@ -8,15 +8,19 @@
  import net.minecraft.core.RegistryAccess;
  import net.minecraft.core.UUIDUtil;
  import net.minecraft.nbt.CompoundTag;
-@@ -27,6 +_,7 @@
+@@ -25,8 +_,11 @@
+ import net.minecraft.nbt.NbtUtils;
+ import net.minecraft.nbt.StringTag;
  import net.minecraft.nbt.Tag;
++import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
  import net.minecraft.resources.RegistryOps;
  import net.minecraft.server.MinecraftServer;
 +import net.minecraft.server.level.ServerLevel;
++import net.minecraft.server.level.ServerPlayer;
  import net.minecraft.util.datafix.DataFixTypes;
  import net.minecraft.world.Difficulty;
  import net.minecraft.world.level.GameRules;
-@@ -35,6 +_,7 @@
+@@ -35,11 +_,15 @@
  import net.minecraft.world.level.LevelSettings;
  import net.minecraft.world.level.WorldDataConfiguration;
  import net.minecraft.world.level.border.WorldBorder;
@@ -24,6 +28,14 @@
  import net.minecraft.world.level.dimension.end.EndDragonFight;
  import net.minecraft.world.level.levelgen.WorldGenSettings;
  import net.minecraft.world.level.levelgen.WorldOptions;
+ import net.minecraft.world.level.timers.TimerCallbacks;
+ import net.minecraft.world.level.timers.TimerQueue;
++import org.bukkit.Bukkit;
++import org.bukkit.event.weather.ThunderChangeEvent;
++import org.bukkit.event.weather.WeatherChangeEvent;
+ import org.slf4j.Logger;
+ 
+ public class PrimaryLevelData implements ServerLevelData, WorldData {
 @@ -82,6 +_,26 @@
     private boolean f_78440_;
     private final Set<String> f_276525_;
@@ -60,15 +72,72 @@
     }
  
     public CompoundTag m_6626_(RegistryAccess p_78543_, @Nullable CompoundTag p_78544_) {
-@@ -203,6 +_,8 @@
+@@ -203,6 +_,12 @@
           p_78547_.m_128362_("WanderingTraderId", this.f_78438_);
        }
  
 +      p_78547_.m_128359_("forgeLifecycle", net.minecraftforge.common.ForgeHooks.encodeLifecycle(this.f_78443_.getLifecycle()));
 +      p_78547_.m_128379_("confirmedExperimentalSettings", this.confirmedExperimentalWarning);
++      if (Bukkit.getServer() != null) { // Magma
++         p_78547_.m_128359_("Bukkit.Version", Bukkit.getName() + "/" + Bukkit.getVersion() + "/" + Bukkit.getBukkitVersion()); // CraftBukkit
++         world.getWorld().storeBukkitValues(p_78547_); // CraftBukkit - add pdc
++      }
     }
  
     private static ListTag m_277055_(Set<String> p_277880_) {
+@@ -306,6 +_,19 @@
+    }
+ 
+    public void m_5557_(boolean p_78562_) {
++      // CraftBukkit start
++      if (this.f_78460_ == p_78562_) {
++         return;
++      }
++      org.bukkit.World world = Bukkit.getWorld(m_5462_());
++      if (world != null) {
++         ThunderChangeEvent thunder = new ThunderChangeEvent(world, p_78562_);
++         Bukkit.getServer().getPluginManager().callEvent(thunder);
++         if (thunder.isCancelled()) {
++            return;
++         }
++      }
++      // CraftBukkit end
+       this.f_78460_ = p_78562_;
+    }
+ 
+@@ -322,6 +_,19 @@
+    }
+ 
+    public void m_5565_(boolean p_78576_) {
++      // CraftBukkit start
++      if (this.f_78458_ == p_78576_) {
++         return;
++      }
++      org.bukkit.World world = Bukkit.getWorld(m_5462_());
++      if (world != null) {
++         WeatherChangeEvent weather = new WeatherChangeEvent(world, p_78576_);
++         Bukkit.getServer().getPluginManager().callEvent(weather);
++         if (weather.isCancelled()) {
++            return;
++         }
++      }
++      // CraftBukkit end
+       this.f_78458_ = p_78576_;
+    }
+ 
+@@ -375,6 +_,12 @@
+ 
+    public void m_6166_(Difficulty p_78521_) {
+       this.f_78443_ = this.f_78443_.m_46918_(p_78521_);
++      // CraftBukkit start
++      ClientboundChangeDifficultyPacket packet = new ClientboundChangeDifficultyPacket(this.m_5472_(), this.m_5474_());
++      for (ServerPlayer player : (java.util.List<ServerPlayer>) (java.util.List) world.m_6907_()) {
++         player.f_8906_.m_9829_(packet);
++      }
++      // CraftBukkit end
+    }
+ 
+    public boolean m_5474_() {
 @@ -484,6 +_,23 @@
     public LevelSettings m_5926_() {
        return this.f_78443_.m_46935_();

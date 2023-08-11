@@ -1157,6 +1157,11 @@ public class CraftEventFactory {
             hitEntity = ((EntityHitResult) position).getEntity().getBukkitEntity();
         }
 
+        //Magma start - Fix ClassCastException on custom projectiles
+        if (!(entity.getBukkitEntity() instanceof Projectile))
+            return null;
+        //Magma end
+
         ProjectileHitEvent event = new ProjectileHitEvent((Projectile) entity.getBukkitEntity(), hitEntity, hitBlock, hitFace);
         entity.level().getCraftServer().getPluginManager().callEvent(event);
         return event;

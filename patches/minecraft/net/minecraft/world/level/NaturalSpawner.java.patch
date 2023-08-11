@@ -1,7 +1,15 @@
 --- a/net/minecraft/world/level/NaturalSpawner.java
 +++ b/net/minecraft/world/level/NaturalSpawner.java
-@@ -48,6 +_,7 @@
+@@ -45,9 +_,15 @@
+ import net.minecraft.world.level.levelgen.structure.structures.NetherFortressStructure;
+ import net.minecraft.world.level.material.FluidState;
+ import net.minecraft.world.level.pathfinder.PathComputationType;
++import net.minecraft.world.level.storage.LevelData;
++import net.minecraft.world.level.storage.WorldData;
  import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.util.CraftSpawnCategory;
++import org.bukkit.entity.SpawnCategory;
++import org.bukkit.event.entity.CreatureSpawnEvent;
  import org.slf4j.Logger;
  
 +// TODO: ForgeHooks.canEntitySpawn
@@ -17,11 +25,48 @@
           if (mobcategory != MobCategory.MISC) {
              BlockPos blockpos = entity.m_20183_();
              p_186527_.m_47103_(ChunkPos.m_151388_(blockpos), (p_275163_) -> {
-@@ -177,7 +_,7 @@
-                            ++l1;
-                            p_47040_.m_47205_(mob);
-                            p_47044_.m_47100_(mob, p_47041_);
+@@ -102,8 +_,22 @@
+    public static void m_47029_(ServerLevel p_47030_, LevelChunk p_47031_, NaturalSpawner.SpawnState p_47032_, boolean p_47033_, boolean p_47034_, boolean p_47035_) {
+       p_47030_.m_46473_().m_6180_("spawner");
+ 
++      LevelData worlddata = p_47030_.m_6106_(); // CraftBukkit - Other mob type spawn tick rate
++
+       for(MobCategory mobcategory : f_46979_) {
+-         if ((p_47033_ || !mobcategory.m_21609_()) && (p_47034_ || mobcategory.m_21609_()) && (p_47035_ || !mobcategory.m_21610_()) && p_47032_.m_186548_(mobcategory, p_47031_.m_7697_())) {
++         // CraftBukkit start - Use per-world spawn limits
++         boolean spawnThisTick = true;
++         int limit = mobcategory.m_21608_();
++         SpawnCategory spawnCategory = CraftSpawnCategory.toBukkit(mobcategory);
++         if (CraftSpawnCategory.isValidForLimits(spawnCategory)) {
++            spawnThisTick = p_47030_.ticksPerSpawnCategory.getLong(spawnCategory) != 0 && worlddata.m_6793_() % p_47030_.ticksPerSpawnCategory.getLong(spawnCategory) == 0;
++            limit = p_47030_.getWorld().getSpawnLimit(spawnCategory);
++         }
++         if (!spawnThisTick || limit == 0) {
++            continue;
++         }
++         if ((p_47033_ || !mobcategory.m_21609_()) && (p_47034_ || mobcategory.m_21609_()) && (p_47035_ || !mobcategory.m_21610_()) && p_47032_.canSpawnForCategory(mobcategory, p_47031_.m_7697_(), limit)) {
++            // CraftBukkit end
+             m_47045_(mobcategory, p_47030_, p_47031_, p_47032_::m_47127_, p_47032_::m_47131_);
+          }
+       }
+@@ -173,11 +_,16 @@
+                         mob.m_7678_(d0, (double)i, d1, p_47040_.f_46441_.m_188501_() * 360.0F, 0.0F);
+                         if (m_46991_(p_47040_, mob, d2)) {
+                            spawngroupdata = mob.m_6518_(p_47040_, p_47040_.m_6436_(mob.m_20183_()), MobSpawnType.NATURAL, spawngroupdata, (CompoundTag)null);
+-                           ++j;
+-                           ++l1;
+-                           p_47040_.m_47205_(mob);
+-                           p_47044_.m_47100_(mob, p_47041_);
 -                           if (j >= mob.m_5792_()) {
++                           // CraftBukkit start
++                           // SPIGOT-7045: Give ocelot babies back their special spawn reason. Note: This is the only modification required as ocelots count as monsters which means they only spawn during normal chunk ticking and do not spawn during chunk generation as starter mobs.
++                           p_47040_.addFreshEntityWithPassengers(mob, (mob instanceof net.minecraft.world.entity.animal.Ocelot && !((org.bukkit.entity.Ageable) mob.getBukkitEntity()).isAdult()) ? CreatureSpawnEvent.SpawnReason.OCELOT_BABY : CreatureSpawnEvent.SpawnReason.NATURAL);
++                           if (!mob.m_213877_()) {
++                              ++j;
++                              ++l1;
++                              p_47044_.m_47100_(mob, p_47041_);
++                           }
++                           // CraftBukkit end
 +                           if (j >= net.minecraftforge.event.ForgeEventFactory.getMaxSpawnPackSize(mob)) {
                                return;
                             }
@@ -66,3 +111,25 @@
        }
     }
  
+@@ -368,7 +_,7 @@
+                            Mob mob = (Mob)entity;
+                            if (mob.m_5545_(p_220451_, MobSpawnType.CHUNK_GENERATION) && mob.m_6914_(p_220451_)) {
+                               spawngroupdata = mob.m_6518_(p_220451_, p_220451_.m_6436_(mob.m_20183_()), MobSpawnType.CHUNK_GENERATION, spawngroupdata, (CompoundTag)null);
+-                              p_220451_.m_47205_(mob);
++                              p_220451_.addFreshEntityWithPassengers(mob, CreatureSpawnEvent.SpawnReason.CHUNK_GEN); // CraftBukkit
+                               flag = true;
+                            }
+                         }
+@@ -489,8 +_,10 @@
+          return this.f_47113_;
+       }
+ 
+-      boolean m_186548_(MobCategory p_186549_, ChunkPos p_186550_) {
+-         int i = p_186549_.m_21608_() * this.f_47110_ / NaturalSpawner.f_46978_;
++      // CraftBukkit start
++      boolean canSpawnForCategory(MobCategory p_186549_, ChunkPos p_186550_, int limit) {
++         int i = limit * this.f_47110_ / NaturalSpawner.f_46978_;
++         // CraftBukkit end
+          if (this.f_47111_.getInt(p_186549_) >= i) {
+             return false;
+          } else {

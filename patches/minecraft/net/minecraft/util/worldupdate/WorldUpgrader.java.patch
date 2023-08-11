@@ -1,0 +1,14 @@
+--- a/net/minecraft/util/worldupdate/WorldUpgrader.java
++++ b/net/minecraft/util/worldupdate/WorldUpgrader.java
+@@ -127,9 +_,9 @@
+                      if (compoundtag != null) {
+                         int k = ChunkStorage.m_63505_(compoundtag);
+                         ChunkGenerator chunkgenerator = this.f_243889_.m_123013_(Registries.m_257452_(resourcekey2)).f_63976_();
+-                        CompoundTag compoundtag1 = chunkstorage.m_188288_(resourcekey2, () -> {
++                        CompoundTag compoundtag1 = chunkstorage.upgradeChunkTag(resourcekey2, () -> {
+                            return this.f_18813_;
+-                        }, compoundtag, chunkgenerator.m_187743_());
++                        }, compoundtag, chunkgenerator.m_187743_(), chunkpos, null); // CraftBukkit
+                         ChunkPos chunkpos1 = new ChunkPos(compoundtag1.m_128451_("xPos"), compoundtag1.m_128451_("zPos"));
+                         if (!chunkpos1.equals(chunkpos)) {
+                            f_18797_.warn("Chunk {} has invalid position {}", chunkpos, chunkpos1);

@@ -1,12 +1,28 @@
 --- a/net/minecraft/world/inventory/EnchantmentMenu.java
 +++ b/net/minecraft/world/inventory/EnchantmentMenu.java
-@@ -22,20 +_,22 @@
+@@ -1,6 +_,8 @@
+ package net.minecraft.world.inventory;
+ 
+ import java.util.List;
++import java.util.Map;
++
+ import net.minecraft.Util;
+ import net.minecraft.advancements.CriteriaTriggers;
+ import net.minecraft.core.BlockPos;
+@@ -22,20 +_,29 @@
  import net.minecraft.world.item.enchantment.EnchantmentInstance;
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.EnchantmentTableBlock;
 +import org.bukkit.Location;
++import org.bukkit.NamespacedKey;
 +import org.bukkit.craftbukkit.inventory.CraftInventoryEnchanting;
 +import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.util.CraftNamespacedKey;
++import org.bukkit.enchantments.Enchantment;
++import org.bukkit.enchantments.EnchantmentOffer;
++import org.bukkit.event.enchantment.EnchantItemEvent;
++import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
  
  public class EnchantmentMenu extends AbstractContainerMenu {
 -   private final Container f_39449_ = new SimpleContainer(2) {
@@ -62,7 +78,7 @@
           }
        });
  
-@@ -79,6 +_,9 @@
+@@ -79,30 +_,34 @@
        this.m_38895_(DataSlot.m_39406_(this.f_39448_, 0));
        this.m_38895_(DataSlot.m_39406_(this.f_39448_, 1));
        this.m_38895_(DataSlot.m_39406_(this.f_39448_, 2));
@@ -72,34 +88,146 @@
     }
  
     public void m_6199_(Container p_39461_) {
-@@ -86,23 +_,24 @@
+       if (p_39461_ == this.f_39449_) {
           ItemStack itemstack = p_39461_.m_8020_(0);
-          if (!itemstack.m_41619_() && itemstack.m_41792_()) {
+-         if (!itemstack.m_41619_() && itemstack.m_41792_()) {
++         if (!itemstack.m_41619_()) { // CraftBukkit - relax condition
              this.f_39450_.m_39292_((p_39485_, p_39486_) -> {
 -               int j = 0;
-+               float j = 0;
++               int k = 0;
  
                 for(BlockPos blockpos : EnchantmentTableBlock.f_207902_) {
                    if (EnchantmentTableBlock.m_207909_(p_39485_, p_39486_, blockpos)) {
 -                     ++j;
-+                     j += p_39485_.m_8055_(p_39486_.m_121955_(blockpos)).getEnchantPowerBonus(p_39485_, p_39486_.m_121955_(blockpos));
++                     k += p_39485_.m_8055_(p_39486_.m_121955_(blockpos)).getEnchantPowerBonus(p_39485_, p_39486_.m_121955_(blockpos));
                    }
                 }
  
                 this.f_39451_.m_188584_((long)this.f_39452_.m_6501_());
  
-                for(int k = 0; k < 3; ++k) {
+-               for(int k = 0; k < 3; ++k) {
 -                  this.f_39446_[k] = EnchantmentHelper.m_220287_(this.f_39451_, k, j, itemstack);
-+                  this.f_39446_[k] = EnchantmentHelper.m_220287_(this.f_39451_, k, (int)j, itemstack);
-                   this.f_39447_[k] = -1;
-                   this.f_39448_[k] = -1;
-                   if (this.f_39446_[k] < k + 1) {
-                      this.f_39446_[k] = 0;
+-                  this.f_39447_[k] = -1;
+-                  this.f_39448_[k] = -1;
+-                  if (this.f_39446_[k] < k + 1) {
+-                     this.f_39446_[k] = 0;
++               for(int kd = 0; kd < 3; ++kd) {
++                  this.f_39446_[kd] = EnchantmentHelper.m_220287_(this.f_39451_, kd, (int)kd, itemstack);
++                  this.f_39447_[kd] = -1;
++                  this.f_39448_[kd] = -1;
++                  if (this.f_39446_[kd] < kd + 1) {
++                     this.f_39446_[kd] = 0;
                    }
-+                  this.f_39446_[k] = net.minecraftforge.event.ForgeEventFactory.onEnchantmentLevelSet(p_39485_, p_39486_, k, (int)j, itemstack, f_39446_[k]);
++                  this.f_39446_[kd] = net.minecraftforge.event.ForgeEventFactory.onEnchantmentLevelSet(p_39485_, p_39486_, kd, (int)kd, itemstack, f_39446_[kd]);
                 }
  
                 for(int l = 0; l < 3; ++l) {
+@@ -116,6 +_,38 @@
+                   }
+                }
+ 
++               // CraftBukkit start
++               CraftItemStack item = CraftItemStack.asCraftMirror(itemstack);
++               org.bukkit.enchantments.EnchantmentOffer[] offers = new EnchantmentOffer[3];
++               for (int o = 0; o < 3; ++o) {
++                  org.bukkit.enchantments.Enchantment enchantment = (this.f_39447_[o] >= 0) ? org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(BuiltInRegistries.f_256876_.m_7942_(this.f_39447_[o])))) : null;
++                  offers[o] = (enchantment != null) ? new EnchantmentOffer(enchantment, this.f_39448_[o], this.f_39446_[o]) : null;
++               }
++               PrepareItemEnchantEvent event = new PrepareItemEnchantEvent(player, this.getBukkitView(), f_39450_.getLocation().getBlock(), item, offers, k);
++               event.setCancelled(!itemstack.m_41792_());
++               p_39485_.getCraftServer().getPluginManager().callEvent(event);
++               if (event.isCancelled()) {
++                  for (int kp = 0; kp < 3; ++kp) {
++                     this.f_39446_[kp] = 0;
++                     this.f_39447_[kp] = -1;
++                     this.f_39448_[kp] = -1;
++                  }
++                  return;
++               }
++               for (k = 0; k < 3; k++) {
++                  EnchantmentOffer offer = event.getOffers()[k];
++                  if (offer != null) {
++                     this.f_39446_[k] = offer.getCost();
++                     this.f_39447_[k] = BuiltInRegistries.f_256876_.m_7447_(BuiltInRegistries.f_256876_.m_7745_(CraftNamespacedKey.toMinecraft(offer.getEnchantment().getKey())));
++                     this.f_39448_[k] = offer.getEnchantmentLevel();
++                  } else {
++                     this.f_39446_[k] = 0;
++                     this.f_39447_[k] = -1;
++                     this.f_39448_[k] = -1;
++                  }
++               }
++               // CraftBukkit end
++
+                this.m_38946_();
+             });
+          } else {
+@@ -142,9 +_,21 @@
+             this.f_39450_.m_39292_((p_39481_, p_39482_) -> {
+                ItemStack itemstack2 = itemstack;
+                List<EnchantmentInstance> list = this.m_39471_(itemstack, p_39466_, this.f_39446_[p_39466_]);
+-               if (!list.isEmpty()) {
+-                  p_39465_.m_7408_(itemstack, i);
++               // CraftBukkit start
++               if (true || !list.isEmpty()) {
+                   boolean flag = itemstack.m_150930_(Items.f_42517_);
++                  Map<Enchantment, Integer> enchants = new java.util.HashMap<org.bukkit.enchantments.Enchantment, Integer>();
++                  for (Object obj : list) {
++                     EnchantmentInstance instance = (EnchantmentInstance) obj;
++                     enchants.put(org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(instance.f_44947_))), instance.f_44948_);
++                  }
++                  CraftItemStack item = CraftItemStack.asCraftMirror(itemstack2);
++                  EnchantItemEvent event = new EnchantItemEvent((org.bukkit.entity.Player) p_39465_.getBukkitEntity(), this.getBukkitView(), f_39450_.getLocation().getBlock(), item, this.f_39446_[i], enchants, i);
++                  p_39481_.getCraftServer().getPluginManager().callEvent(event);
++                  int level = event.getExpLevelCost();
++                  if (event.isCancelled() || (level > p_39465_.f_36078_ && !p_39465_.m_150110_().f_35937_) || event.getEnchantsToAdd().isEmpty()) {
++                     return;
++                  }
+                   if (flag) {
+                      itemstack2 = new ItemStack(Items.f_42690_);
+                      CompoundTag compoundtag = itemstack.m_41783_();
+@@ -155,15 +_,28 @@
+                      this.f_39449_.m_6836_(0, itemstack2);
+                   }
+ 
+-                  for(int j = 0; j < list.size(); ++j) {
+-                     EnchantmentInstance enchantmentinstance = list.get(j);
+-                     if (flag) {
+-                        EnchantedBookItem.m_41153_(itemstack2, enchantmentinstance);
+-                     } else {
+-                        itemstack2.m_41663_(enchantmentinstance.f_44947_, enchantmentinstance.f_44948_);
++                  for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : event.getEnchantsToAdd().entrySet()) {
++                     try {
++                        if (flag) {
++                           NamespacedKey enchantId = entry.getKey().getKey();
++                           net.minecraft.world.item.enchantment.Enchantment nms = BuiltInRegistries.f_256876_.m_7745_(CraftNamespacedKey.toMinecraft(enchantId));
++                           if (nms == null) {
++                              continue;
++                           }
++                           EnchantmentInstance weightedrandomenchant = new EnchantmentInstance(nms, entry.getValue());
++                           EnchantedBookItem.m_41153_(itemstack2, weightedrandomenchant);
++                        } else {
++                           item.addUnsafeEnchantment(entry.getKey(), entry.getValue());
++                        }
++                     } catch (IllegalArgumentException e) {
++                        /* Just swallow invalid enchantments */
+                      }
+                   }
+ 
++                  p_39465_.m_7408_(itemstack, i);
++                  // CraftBukkit end
++
++                  // CraftBukkit - TODO: let plugins change this
+                   if (!p_39465_.m_150110_().f_35937_) {
+                      itemstack1.m_41774_(i);
+                      if (itemstack1.m_41619_()) {
+@@ -218,6 +_,7 @@
+    }
+ 
+    public boolean m_6875_(Player p_39463_) {
++      if (!this.checkReachable) return true; // CraftBukkit
+       return m_38889_(this.f_39450_, p_39463_, Blocks.f_50201_);
+    }
+ 
 @@ -235,7 +_,7 @@
              if (!this.m_38903_(itemstack1, 2, 38, true)) {
                 return ItemStack.f_41583_;
