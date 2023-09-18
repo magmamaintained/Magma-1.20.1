@@ -434,7 +434,7 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
                 return;
             minecraft_server.getParentFile().mkdirs();
             try {
-                NetworkUtils.downloadFile("https://piston-data.mojang.com/v1/objects/15c777e2cfe0556eef19aab534b186c0c6f277e1/server.jar", minecraft_server);
+                NetworkUtils.downloadFile("https://piston-data.mojang.com/v1/objects/84194a2f286ef7c14ed7ce0090dba59902951553/server.jar", minecraft_server);
             } catch (Exception e) {
                 System.out.println("Can't download minecraft_server");
                 e.printStackTrace();
