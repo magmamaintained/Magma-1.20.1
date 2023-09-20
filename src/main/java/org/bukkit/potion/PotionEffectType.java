@@ -346,6 +346,15 @@ public abstract class PotionEffectType implements Keyed {
         byKey.put(type.key, type);
     }
 
+    // Magma - start
+    /**
+     * Starts accepting any effect type registrations.
+     */
+    public static void startAcceptingRegistrations() {
+        acceptingNew = true;
+    }
+    // Magma - end
+
     /**
      * Stops accepting any effect type registrations.
      */

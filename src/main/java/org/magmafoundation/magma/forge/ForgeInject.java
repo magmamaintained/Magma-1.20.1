@@ -72,8 +72,6 @@ import java.util.function.BiFunction;
 
 public class ForgeInject {
 
-  /**
-
   public static BiMap<ResourceKey<LevelStem>, World.Environment> environments = HashBiMap
       .create(ImmutableMap.<ResourceKey<LevelStem>, World.Environment>builder()
           .put(LevelStem.OVERWORLD, World.Environment.NORMAL)
@@ -519,5 +517,5 @@ public class ForgeInject {
     EnumJ17Helper.addEnums(Statistic.class, values);
     CraftStatistic.statistics = statistics;
     debug("Injecting Forge Statistic into Bukkit: DONE");
-  }*/
+  }
 }

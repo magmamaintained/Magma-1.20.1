@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import java.lang.reflect.Constructor;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -114,6 +115,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.magmafoundation.magma.helpers.EnumJ17Helper;
 
 /**
  * An enum of all material IDs accepted by the official server and client
@@ -4393,6 +4395,9 @@ public enum Material implements Keyed, Translatable {
     public final Class<?> data;
     private final boolean legacy;
     private final NamespacedKey key;
+    private boolean modded; // Magma
+    private boolean block; // Magma
+    private boolean item; // Magma
 
     private Material(final int id) {
         this(id, 64);
@@ -4414,13 +4419,27 @@ public enum Material implements Keyed, Translatable {
         this(id, stack, 0, data);
     }
 
+    // Magma start
     private Material(final int id, final int stack, final int durability, /*@NotNull*/ final Class<?> data) {
+        this(id, stack, durability, data, null, false, false);
+    }
+
+    private Material(final int id, NamespacedKey key, boolean block, boolean item) {
+        this(id, 64, 0, MaterialData.class, key, block, item);
+    }
+
+    private Material(final int id, final int stack, final int durability, /*@NotNull*/ final Class<?> data,
+                     NamespacedKey key, boolean block, boolean item) {
         this.id = id;
         this.durability = (short) durability;
         this.maxStack = stack;
         this.data = data;
         this.legacy = this.name().startsWith(LEGACY_PREFIX);
-        this.key = NamespacedKey.minecraft(this.name().toLowerCase(Locale.ROOT));
+        this.key = key == null ? NamespacedKey.minecraft(this.name().toLowerCase(Locale.ROOT)) : key;
+        this.modded = key != null;
+        this.block = block;
+        this.item = item;
+        // Magma end
         // try to cache the constructor for this material
         try {
             if (MaterialData.class.isAssignableFrom(data)) {
@@ -10974,4 +10993,28 @@ public enum Material implements Keyed, Translatable {
     public boolean isEnabledByFeature(@NotNull World world) {
         return Bukkit.getDataPackManager().isEnabledByFeature(this, world);
     }
+
+    // Magma - start <Used from https://github.com/magmafoundation/Magma-1.16.x/blob/1.16.x/src/main/java/org/bukkit/Material.java>
+    public static Material addMaterial(String name, int id, NamespacedKey key, boolean block, boolean item) {
+        try {
+            var material = EnumJ17Helper.makeEnum(Material.class, name, id, List.of(Integer.TYPE, NamespacedKey.class, Boolean.TYPE, Boolean.TYPE), List.of(id, key, block, item));
+            BY_NAME.put(name, material);
+            return material;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static Material addMaterial(String name, int id, Class<?> data, NamespacedKey key, boolean block, boolean item) {
+        try {
+            var material = EnumJ17Helper.makeEnum(Material.class, name, id, List.of(Integer.TYPE, Integer.TYPE, Integer.TYPE, Class.class, NamespacedKey.class, Boolean.TYPE, Boolean.TYPE), List.of(id, 64, 0, data, key, block, item));
+            BY_NAME.put(name, material);
+            return material;
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    // Magma - end
 }

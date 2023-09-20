@@ -149,6 +149,17 @@ public enum Statistic implements Keyed {
         return key;
     }
 
+    //Magma start - let statistic know it got injected from Forge
+    boolean injected = false;
+    public void setInjected() {
+        injected = true;
+    }
+
+    public boolean isInjected() {
+        return injected;
+    }
+    //Magma end
+
     /**
      * The type of statistic.
      *

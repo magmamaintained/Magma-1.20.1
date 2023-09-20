@@ -29,7 +29,7 @@
  import net.minecraft.sounds.SoundEvents;
  import net.minecraft.sounds.SoundSource;
  import net.minecraft.stats.ServerStatsCounter;
-@@ -102,6 +_,14 @@
+@@ -102,6 +_,15 @@
  import net.minecraft.world.scores.Objective;
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Team;
@@ -41,10 +41,11 @@
 +import org.bukkit.craftbukkit.util.CraftChatMessage;
 +import org.bukkit.craftbukkit.util.CraftLocation;
 +import org.bukkit.event.player.*;
++import org.magmafoundation.magma.forge.ForgeInject;
  import org.slf4j.Logger;
  
  public abstract class PlayerList {
-@@ -114,26 +_,36 @@
+@@ -114,26 +_,39 @@
     private static final int f_143987_ = 600;
     private static final SimpleDateFormat f_11194_ = new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
     private final MinecraftServer f_11195_;
@@ -82,6 +83,9 @@
 +      p_203842_.console = org.bukkit.craftbukkit.command.ColouredConsoleSender.getInstance();
 +      p_203842_.reader.addCompleter(new org.bukkit.craftbukkit.command.ConsoleCommandCompleter(p_203842_.server));
 +      // CraftBukkit end
++
++      ForgeInject.init(); //Magma - Forge Inject - Initialize
++
        this.f_11195_ = p_203842_;
        this.f_243858_ = p_251844_;
        this.f_256838_ = (new RegistryAccess.ImmutableRegistryAccess(RegistrySynchronization.m_257599_(p_251844_))).m_203557_();
