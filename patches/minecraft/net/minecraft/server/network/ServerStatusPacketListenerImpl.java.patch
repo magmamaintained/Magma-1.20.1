@@ -41,7 +41,7 @@
     }
  
     public void m_7026_(Component p_10091_) {
-@@ -32,7 +_,89 @@
+@@ -32,7 +_,98 @@
           this.f_10083_.m_129507_(f_10081_);
        } else {
           this.f_10084_ = true;
@@ -118,6 +118,15 @@
 +               }
 +            }
 +         }
++
++         // Spigot Start
++         if ( !server.m_183306_() && !profiles.isEmpty() )
++         {
++            java.util.Collections.shuffle( profiles ); // This sucks, its inefficient but we have no simple way of doing it differently
++            profiles = profiles.subList( 0, Math.min( profiles.size(), org.spigotmc.SpigotConfig.playerSample ) ); // Cap the sample to n (or less) displayed players, ie: Vanilla behaviour
++         }
++         // Spigot End
++
 +         ServerStatus.Players playerSample = new ServerStatus.Players(event.getMaxPlayers(), profiles.size(), (server.m_183306_()) ? Collections.emptyList() : profiles);
 +         ServerStatus ping = new ServerStatus(
 +                 CraftChatMessage.fromString(event.getMotd(), true)[0],

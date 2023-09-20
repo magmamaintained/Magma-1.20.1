@@ -17,7 +17,7 @@
     public ThreadedLevelLightEngine m_7827_() {
        return this.f_8331_;
     }
-@@ -120,7 +_,7 @@
+@@ -120,15 +_,17 @@
           for(int j = 0; j < 4; ++j) {
              if (i == this.f_8337_[j] && p_8362_ == this.f_8338_[j]) {
                 ChunkAccess chunkaccess = this.f_8339_[j];
@@ -26,6 +26,16 @@
                    return chunkaccess;
                 }
              }
+          }
+ 
+          profilerfiller.m_6174_("getChunkCacheMiss");
++         f_8329_.timings.syncChunkLoadTimer.startTiming(); // Spigot
+          CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture = this.m_8456_(p_8360_, p_8361_, p_8362_, p_8363_);
+          this.f_8332_.m_18701_(completablefuture::isDone);
++         f_8329_.timings.syncChunkLoadTimer.stopTiming(); // Spigot
+          ChunkAccess chunkaccess1 = completablefuture.join().map((p_8406_) -> {
+             return p_8406_;
+          }, (p_8423_) -> {
 @@ -162,6 +_,7 @@
           if (chunkholder == null) {
              return null;
@@ -60,7 +70,7 @@
     }
  
     public boolean m_5563_(int p_8429_, int p_8430_) {
-@@ -297,11 +_,32 @@
+@@ -297,11 +_,36 @@
     }
  
     public void close() throws IOException {
@@ -81,10 +91,14 @@
 +   // CraftBukkit start - modelled on below
 +   public void purgeUnload() {
 +      this.f_8329_.m_46473_().m_6180_("purge");
++      this.f_8329_.timings.doChunkMap.startTiming(); // Spigot
 +      this.f_8327_.m_140776_();
 +      this.m_8489_();
++      this.f_8329_.timings.doChunkMap.stopTiming(); // Spigot
++      this.f_8329_.timings.doChunkUnload.startTiming(); // Spigot
 +      this.f_8329_.m_46473_().m_6182_("unload");
 +      this.f_8325_.m_140280_(() -> true);
++      this.f_8329_.timings.doChunkUnload.stopTiming(); // Spigot
 +      this.f_8329_.m_46473_().m_7238_();
 +      this.m_8488_();
 +   }
@@ -102,7 +116,7 @@
           profilerfiller.m_6180_("naturalSpawnCount");
           int l = this.f_8327_.m_140816_();
           NaturalSpawner.SpawnState naturalspawner$spawnstate = NaturalSpawner.m_186524_(l, this.f_8329_.m_8583_(), this::m_8370_, new LocalMobCapCalculator(this.f_8325_));
-@@ -345,13 +_,13 @@
+@@ -345,20 +_,22 @@
           }
  
           profilerfiller.m_6182_("spawnAndTick");
@@ -114,10 +128,29 @@
              LevelChunk levelchunk1 = serverchunkcache$chunkandholder.f_184028_;
              ChunkPos chunkpos = levelchunk1.m_7697_();
 -            if (this.f_8329_.m_201916_(chunkpos) && this.f_8325_.m_183879_(chunkpos)) {
-+            if ((this.f_8329_.m_201916_(chunkpos) && this.f_8325_.m_183879_(chunkpos)) || this.f_8327_.shouldForceTicks(chunkpos.m_45588_())) {
++            if ((this.f_8329_.m_201916_(chunkpos) && this.f_8325_.m_183879_(chunkpos)) || this.f_8327_.shouldForceTicks(chunkpos.m_45588_()) && this.f_8325_.anyPlayerCloseEnoughForSpawning(chunkpos, true)) { // Spigot
                 levelchunk1.m_187632_(j);
                 if (flag2 && (this.f_8335_ || this.f_8336_) && this.f_8329_.m_6857_().m_61927_(chunkpos)) {
                    NaturalSpawner.m_47029_(this.f_8329_, levelchunk1, naturalspawner$spawnstate, this.f_8336_, this.f_8335_, flag1);
+                }
+ 
+                if (this.f_8329_.m_183438_(chunkpos.m_45588_())) {
++                  this.f_8329_.timings.doTickTiles.startTiming(); // Spigot
+                   this.f_8329_.m_8714_(levelchunk1, k);
++                  this.f_8329_.timings.doTickTiles.stopTiming(); // Spigot
+                }
+             }
+          }
+@@ -374,7 +_,9 @@
+          });
+          profilerfiller.m_7238_();
+          profilerfiller.m_7238_();
++         this.f_8329_.timings.tracker.startTiming(); // Spigot
+          this.f_8325_.m_140421_();
++         this.f_8329_.timings.tracker.stopTiming(); // Spigot
+       }
+    }
+ 
 @@ -432,11 +_,17 @@
     }
  

@@ -33,7 +33,7 @@
                 Connection.m_264299_(channelpipeline, PacketFlow.SERVERBOUND);
                 int i = ServerConnectionListener.this.f_9702_.m_7032_();
                 Connection connection = (Connection)(i > 0 ? new RateKickingConnection(i) : new Connection(PacketFlow.SERVERBOUND));
-@@ -92,9 +_,19 @@
+@@ -92,9 +_,26 @@
                 channelpipeline.addLast("packet_handler", connection);
                 connection.m_129505_(new ServerHandshakePacketListenerImpl(ServerConnectionListener.this.f_9702_, connection));
              }
@@ -47,6 +47,13 @@
 +   // CraftBukkit start
 +   public void acceptConnections() {
 +      synchronized (this.f_9703_) {
++         // Spigot Start
++         // This prevents players from 'gaming' the server, and strategically relogging to increase their position in the tick order
++         if ( org.spigotmc.SpigotConfig.playerShuffle > 0 && MinecraftServer.currentTick % org.spigotmc.SpigotConfig.playerShuffle == 0 )
++         {
++            Collections.shuffle( this.f_9704_ );
++         }
++         // Spigot End
 +         for (ChannelFuture future : this.f_9703_) {
 +            future.channel().config().setAutoRead(true);
 +         }
@@ -56,3 +63,14 @@
  
     public SocketAddress m_9708_() {
        ChannelFuture channelfuture;
+@@ -150,6 +_,10 @@
+                      connection.m_129540_();
+                   }
+                } else {
++                  // Spigot Start
++                  // Fix a race condition where a NetworkManager could be unregistered just before connection.
++                  if (connection.preparing) continue;
++                  // Spigot End
+                   iterator.remove();
+                   connection.m_129541_();
+                }

@@ -1,5 +1,16 @@
 --- a/net/minecraft/world/level/chunk/ChunkGenerator.java
 +++ b/net/minecraft/world/level/chunk/ChunkGenerator.java
+@@ -99,8 +_,8 @@
+ 
+    protected abstract Codec<? extends ChunkGenerator> m_6909_();
+ 
+-   public ChunkGeneratorStructureState m_255169_(HolderLookup<StructureSet> p_256405_, RandomState p_256101_, long p_256018_) {
+-      return ChunkGeneratorStructureState.m_255081_(p_256101_, p_256018_, this.f_62137_, p_256405_);
++   public ChunkGeneratorStructureState createState(HolderLookup<StructureSet> p_256405_, RandomState p_256101_, long p_256018_, org.spigotmc.SpigotWorldConfig conf) { // Spigot
++      return ChunkGeneratorStructureState.createForNormal(p_256101_, p_256018_, this.f_62137_, p_256405_, conf); // Spigot
+    }
+ 
+    public Optional<ResourceKey<Codec<? extends ChunkGenerator>>> m_187743_() {
 @@ -265,6 +_,32 @@
        }
     }

@@ -47,13 +47,14 @@
  import net.minecraft.world.level.entity.EntityTypeTest;
  import net.minecraft.world.level.entity.LevelEntityGetter;
  import net.minecraft.world.level.gameevent.GameEvent;
-@@ -69,8 +_,16 @@
+@@ -69,8 +_,17 @@
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.Vec3;
  import net.minecraft.world.scores.Scoreboard;
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.CraftServer;
 +import org.bukkit.craftbukkit.CraftWorld;
++import org.bukkit.craftbukkit.SpigotTimings;
 +import org.bukkit.craftbukkit.block.CapturedBlockState;
 +import org.bukkit.craftbukkit.block.data.CraftBlockData;
 +import org.bukkit.craftbukkit.util.CraftSpawnCategory;
@@ -65,7 +66,7 @@
     public static final Codec<ResourceKey<Level>> f_46427_ = ResourceKey.m_195966_(Registries.f_256858_);
     public static final ResourceKey<Level> f_46428_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> f_46429_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("the_nether"));
-@@ -110,8 +_,49 @@
+@@ -110,8 +_,55 @@
     private final RegistryAccess f_268710_;
     private final DamageSources f_268497_;
     private long f_186455_;
@@ -90,7 +91,13 @@
 +   public List<ItemEntity> captureDrops;
 +   public final it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap<SpawnCategory> ticksPerSpawnCategory = new it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap<>();
 +   public boolean populating;
-+//   public final org.spigotmc.SpigotWorldConfig spigotConfig; // Spigot
++   public final org.spigotmc.SpigotWorldConfig spigotConfig; // Spigot
++
++   public final SpigotTimings.WorldTimingsHandler timings; // Spigot
++   public static BlockPos lastPhysicsProblem; // Spigot
++   private org.spigotmc.TickLimiter entityLimiter;
++   private org.spigotmc.TickLimiter tileLimiter;
++   private int tileTickPosition;
 +
 +   public CraftWorld getWorld() {
 +      return this.world;
@@ -104,7 +111,7 @@
 +
 +   protected Level(WritableLevelData p_270739_, ResourceKey<Level> p_270683_, RegistryAccess p_270200_, Holder<DimensionType> p_270240_, Supplier<ProfilerFiller> p_270692_, boolean p_270904_, boolean p_270470_, long p_270248_, int p_270466_, org.bukkit.generator.ChunkGenerator gen, org.bukkit.generator.BiomeProvider biomeProvider, org.bukkit.World.Environment env) {
 +      super(Level.class);
-+//      this.spigotConfig = new org.spigotmc.SpigotWorldConfig(((net.minecraft.world.level.storage.ServerLevelData) p_270739_).getLevelName()); // Spigot
++      this.spigotConfig = new org.spigotmc.SpigotWorldConfig(((net.minecraft.world.level.storage.ServerLevelData) p_270739_).m_5462_()); // Spigot
 +      this.generator = gen;
 +      this.world = new CraftWorld((ServerLevel) this, gen, biomeProvider, env);
 +      // CraftBukkit Ticks things
@@ -131,7 +138,7 @@
              }
           };
        } else {
-@@ -141,6 +_,42 @@
+@@ -141,6 +_,45 @@
        this.f_220350_ = new CollectingNeighborUpdater(this, p_270466_);
        this.f_268710_ = p_270200_;
        this.f_268497_ = new DamageSources(p_270200_);
@@ -171,6 +178,9 @@
 +         public void m_6313_(WorldBorder worldborder, double d0) {}
 +      });
 +      // CraftBukkit end
++      timings = new SpigotTimings.WorldTimingsHandler(this); // Spigot - code below can generate new world and access timings
++      this.entityLimiter = new org.spigotmc.TickLimiter(spigotConfig.entityMaxTickTime);
++      this.tileLimiter = new org.spigotmc.TickLimiter(spigotConfig.tileMaxTickTime);
     }
  
     public boolean m_5776_() {
@@ -192,7 +202,7 @@
        if (this.m_151570_(p_46605_)) {
           return false;
        } else if (!this.f_46443_ && this.m_46659_()) {
-@@ -198,38 +_,87 @@
+@@ -198,38 +_,93 @@
        } else {
           LevelChunk levelchunk = this.m_46745_(p_46605_);
           Block block = p_46606_.m_60734_();
@@ -272,18 +282,26 @@
 -                  blockstate.m_60762_(this, p_46605_, i, p_46608_ - 1);
 -                  p_46606_.m_60705_(this, p_46605_, i, p_46608_ - 1);
 -                  p_46606_.m_60762_(this, p_46605_, i, p_46608_ - 1);
+-               }
+-
+-               this.m_6559_(p_46605_, blockstate, blockstate1);
 +                  blockstate.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
 +                  p_46606_.updateNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
 +                  p_46606_.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-                }
- 
--               this.m_6559_(p_46605_, blockstate, blockstate1);
++               }
++
 +            */
 +
 +            // CraftBukkit start
 +            if (!this.captureBlockStates) { // Don't notify clients or update physics while capturing blockstates
 +               // Modularize client and physic updates
-+               notifyAndUpdatePhysics(p_46605_, levelchunk, blockstate, p_46606_, blockstate1, p_46607_, p_46607_);
++               // Spigot start
++               try {
++                  notifyAndUpdatePhysics(p_46605_, levelchunk, blockstate, p_46606_, blockstate1, p_46607_, p_46607_);
++               } catch (StackOverflowError ex) {
++                  lastPhysicsProblem = new BlockPos(p_46605_);
++               }
++               // Spigot end
              }
 +            // CraftBukkit end
  
@@ -314,7 +332,7 @@
        if (this.m_151570_(p_46732_)) {
           return Blocks.f_50626_.m_49966_();
        } else {
-@@ -398,10 +_,26 @@
+@@ -398,38 +_,84 @@
        (this.f_151504_ ? this.f_151503_ : this.f_151512_).add(p_151526_);
     }
  
@@ -329,6 +347,7 @@
     protected void m_46463_() {
        ProfilerFiller profilerfiller = this.m_46473_();
        profilerfiller.m_6180_("blockEntities");
++      timings.tileEntityPending.startTiming(); // Spigot
 +      if (!this.pendingFreshBlockEntities.isEmpty()) {
 +         this.freshBlockEntities.addAll(this.pendingFreshBlockEntities);
 +         this.pendingFreshBlockEntities.clear();
@@ -341,12 +360,55 @@
        if (!this.f_151503_.isEmpty()) {
           this.f_151512_.addAll(this.f_151503_);
           this.f_151503_.clear();
-@@ -424,12 +_,19 @@
+       }
+-
+-      Iterator<TickingBlockEntity> iterator = this.f_151512_.iterator();
+-
+-      while(iterator.hasNext()) {
+-         TickingBlockEntity tickingblockentity = iterator.next();
++      timings.tileEntityPending.stopTiming(); // Spigot
++
++      timings.tileEntityTick.startTiming(); // Spigot
++
++
++      // Spigot start
++      int tilesThisCycle = 0;
++      for (tileLimiter.initTick();
++           tilesThisCycle < f_151512_.size() && (tilesThisCycle % 10 != 0 || tileLimiter.shouldContinue());
++           tileTickPosition++, tilesThisCycle++) {
++         tileTickPosition = (tileTickPosition < f_151512_.size()) ? tileTickPosition : 0;
++         TickingBlockEntity tickingblockentity = (TickingBlockEntity) this.f_151512_.get(tileTickPosition);
++         // Spigot start
++         if (tickingblockentity == null) {
++            getCraftServer().getLogger().severe("Spigot has detected a null entity and has removed it, preventing a crash");
++            tilesThisCycle--;
++            this.f_151512_.remove(tileTickPosition--);
++            continue;
++         }
++         // Spigot end
+          if (tickingblockentity.m_142220_()) {
+-            iterator.remove();
++            // Spigot start
++            tilesThisCycle--;
++            this.f_151512_.remove(tileTickPosition--);
++            // Spigot end
+          } else if (this.m_220393_(tickingblockentity.m_142689_())) {
+             tickingblockentity.m_142224_();
+          }
+       }
+ 
+       this.f_151504_ = false;
++      timings.tileEntityTick.stopTiming(); // Spigot
+       profilerfiller.m_7238_();
++      spigotConfig.currentPrimedTnt = 0; // Spigot
+    }
  
     public <T extends Entity> void m_46653_(Consumer<T> p_46654_, T p_46655_) {
        try {
++         SpigotTimings.tickEntityTimer.startTiming(); // Spigot
 +         net.minecraftforge.server.timings.TimeTracker.ENTITY_UPDATE.trackStart(p_46655_);
           p_46654_.accept(p_46655_);
++         SpigotTimings.tickEntityTimer.stopTiming(); // Spigot
        } catch (Throwable throwable) {
           CrashReport crashreport = CrashReport.m_127521_(throwable, "Ticking entity");
           CrashReportCategory crashreportcategory = crashreport.m_127514_("Entity being ticked");
@@ -482,7 +544,7 @@
                    this.m_213960_(blockstate, blockpos, p_46719_, p_46718_, false);
                 }
              }
-@@ -856,6 +_,18 @@
+@@ -856,11 +_,23 @@
        return this.f_46420_;
     }
  
@@ -501,6 +563,12 @@
     public final boolean m_46659_() {
        return this.f_46424_;
     }
+ 
+-   protected abstract LevelEntityGetter<Entity> m_142646_();
++   public abstract LevelEntityGetter<Entity> m_142646_();
+ 
+    public long m_183596_() {
+       return (long)(this.f_186455_++);
 @@ -873,6 +_,55 @@
     public DamageSources m_269111_() {
        return this.f_268497_;

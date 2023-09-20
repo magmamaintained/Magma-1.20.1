@@ -28,7 +28,7 @@
  
  public class WitherBoss extends Monster implements PowerableMob, RangedAttackMob {
     private static final EntityDataAccessor<Integer> f_31420_ = SynchedEntityData.m_135353_(WitherBoss.class, EntityDataSerializers.f_135028_);
-@@ -219,14 +_,38 @@
+@@ -219,14 +_,39 @@
           int k1 = this.m_31502_() - 1;
           this.f_31430_.m_142711_(1.0F - (float)k1 / 220.0F);
           if (k1 <= 0) {
@@ -50,6 +50,7 @@
 +                  double deltaX = this.m_20185_() - player.m_20185_();
 +                  double deltaZ = this.m_20189_() - player.m_20189_();
 +                  double distanceSquared = deltaX * deltaX + deltaZ * deltaZ;
++                  if ( this.m_9236_().spigotConfig.witherSpawnSoundRadius > 0 && distanceSquared > this.m_9236_().spigotConfig.witherSpawnSoundRadius * this.m_9236_().spigotConfig.witherSpawnSoundRadius ) continue; // Spigot
 +                  if (distanceSquared > viewDistance * viewDistance) {
 +                     double deltaLength = Math.sqrt(distanceSquared);
 +                     double relativeX = player.m_20185_() + (deltaX / deltaLength) * viewDistance;

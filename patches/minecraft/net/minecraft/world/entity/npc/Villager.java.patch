@@ -11,6 +11,24 @@
  import org.slf4j.Logger;
  
  public class Villager extends AbstractVillager implements ReputationEventHandler, VillagerDataHolder {
+@@ -204,6 +_,17 @@
+       return this.f_35366_;
+    }
+ 
++   // Spigot Start
++   @Override
++   public void inactiveTick() {
++      // SPIGOT-3874, SPIGOT-3894, SPIGOT-3846, SPIGOT-5286 :(
++      if (this.m_9236_().spigotConfig.tickInactiveVillagers && this.m_21515_()) {
++         this.m_8024_();
++      }
++      super.inactiveTick();
++   }
++   // Spigot End
++
+    protected void m_8024_() {
+       this.m_9236_().m_46473_().m_6180_("villagerBrain");
+       this.m_6274_().m_21865_((ServerLevel)this.m_9236_(), this);
 @@ -220,7 +_,7 @@
                 this.f_35374_ = false;
              }
@@ -59,6 +77,15 @@
           }
        }
  
+@@ -560,7 +_,7 @@
+    }
+ 
+    public void m_6667_(DamageSource p_35419_) {
+-      f_201976_.info("Villager {} died, message: '{}'", this, p_35419_.m_6157_(this).getString());
++      if (org.spigotmc.SpigotConfig.logVillagerDeaths) f_201976_.info("Villager {} died, message: '{}'", this, p_35419_.m_6157_(this).getString());
+       Entity entity = p_35419_.m_7639_();
+       if (entity != null) {
+          this.m_35420_(entity);
 @@ -669,7 +_,8 @@
     }
  

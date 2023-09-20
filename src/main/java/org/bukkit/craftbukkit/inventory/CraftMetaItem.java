@@ -53,6 +53,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.spigotmc.ValidateUtils.limit;
+
 /**
  * Children must include the following:
  *
@@ -279,7 +281,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
         this.customModelData = meta.customModelData;
         this.blockData = meta.blockData;
 
-        if (meta.hasEnchants()) {
+        if (meta.enchantments != null) { // Spigot
             this.enchantments = new LinkedHashMap<Enchantment, Integer>(meta.enchantments);
         }
 
@@ -307,18 +309,18 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
             CompoundTag display = tag.getCompound(DISPLAY.NBT);
 
             if (display.contains(NAME.NBT)) {
-                displayName = display.getString(NAME.NBT);
+                displayName = limit( display.getString(NAME.NBT), 8192 ); // Spigot
             }
 
             if (display.contains(LOCNAME.NBT)) {
-                locName = display.getString(LOCNAME.NBT);
+                locName = limit( display.getString(LOCNAME.NBT), 8192 ); // Spigot
             }
 
             if (display.contains(LORE.NBT)) {
                 ListTag list = display.getList(LORE.NBT, CraftMagicNumbers.NBT.TAG_STRING);
                 lore = new ArrayList<String>(list.size());
                 for (int index = 0; index < list.size(); index++) {
-                    String line = list.getString(index);
+                    String line = limit( list.getString(index), 8192 ); // Spigot
                     lore.add(line);
                 }
             }
@@ -651,7 +653,7 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
     }
 
     static void applyEnchantments(Map<Enchantment, Integer> enchantments, CompoundTag tag, ItemMetaKey key) {
-        if (enchantments == null || enchantments.size() == 0) {
+        if (enchantments == null /*|| enchantments.size() == 0*/) { // Spigot - remove size check
             return;
         }
 
@@ -800,7 +802,14 @@ class CraftMetaItem implements ItemMeta, Damageable, Repairable, BlockDataMeta {
     @Override
     public boolean removeEnchant(Enchantment ench) {
         Preconditions.checkArgument(ench != null, "Enchantment cannot be null");
-        return hasEnchants() && enchantments.remove(ench) != null;
+        // Spigot start
+        boolean b = hasEnchants() && enchantments.remove( ench ) != null;
+        if ( enchantments != null && enchantments.isEmpty() )
+        {
+            this.enchantments = null;
+        }
+        return b;
+        // Spigot end
     }
 
     @Override

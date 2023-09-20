@@ -20,7 +20,7 @@
  import net.minecraft.core.NonNullList;
  import net.minecraft.core.registries.BuiltInRegistries;
  import net.minecraft.resources.ResourceLocation;
-@@ -37,45 +_,99 @@
+@@ -37,45 +_,100 @@
     public Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> f_44007_ = ImmutableMap.of();
     private Map<ResourceLocation, Recipe<?>> f_199900_ = ImmutableMap.of();
     private boolean f_44008_;
@@ -88,6 +88,7 @@
  
 +   // CraftBukkit start - Magma Start
 +   public void addRecipe(Recipe<?> recipe) {
++      org.spigotmc.AsyncCatcher.catchOp("Recipe Add"); // Spigot
 +      if (this.f_44007_ instanceof ImmutableMap) {
 +         this.f_44007_ = new HashMap<>(f_44007_);
 +      }

@@ -18,7 +18,7 @@
  import org.slf4j.Logger;
  
  public abstract class HangingEntity extends Entity {
-@@ -58,36 +_,47 @@
+@@ -58,45 +_,74 @@
  
     protected void m_7087_() {
        if (this.f_31699_ != null) {
@@ -96,8 +96,11 @@
        return p_31710_ % 32 == 0 ? 0.5D : 0.0D;
     }
  
-@@ -97,6 +_,24 @@
-          if (this.f_31700_++ == 100) {
+    public void m_8119_() {
+       if (!this.m_9236_().f_46443_) {
+          this.m_146871_();
+-         if (this.f_31700_++ == 100) {
++         if (this.f_31700_++ == this.m_9236_().spigotConfig.hangingTickFrequency) { // Spigot
              this.f_31700_ = 0;
              if (!this.m_213877_() && !this.m_7088_()) {
 +               // CraftBukkit start - fire break events

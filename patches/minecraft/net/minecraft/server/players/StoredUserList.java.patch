@@ -1,0 +1,17 @@
+--- a/net/minecraft/server/players/StoredUserList.java
++++ b/net/minecraft/server/players/StoredUserList.java
+@@ -130,6 +_,14 @@
+                   this.f_11377_.put(this.m_5981_(storeduserentry.m_11373_()), (V)storeduserentry);
+                }
+             }
++            // Spigot Start
++         } catch ( com.google.gson.JsonParseException | NullPointerException ex )
++         {
++            org.bukkit.Bukkit.getLogger().log( java.util.logging.Level.WARNING, "Unable to read file " + this.f_11376_ + ", backing it up to {0}.backup and creating new copy.", ex );
++            File backup = new File( this.f_11376_ + ".backup" );
++            this.f_11376_.renameTo( backup );
++            this.f_11376_.delete();
++            // Spigot End
+          }
+ 
+       }

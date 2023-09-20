@@ -137,6 +137,15 @@
     }
  
     protected boolean m_6652_() {
+@@ -166,7 +_,7 @@
+          if (compoundtag != null) {
+             BlockEntity blockentity = p_40583_.m_7702_(p_40585_);
+             if (blockentity != null) {
+-               if (!p_40583_.f_46443_ && blockentity.m_6326_() && (p_40584_ == null || !p_40584_.m_36337_())) {
++               if (!p_40583_.f_46443_ && blockentity.m_6326_() && (p_40584_ == null || !(p_40584_.m_36337_() || (p_40584_.m_150110_().f_35937_ && p_40584_.getBukkitEntity().hasPermission("minecraft.nbt.place"))))) { // Spigot - add permission
+                   return false;
+                }
+ 
 @@ -195,11 +_,19 @@
     }
  

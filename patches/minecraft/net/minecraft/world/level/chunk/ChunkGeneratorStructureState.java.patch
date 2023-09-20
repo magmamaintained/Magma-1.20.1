@@ -1,0 +1,96 @@
+--- a/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
++++ b/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
+@@ -28,8 +_,10 @@
+ import net.minecraft.world.level.levelgen.structure.Structure;
+ import net.minecraft.world.level.levelgen.structure.StructureSet;
+ import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
++import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
+ import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
+ import org.slf4j.Logger;
++import org.spigotmc.SpigotWorldConfig;
+ 
+ public class ChunkGeneratorStructureState {
+    private static final Logger f_254706_ = LogUtils.getLogger();
+@@ -42,19 +_,77 @@
+    private boolean f_254710_;
+    private final List<Holder<StructureSet>> f_254708_;
+ 
+-   public static ChunkGeneratorStructureState m_255343_(RandomState p_256240_, long p_256404_, BiomeSource p_256274_, Stream<Holder<StructureSet>> p_256348_) {
++   public static ChunkGeneratorStructureState createForFlat(RandomState p_256240_, long p_256404_, BiomeSource p_256274_, Stream<Holder<StructureSet>> p_256348_, SpigotWorldConfig conf) { // Spigot
+       List<Holder<StructureSet>> list = p_256348_.filter((p_255616_) -> {
+          return m_255180_(p_255616_.m_203334_(), p_256274_);
+       }).toList();
+-      return new ChunkGeneratorStructureState(p_256240_, p_256274_, p_256404_, 0L, list);
++      return new ChunkGeneratorStructureState(p_256240_, p_256274_, p_256404_, 0L, injectSpigot(list, conf)); // Spigot
+    }
+ 
+-   public static ChunkGeneratorStructureState m_255081_(RandomState p_256197_, long p_255806_, BiomeSource p_256653_, HolderLookup<StructureSet> p_256659_) {
++   public static ChunkGeneratorStructureState createForNormal(RandomState p_256197_, long p_255806_, BiomeSource p_256653_, HolderLookup<StructureSet> p_256659_, SpigotWorldConfig conf) { // Spigot
+       List<Holder<StructureSet>> list = p_256659_.m_214062_().filter((p_256144_) -> {
+          return m_255180_(p_256144_.m_203334_(), p_256653_);
+       }).collect(Collectors.toUnmodifiableList());
+-      return new ChunkGeneratorStructureState(p_256197_, p_256653_, p_255806_, p_255806_, list);
+-   }
++      return new ChunkGeneratorStructureState(p_256197_, p_256653_, p_255806_, p_255806_, injectSpigot(list, conf)); // Spigot
++   }
++
++   // Spigot start
++   private static List<Holder<StructureSet>> injectSpigot(List<Holder<StructureSet>> list, SpigotWorldConfig conf) {
++      return list.stream().map((holder) -> {
++         StructureSet structureset = holder.m_203334_();
++         if (structureset.f_210004_() instanceof RandomSpreadStructurePlacement randomConfig) {
++            String name = holder.m_203543_().orElseThrow().m_135782_().m_135815_();
++            int seed = randomConfig.f_227025_;
++            switch (name) {
++               case "desert_pyramids":
++                  seed = conf.desertSeed;
++                  break;
++               case "end_cities":
++                  seed = conf.endCitySeed;
++                  break;
++               case "nether_complexes":
++                  seed = conf.netherSeed;
++                  break;
++               case "igloos":
++                  seed = conf.iglooSeed;
++                  break;
++               case "jungle_temples":
++                  seed = conf.jungleSeed;
++                  break;
++               case "woodland_mansions":
++                  seed = conf.mansionSeed;
++                  break;
++               case "ocean_monuments":
++                  seed = conf.monumentSeed;
++                  break;
++               case "nether_fossils":
++                  seed = conf.fossilSeed;
++                  break;
++               case "ocean_ruins":
++                  seed = conf.oceanSeed;
++                  break;
++               case "pillager_outposts":
++                  seed = conf.outpostSeed;
++                  break;
++               case "ruined_portals":
++                  seed = conf.portalSeed;
++                  break;
++               case "shipwrecks":
++                  seed = conf.shipwreckSeed;
++                  break;
++               case "swamp_huts":
++                  seed = conf.swampSeed;
++                  break;
++               case "villages":
++                  seed = conf.villageSeed;
++                  break;
++            }
++            structureset = new StructureSet(structureset.f_210003_(), new RandomSpreadStructurePlacement(randomConfig.f_227022_, randomConfig.f_227023_, randomConfig.f_227024_, seed, randomConfig.f_227026_, randomConfig.m_205003_(), randomConfig.m_205004_(), randomConfig.m_205005_()));
++         }
++         return Holder.m_205709_(structureset);
++      }).collect(Collectors.toUnmodifiableList());
++   }
++   // Spigot end
+ 
+    private static boolean m_255180_(StructureSet p_255766_, BiomeSource p_256424_) {
+       Stream<Holder<Biome>> stream = p_255766_.f_210003_().stream().flatMap((p_255738_) -> {

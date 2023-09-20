@@ -74,3 +74,29 @@
        if (i < 1493) {
           p_188291_ = DataFixTypes.CHUNK.m_264226_(this.f_63496_, p_188291_, i, 1493);
           if (p_188291_.m_128469_("Level").m_128471_("hasLegacyStructureData")) {
+@@ -45,11 +_,25 @@
+          }
+       }
+ 
++      // Spigot start - SPIGOT-6806: Quick and dirty way to prevent below zero generation in old chunks, by setting the status to heightmap instead of empty
++      boolean stopBelowZero = false;
++      boolean belowZeroGenerationInExistingChunks = (generatoraccess != null) ? ((ServerLevel) generatoraccess).spigotConfig.belowZeroGenerationInExistingChunks : org.spigotmc.SpigotConfig.belowZeroGenerationInExistingChunks;
++      if (i <= 2730 && !belowZeroGenerationInExistingChunks) {
++         stopBelowZero = "full".equals(p_188291_.m_128469_("Level").m_128461_("Status"));
++      }
++      // Spigot end
++
+       m_196918_(p_188291_, p_188289_, p_188292_);
+       p_188291_ = DataFixTypes.CHUNK.m_264218_(this.f_63496_, p_188291_, Math.max(1493, i));
+       if (i < SharedConstants.m_183709_().m_183476_().m_193006_()) {
+          NbtUtils.m_264171_(p_188291_);
+       }
++
++      // Spigot start
++      if (stopBelowZero) {
++         p_188291_.m_128359_("Status", net.minecraft.core.registries.BuiltInRegistries.f_256940_.m_7981_(ChunkStatus.f_62324_).toString());
++      }
++      // Spigot end
+ 
+       p_188291_.m_128473_("__context");
+       return p_188291_;

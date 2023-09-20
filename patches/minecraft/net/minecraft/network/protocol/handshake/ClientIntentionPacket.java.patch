@@ -1,7 +1,11 @@
 --- a/net/minecraft/network/protocol/handshake/ClientIntentionPacket.java
 +++ b/net/minecraft/network/protocol/handshake/ClientIntentionPacket.java
-@@ -11,6 +_,7 @@
-    public final String f_134721_;
+@@ -8,9 +_,10 @@
+ public class ClientIntentionPacket implements Packet<ServerHandshakePacketListener> {
+    private static final int f_179799_ = 255;
+    private final int f_134720_;
+-   public final String f_134721_;
++   public String f_134721_;
     public final int f_134722_;
     private final ConnectionProtocol f_134723_;
 +   private String fmlVersion = net.minecraftforge.network.NetworkConstants.NETVERSION;
@@ -13,7 +17,7 @@
     public ClientIntentionPacket(FriendlyByteBuf p_179801_) {
        this.f_134720_ = p_179801_.m_130242_();
 -      this.f_134721_ = p_179801_.m_130136_(255);
-+      String hostName = p_179801_.m_130136_(255);
++      String hostName = p_179801_.m_130136_(Short.MAX_VALUE); // Spigot
        this.f_134722_ = p_179801_.readUnsignedShort();
        this.f_134723_ = ConnectionProtocol.m_129583_(p_179801_.m_130242_());
 +      this.fmlVersion = net.minecraftforge.network.NetworkHooks.getFMLVersion(hostName);

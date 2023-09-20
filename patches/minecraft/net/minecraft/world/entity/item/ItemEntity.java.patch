@@ -106,7 +106,7 @@
  
           this.f_19812_ |= this.m_20073_();
           if (!this.m_9236_().f_46443_) {
-@@ -158,7 +_,19 @@
+@@ -158,12 +_,45 @@
              }
           }
  
@@ -127,6 +127,61 @@
              this.m_146870_();
           }
  
+       }
+    }
++
++   // Spigot start - copied from above
++   @Override
++   public void inactiveTick() {
++      // CraftBukkit start - Use wall time for pickup and despawn timers
++      int elapsedTicks = MinecraftServer.currentTick - this.lastTick;
++      if (this.f_31986_ != 32767) this.f_31986_ -= elapsedTicks;
++      if (this.f_31985_ != -32768) this.f_31985_ += elapsedTicks;
++      this.lastTick = MinecraftServer.currentTick;
++      // CraftBukkit end
++      if (!this.m_9236_().f_46443_ && this.f_31985_ >= this.m_9236_().spigotConfig.itemDespawnRate) { // Spigot
++         // CraftBukkit start - fire ItemDespawnEvent
++         if (org.bukkit.craftbukkit.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++            this.f_31985_ = 0;
++            return;
++         }
++         // CraftBukkit end
++         this.m_146870_();
++      }
++   }
++   // Spigot end
+ 
+    protected BlockPos m_20099_() {
+       return this.m_216986_(0.999999F);
+@@ -181,7 +_,10 @@
+ 
+    private void m_32069_() {
+       if (this.m_32070_()) {
+-         for(ItemEntity itementity : this.m_9236_().m_6443_(ItemEntity.class, this.m_20191_().m_82377_(0.5D, 0.0D, 0.5D), (p_186268_) -> {
++         // Spigot start
++         double radius = this.m_9236_().spigotConfig.itemMerge;
++         for(ItemEntity itementity : this.m_9236_().m_6443_(ItemEntity.class, this.m_20191_().m_82377_(radius, radius - 0.5D, radius), (p_186268_) -> {
++            // Spigot end
+             return p_186268_ != this && p_186268_.m_32070_();
+          })) {
+             if (itementity.m_32070_()) {
+@@ -197,14 +_,14 @@
+ 
+    private boolean m_32070_() {
+       ItemStack itemstack = this.m_32055_();
+-      return this.m_6084_() && this.f_31986_ != 32767 && this.f_31985_ != -32768 && this.f_31985_ < 6000 && itemstack.m_41613_() < itemstack.m_41741_();
++      return this.m_6084_() && this.f_31986_ != 32767 && this.f_31985_ != -32768 && this.f_31985_ < this.m_9236_().spigotConfig.itemDespawnRate && itemstack.m_41613_() < itemstack.m_41741_();
+    }
+ 
+    private void m_32015_(ItemEntity p_32016_) {
+       ItemStack itemstack = this.m_32055_();
+       ItemStack itemstack1 = p_32016_.m_32055_();
+       if (Objects.equals(this.f_265881_, p_32016_.f_265881_) && m_32026_(itemstack, itemstack1)) {
+-         if (itemstack1.m_41613_() < itemstack.m_41613_()) {
++         if (true || itemstack1.m_41613_() < itemstack.m_41613_()) {
+             m_32017_(this, itemstack, p_32016_, itemstack1);
+          } else {
+             m_32017_(p_32016_, itemstack1, this, itemstack);
 @@ -220,6 +_,8 @@
           return false;
        } else if (p_32028_.m_41782_() ^ p_32027_.m_41782_()) {
@@ -268,12 +323,13 @@
        this.m_20088_().m_135381_(f_31984_, p_32046_);
     }
  
-@@ -410,7 +_,7 @@
+@@ -410,7 +_,8 @@
  
     public void m_32065_() {
        this.m_32062_();
 -      this.f_31985_ = 5999;
 +      this.f_31985_ = m_32055_().getEntityLifespan(this.m_9236_()) - 1;
++      // this.age = this.level().spigotConfig.itemDespawnRate - 1; // Spigot // TODO: Magma this confilix with forge idk what to do?
     }
  
     public float m_32008_(float p_32009_) {

@@ -8,6 +8,28 @@
  
  public class FireworkRocketEntity extends Projectile implements ItemSupplier {
     public static final EntityDataAccessor<ItemStack> f_37019_ = SynchedEntityData.m_135353_(FireworkRocketEntity.class, EntityDataSerializers.f_135033_);
+@@ -74,6 +_,21 @@
+       this.m_5602_(p_37052_);
+    }
+ 
++   // Spigot Start - copied from tick
++   @Override
++   public void inactiveTick() {
++      this.f_37022_ += 1;
++      if (!this.m_9236_().f_46443_ && this.f_37022_ > this.f_37023_) {
++         // CraftBukkit start
++         if (!org.bukkit.craftbukkit.event.CraftEventFactory.callFireworkExplodeEvent(this).isCancelled()) {
++            this.m_37080_();
++         }
++         // CraftBukkit end
++      }
++      super.inactiveTick();
++   }
++   // Spigot End
++
+    protected void m_8097_() {
+       this.f_19804_.m_135372_(f_37019_, ItemStack.f_41583_);
+       this.f_19804_.m_135372_(f_37020_, OptionalInt.empty());
 @@ -130,7 +_,7 @@
  
        HitResult hitresult = ProjectileUtil.m_278158_(this, this::m_5603_);

@@ -24,7 +24,7 @@
  import net.minecraft.world.level.entity.EntityAccess;
  import net.minecraft.world.level.entity.EntityInLevelCallback;
  import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-@@ -118,9 +_,56 @@
+@@ -118,9 +_,57 @@
  import net.minecraft.world.phys.shapes.VoxelShape;
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Team;
@@ -49,8 +49,10 @@
 +import org.bukkit.event.vehicle.VehicleExitEvent;
 +import org.bukkit.plugin.PluginManager;
  import org.slf4j.Logger;
- 
+-
 -public abstract class Entity implements Nameable, EntityAccess, CommandSource {
++import org.spigotmc.CustomTimingsHandler;
++
 +public abstract class Entity extends net.minecraftforge.common.capabilities.CapabilityProvider<Entity> implements Nameable, EntityAccess, CommandSource, net.minecraftforge.common.extensions.IForgeEntity {
 +
 +   // CraftBukkit start
@@ -109,7 +111,8 @@
     protected final RandomSource f_19796_ = RandomSource.m_216327_();
     public int f_19797_;
     public int f_19831_ = -this.m_6101_();
-    protected boolean f_19798_;
+-   protected boolean f_19798_;
++   public boolean f_19798_;
 +   @Deprecated // Forge: Use forgeFluidTypeHeight instead
     protected Object2DoubleMap<TagKey<Fluid>> f_19799_ = new Object2DoubleArrayMap<>(2);
     protected boolean f_19800_;
@@ -117,7 +120,7 @@
     private final Set<TagKey<Fluid>> f_19801_ = new HashSet<>();
     public int f_19802_;
     protected boolean f_19803_ = true;
-@@ -235,8 +_,32 @@
+@@ -235,14 +_,53 @@
     public boolean f_146813_;
     @Nullable
     private BlockState f_185934_ = null;
@@ -131,6 +134,14 @@
 +   public boolean lastDamageCancelled; // SPIGOT-5339, SPIGOT-6252, SPIGOT-6777: Keep track if the event was canceled
 +   public boolean persistentInvisibility = false;
 +   public BlockPos lastLavaContact;
++   public CustomTimingsHandler tickTimer = org.bukkit.craftbukkit.SpigotTimings.getEntityTimings(this); // Spigot
++
++   // Spigot start
++   public final org.spigotmc.ActivationRange.ActivationType activationType = org.spigotmc.ActivationRange.initializeEntityActivationType(this);
++   public final boolean defaultActivationState;
++   public long activatedTick = Integer.MIN_VALUE;
++   public void inactiveTick() { }
++   // Spigot end
 +
 +   public float getBukkitYaw() {
 +      return this.f_19857_;
@@ -150,6 +161,19 @@
        this.f_19847_ = p_19870_;
        this.f_19853_ = p_19871_;
        this.f_19815_ = p_19870_.m_20680_();
+       this.f_19825_ = Vec3.f_82478_;
+       this.f_19826_ = BlockPos.f_121853_;
+       this.f_185933_ = ChunkPos.f_186419_;
++      // Spigot start
++      if (p_19871_ != null) {
++         this.defaultActivationState = org.spigotmc.ActivationRange.initializeEntityActivationState(this, p_19871_.spigotConfig);
++      } else {
++         this.defaultActivationState = false;
++      }
++      // Spigot end
+       this.f_19804_ = new SynchedEntityData(this);
+       this.f_19804_.m_135372_(f_19805_, (byte)0);
+       this.f_19804_.m_135372_(f_19832_, this.m_6062_());
 @@ -254,7 +_,11 @@
        this.f_19804_.m_135372_(f_146800_, 0);
        this.m_8097_();
@@ -304,6 +328,14 @@
        int i = p_20255_ * 20;
        if (this instanceof LivingEntity) {
           i = ProtectionEnchantment.m_45138_((LivingEntity)this, i);
+@@ -601,6 +_,7 @@
+    }
+ 
+    public void m_6478_(MoverType p_19973_, Vec3 p_19974_) {
++      org.bukkit.craftbukkit.SpigotTimings.entityMoveTimer.startTiming(); // Spigot
+       if (this.f_19794_) {
+          this.m_6034_(this.m_20185_() + p_19974_.f_82479_, this.m_20186_() + p_19974_.f_82480_, this.m_20189_() + p_19974_.f_82481_);
+       } else {
 @@ -663,6 +_,26 @@
                 block.m_5548_(this.m_9236_(), this);
              }
@@ -340,7 +372,7 @@
                 BlockPos blockpos1 = this.m_20097_();
                 BlockState blockstate1 = this.m_9236_().m_8055_(blockpos1);
                 boolean flag1 = this.m_285776_(blockstate1);
-@@ -716,16 +_,16 @@
+@@ -716,18 +_,19 @@
                    this.m_7311_(-this.m_6101_());
                 }
  
@@ -359,7 +391,10 @@
 +            this.f_19853_.m_46473_().m_7238_();
           }
        }
++      org.bukkit.craftbukkit.SpigotTimings.entityMoveTimer.stopTiming(); // Spigot
     }
+ 
+    private boolean m_285776_(BlockState p_286733_) {
 @@ -813,7 +_,7 @@
              return blockpos;
           } else {
@@ -559,7 +594,7 @@
           p_20241_.m_128365_("Rotation", this.m_20065_(this.m_146908_(), this.m_146909_()));
           p_20241_.m_128350_("FallDistance", this.f_19789_);
           p_20241_.m_128376_("Fire", (short)this.f_19831_);
-@@ -1590,6 +_,25 @@
+@@ -1590,6 +_,26 @@
           p_20241_.m_128379_("Invulnerable", this.f_19840_);
           p_20241_.m_128405_("PortalCooldown", this.f_19839_);
           p_20241_.m_128362_("UUID", this.m_20148_());
@@ -581,6 +616,7 @@
 +         if (maxAirTicks != getDefaultMaxAirSupply()) {
 +            p_20241_.m_128405_("Bukkit.MaxAirSupply", m_6062_());
 +         }
++         p_20241_.m_128405_("Spigot.ticksLived", this.f_19797_);
 +         // CraftBukkit end
           Component component = this.m_7770_();
           if (component != null) {
@@ -628,12 +664,17 @@
                 if (p_20259_.m_128425_("Tags", 9)) {
                    this.f_19841_.clear();
                    ListTag listtag3 = p_20259_.m_128437_("Tags", 8);
-@@ -1726,6 +_,40 @@
+@@ -1726,6 +_,45 @@
           } else {
              throw new IllegalStateException("Entity has invalid position");
           }
 +
 +         // CraftBukkit start
++         // Spigot start
++         if (this instanceof LivingEntity) {
++            this.f_19797_ = p_20259_.m_128451_("Spigot.ticksLived");
++         }
++         // Spigot end
 +         this.persist = !p_20259_.m_128441_("Bukkit.persist") || p_20259_.m_128471_("Bukkit.persist");
 +         this.visibleByDefault = !p_20259_.m_128441_("Bukkit.visibleByDefault") || p_20259_.m_128471_("Bukkit.visibleByDefault");
 +         // SPIGOT-6907: re-implement LivingEntity#setMaximumAir()
@@ -701,14 +742,26 @@
        this.m_8119_();
        if (this.m_20159_()) {
           this.m_20202_().m_7332_(this);
-@@ -1877,6 +_,7 @@
+@@ -1877,7 +_,19 @@
              }
           }
  
 +      if (!net.minecraftforge.event.ForgeEventFactory.canMountEntity(this, p_19966_, true)) return false;
           if (p_19967_ || this.m_7341_(p_19966_) && p_19966_.m_7310_(this)) {
++            // Spigot start
++            org.spigotmc.event.entity.EntityMountEvent event = new org.spigotmc.event.entity.EntityMountEvent(this.getBukkitEntity(), p_19966_.getBukkitEntity());
++            // Suppress during worldgen
++            if (this.valid) {
++               Bukkit.getPluginManager().callEvent(event);
++            }
++            if (event.isCancelled()) {
++               return false;
++            }
++            // Spigot end
++
              if (this.m_20159_()) {
                 this.m_8127_();
+             }
 @@ -1898,7 +_,22 @@
     }
  
@@ -744,7 +797,7 @@
        }
  
     }
-@@ -1946,10 +_,29 @@
+@@ -1946,10 +_,39 @@
        }
     }
  
@@ -772,6 +825,16 @@
 +            }
 +         }
 +         // CraftBukkit end
++         // Spigot start
++         org.spigotmc.event.entity.EntityDismountEvent event = new org.spigotmc.event.entity.EntityDismountEvent(p_20352_.getBukkitEntity(), this.getBukkitEntity());
++         // Suppress during worldgen
++         if (this.valid) {
++            Bukkit.getPluginManager().callEvent(event);
++         }
++         if (event.isCancelled()) {
++            return false;
++         }
++         // Spigot end
           if (this.f_19823_.size() == 1 && this.f_19823_.get(0) == p_20352_) {
              this.f_19823_ = ImmutableList.of();
           } else {

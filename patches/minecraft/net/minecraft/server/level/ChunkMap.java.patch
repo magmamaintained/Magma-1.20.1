@@ -61,6 +61,15 @@
        RegistryAccess registryaccess = p_214836_.m_9598_();
        long i = p_214836_.m_7328_();
        if (p_214843_ instanceof NoiseBasedChunkGenerator noisebasedchunkgenerator) {
+@@ -159,7 +_,7 @@
+          this.f_214834_ = RandomState.m_255302_(NoiseGeneratorSettings.m_238396_(), registryaccess.m_255025_(Registries.f_256865_), i);
+       }
+ 
+-      this.f_254626_ = p_214843_.m_255169_(registryaccess.m_255025_(Registries.f_256998_), this.f_214834_, i);
++      this.f_254626_ = p_214843_.createState(registryaccess.m_255025_(Registries.f_256998_), this.f_214834_, i, p_214836_.spigotConfig); // Spigot
+       this.f_140135_ = p_214841_;
+       ProcessorMailbox<Runnable> processormailbox1 = ProcessorMailbox.m_18751_(p_214840_, "worldgen");
+       ProcessorHandle<Runnable> processorhandle = ProcessorHandle.m_18714_("main", p_214841_::m_6937_);
 @@ -398,6 +_,7 @@
              this.f_140140_ = true;
           }
@@ -131,7 +140,7 @@
           }
  
        }
-@@ -946,12 +_,16 @@
+@@ -946,21 +_,35 @@
  
     private CompletableFuture<Optional<CompoundTag>> m_214963_(ChunkPos p_214964_) {
        return this.m_223454_(p_214964_).thenApplyAsync((p_214907_) -> {
@@ -151,15 +160,71 @@
     }
  
     boolean m_183879_(ChunkPos p_183880_) {
-@@ -1132,7 +_,7 @@
++      // Spigot start
++      return anyPlayerCloseEnoughForSpawning(p_183880_, false);
++   }
++
++   boolean anyPlayerCloseEnoughForSpawning(ChunkPos p_183880_, boolean reducedRange) {
++      int chunkRange = f_140133_.spigotConfig.mobSpawnRange;
++      chunkRange = (chunkRange > f_140133_.spigotConfig.viewDistance) ? (byte) f_140133_.spigotConfig.viewDistance : chunkRange;
++      chunkRange = (chunkRange > 8) ? 8 : chunkRange;
++      double blockRange = (reducedRange) ? Math.pow(chunkRange << 4, 2) : 16384.0D;
++      // Spigot end
+       long i = p_183880_.m_45588_();
+       if (!this.f_140145_.m_140847_(i)) {
+          return false;
+       } else {
+          for(ServerPlayer serverplayer : this.f_140149_.m_183926_(i)) {
+-            if (this.m_183751_(serverplayer, p_183880_)) {
++            if (this.playerIsCloseEnoughForSpawning(serverplayer, p_183880_, blockRange)) { // Spigot
+                return true;
+             }
+          }
+@@ -977,7 +_,7 @@
+          ImmutableList.Builder<ServerPlayer> builder = ImmutableList.builder();
+ 
+          for(ServerPlayer serverplayer : this.f_140149_.m_183926_(i)) {
+-            if (this.m_183751_(serverplayer, p_183889_)) {
++            if (this.playerIsCloseEnoughForSpawning(serverplayer, p_183889_,16384.0D)) {
+                builder.add(serverplayer);
+             }
+          }
+@@ -986,12 +_,12 @@
+       }
+    }
+ 
+-   private boolean m_183751_(ServerPlayer p_183752_, ChunkPos p_183753_) {
++   private boolean playerIsCloseEnoughForSpawning(ServerPlayer p_183752_, ChunkPos p_183753_, double range) { // Spigot
+       if (p_183752_.m_5833_()) {
+          return false;
+       } else {
+          double d0 = m_140226_(p_183753_, p_183752_);
+-         return d0 < 16384.0D;
++         return d0 < range; // Spigot
+       }
+    }
+ 
+@@ -1132,9 +_,11 @@
     }
  
     protected void m_140199_(Entity p_140200_) {
 -      if (!(p_140200_ instanceof EnderDragonPart)) {
++      org.spigotmc.AsyncCatcher.catchOp("entity track"); // Spigot
 +      if (!(p_140200_ instanceof net.minecraftforge.entity.PartEntity)) {
           EntityType<?> entitytype = p_140200_.m_6095_();
           int i = entitytype.m_20681_() * 16;
++         i = org.spigotmc.TrackingRange.getEntityTrackingRange(p_140200_, i); // Spigot
           if (i != 0) {
+             int j = entitytype.m_20682_();
+             if (this.f_140150_.containsKey(p_140200_.m_19879_())) {
+@@ -1160,6 +_,7 @@
+    }
+ 
+    protected void m_140331_(Entity p_140332_) {
++      org.spigotmc.AsyncCatcher.catchOp("entity untrack"); // Spigot
+       if (p_140332_ instanceof ServerPlayer serverplayer) {
+          this.m_140192_(serverplayer, false);
+ 
 @@ -1282,6 +_,7 @@
           }
        }
@@ -177,7 +242,22 @@
           this.f_140472_ = p_140478_;
           this.f_140473_ = p_140479_;
           this.f_140474_ = SectionPos.m_235861_(p_140478_);
-@@ -1378,6 +_,13 @@
+@@ -1365,6 +_,7 @@
+       }
+ 
+       public void m_140485_(ServerPlayer p_140486_) {
++         org.spigotmc.AsyncCatcher.catchOp("player tracker clear"); // Spigot
+          if (this.f_140475_.remove(p_140486_.f_8906_)) {
+             this.f_140471_.m_8534_(p_140486_);
+          }
+@@ -1372,12 +_,20 @@
+       }
+ 
+       public void m_140497_(ServerPlayer p_140498_) {
++         org.spigotmc.AsyncCatcher.catchOp("player tracker update"); // Spigot
+          if (p_140498_ != this.f_140472_) {
+             Vec3 vec3 = p_140498_.m_20182_().m_82546_(this.f_140472_.m_20182_());
+             double d0 = (double)Math.min(this.m_140496_(), ChunkMap.this.f_140126_ * 16);
              double d1 = vec3.f_82479_ * vec3.f_82479_ + vec3.f_82481_ * vec3.f_82481_;
              double d2 = d0 * d0;
              boolean flag = d1 <= d2 && this.f_140472_.m_6459_(p_140498_);

@@ -449,6 +449,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
     @Override
     public List<org.bukkit.entity.Entity> getNearbyEntities(double x, double y, double z) {
         Preconditions.checkState(!entity.generation, "Cannot get nearby entities during world generation");
+        org.spigotmc.AsyncCatcher.catchOp("getNearbyEntities"); // Spigot
 
         List<Entity> notchEntityList = entity.level().getEntities(entity, entity.getBoundingBox().inflate(x, y, z), Predicates.alwaysTrue());
         List<org.bukkit.entity.Entity> bukkitEntityList = new java.util.ArrayList<org.bukkit.entity.Entity>(notchEntityList.size());
@@ -1034,4 +1035,15 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
         }
         return perm;
     }
+
+    // Spigot start
+    private final org.bukkit.entity.Entity.Spigot spigot = new org.bukkit.entity.Entity.Spigot()
+    {
+    };
+
+    public org.bukkit.entity.Entity.Spigot spigot()
+    {
+        return spigot;
+    }
+    // Spigot end
 }

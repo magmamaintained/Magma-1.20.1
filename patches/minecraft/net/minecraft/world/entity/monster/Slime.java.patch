@@ -70,6 +70,15 @@
        }
  
        super.m_142687_(p_149847_);
+@@ -267,7 +_,7 @@
+          }
+ 
+          ChunkPos chunkpos = new ChunkPos(p_219116_);
+-         boolean flag = WorldgenRandom.m_224681_(chunkpos.f_45578_, chunkpos.f_45579_, ((WorldGenLevel)p_219114_).m_7328_(), 987234911L).m_188503_(10) == 0;
++         boolean flag = WorldgenRandom.m_224681_(chunkpos.f_45578_, chunkpos.f_45579_, ((WorldGenLevel)p_219114_).m_7328_(), p_219114_.getMinecraftWorld().spigotConfig.slimeSeed).m_188503_(10) == 0; // Spigot
+          if (p_219117_.m_188503_(10) == 0 && flag && p_219116_.m_123342_() < 40) {
+             return m_217057_(p_219113_, p_219114_, p_219115_, p_219116_, p_219117_);
+          }
 @@ -319,6 +_,12 @@
     public EntityDimensions m_6972_(Pose p_33597_) {
        return super.m_6972_(p_33597_).m_20388_(0.255F * (float)this.m_33632_());

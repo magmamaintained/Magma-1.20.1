@@ -201,7 +201,7 @@
     private int f_9751_;
     private double f_9753_;
     private double f_9754_;
-@@ -240,8 +_,31 @@
+@@ -240,10 +_,35 @@
        this.f_9747_ = Util.m_137550_();
        p_9772_.m_8967_().m_7674_();
        this.f_240889_ = p_9770_.m_214005_() ? SignedMessageChain.Decoder.f_252472_ : SignedMessageChain.Decoder.m_246683_(p_9772_.m_20148_());
@@ -227,6 +227,7 @@
 +   private float lastPitch = Float.MAX_VALUE;
 +   private float lastYaw = Float.MAX_VALUE;
 +   private boolean justTeleported = false;
++   private boolean hasMoved; // Spigot
 +
 +   public CraftPlayer getCraftPlayer() {
 +      return (this.f_9743_ == null) ? null : (CraftPlayer) this.f_9743_.getBukkitEntity();
@@ -234,7 +235,10 @@
 +   // CraftBukkit end
  
     public void m_9933_() {
++      org.bukkit.craftbukkit.SpigotTimings.playerConnectionTimer.startTiming(); // Spigot
        if (this.f_215200_ > -1) {
+          this.m_9829_(new ClientboundBlockChangedAckPacket(this.f_215200_));
+          this.f_215200_ = -1;
 @@ -294,7 +_,7 @@
  
        this.f_9745_.m_129905_().m_6180_("keepAlive");
@@ -244,7 +248,7 @@
           if (this.f_9748_) {
              this.m_9942_(Component.m_237115_("disconnect.timeout"));
           } else {
-@@ -306,15 +_,21 @@
+@@ -306,18 +_,24 @@
        }
  
        this.f_9745_.m_129905_().m_7238_();
@@ -267,7 +271,11 @@
 +         this.f_9743_.m_9243_(); // CraftBukkit - SPIGOT-854
           this.m_9942_(Component.m_237115_("multiplayer.disconnect.idling"));
        }
+-
++      org.bukkit.craftbukkit.SpigotTimings.playerConnectionTimer.stopTiming(); // Spigot
+    }
  
+    public void m_9953_() {
 @@ -337,12 +_,56 @@
        return this.f_9745_.m_7779_(this.f_9743_.m_36316_());
     }
@@ -362,8 +370,16 @@
                 f_9744_.warn("{} (vehicle of {}) moved too quickly! {},{},{}", entity.m_7755_().getString(), this.f_9743_.m_7755_().getString(), d6, d7, d8);
                 this.f_9742_.m_129512_(new ClientboundMoveVehiclePacket(entity));
                 return;
-@@ -436,12 +_,71 @@
+@@ -430,18 +_,89 @@
+             d8 = d5 - entity.m_20189_();
+             d10 = d6 * d6 + d7 * d7 + d8 * d8;
+             boolean flag2 = false;
+-            if (d10 > 0.0625D) {
++            if (d10 > org.spigotmc.SpigotConfig.movedWronglyThreshold) { // Spigot
+                flag2 = true;
+                f_9744_.warn("{} (vehicle of {}) moved wrongly! {}", entity.m_7755_().getString(), this.f_9743_.m_7755_().getString(), Math.sqrt(d10));
              }
++            Location curPos = this.getCraftPlayer().getLocation(); // Spigot
  
              entity.m_19890_(d3, d4, d5, f, f1);
 +            f_9743_.m_19890_(d3, d4, d5, this.f_9743_.m_146908_(), this.f_9743_.m_146909_()); // CraftBukkit
@@ -379,6 +395,17 @@
 +
 +            // CraftBukkit start - fire PlayerMoveEvent
 +            org.bukkit.entity.Player player = this.getCraftPlayer();
++            // Spigot Start
++            if ( !hasMoved )
++            {
++               lastPosX = curPos.getX();
++               lastPosY = curPos.getY();
++               lastPosZ = curPos.getZ();
++               lastYaw = curPos.getYaw();
++               lastPitch = curPos.getPitch();
++               hasMoved = true;
++            }
++            // Spigot End
 +            Location from = new Location(player.getWorld(), lastPosX, lastPosY, lastPosZ, lastYaw, lastPitch); // Get the Players previous Event location.
 +            Location to = player.getLocation().clone(); // Start off the To location as the Players current location.
 +
@@ -403,7 +430,7 @@
 +               this.lastPitch = to.getPitch();
 +
 +               // Skip the first time we do this
-+               if (from.getX() != Double.MAX_VALUE) {
++               if (true) { // Spigot - don't skip any move events
 +                  Location oldTo = to.clone();
 +                  PlayerMoveEvent event = new PlayerMoveEvent(player, from, to);
 +                  this.cserver.getPluginManager().callEvent(event);
@@ -604,7 +631,14 @@
                       d6 = d0 - this.f_9743_.m_20185_();
                       d7 = d1 - this.f_9743_.m_20186_();
                       if (d7 > -0.5D || d7 < 0.5D) {
-@@ -916,6 +_,68 @@
+@@ -910,12 +_,74 @@
+                      d8 = d2 - this.f_9743_.m_20189_();
+                      d10 = d6 * d6 + d7 * d7 + d8 * d8;
+                      boolean flag2 = false;
+-                     if (!this.f_9743_.m_8958_() && d10 > 0.0625D && !this.f_9743_.m_5803_() && !this.f_9743_.f_8941_.m_9295_() && this.f_9743_.f_8941_.m_9290_() != GameType.SPECTATOR) {
++                     if (!this.f_9743_.m_8958_() && d10 > org.spigotmc.SpigotConfig.movedWronglyThreshold && !this.f_9743_.m_5803_() && !this.f_9743_.f_8941_.m_9295_() && this.f_9743_.f_8941_.m_9290_() != GameType.SPECTATOR) {
+                         flag2 = true;
+                         f_9744_.warn("{} moved wrongly!", (Object)this.f_9743_.m_7755_().getString());
                       }
  
                       if (this.f_9743_.f_19794_ || this.f_9743_.m_5803_() || (!flag2 || !serverlevel.m_45756_(this.f_9743_, aabb)) && !this.m_288208_(serverlevel, aabb, d0, d1, d2)) {
@@ -819,11 +853,30 @@
                 this.f_9743_.m_182294_(true);
              }
  
-@@ -1026,6 +_,7 @@
+@@ -1024,8 +_,26 @@
+       }
+    }
  
++   // Spigot start - limit place/interactions
++   private int limitedPackets;
++   private long lastLimitedPacket = -1;
++   private boolean checkLimit(long timestamp) {
++      if (lastLimitedPacket != -1 && timestamp - lastLimitedPacket < 30 && limitedPackets++ >= 4) {
++         return false;
++      }
++      if (lastLimitedPacket == -1 || timestamp - lastLimitedPacket >= 30) {
++         lastLimitedPacket = timestamp;
++         limitedPackets = 0;
++         return true;
++      }
++      return true;
++   }
++   // Spigot end
++
     public void m_6371_(ServerboundUseItemOnPacket p_9930_) {
        PacketUtils.m_131359_(p_9930_, this, this.f_9743_.m_284548_());
 +      if (this.f_9743_.m_6107_()) return; // CraftBukkit
++      if (!checkLimit(p_9930_.timestamp)) return; // Spigot - check limit
        this.f_9743_.f_8906_.m_215201_(p_9930_.m_238008_());
        ServerLevel serverlevel = this.f_9743_.m_284548_();
        InteractionHand interactionhand = p_9930_.m_134703_();
@@ -846,7 +899,15 @@
                       InteractionResult interactionresult = this.f_9743_.f_8941_.m_7179_(this.f_9743_, serverlevel, itemstack, interactionhand, blockhitresult);
                       if (direction == Direction.UP && !interactionresult.m_19077_() && blockpos.m_123342_() >= i - 1 && m_9790_(this.f_9743_, itemstack)) {
                          Component component = Component.m_237110_("build.tooHigh", i - 1).m_130940_(ChatFormatting.RED);
-@@ -1074,6 +_,48 @@
+@@ -1068,12 +_,56 @@
+ 
+    public void m_5760_(ServerboundUseItemPacket p_9932_) {
+       PacketUtils.m_131359_(p_9932_, this, this.f_9743_.m_284548_());
++      if (this.f_9743_.m_6107_()) return; // CraftBukkit
++      if (!checkLimit(p_9932_.timestamp)) return; // Spigot - check limit
+       this.m_215201_(p_9932_.m_238013_());
+       ServerLevel serverlevel = this.f_9743_.m_284548_();
+       InteractionHand interactionhand = p_9932_.m_134717_();
        ItemStack itemstack = this.f_9743_.m_21120_(interactionhand);
        this.f_9743_.m_9243_();
        if (!itemstack.m_41619_() && itemstack.m_246617_(serverlevel.m_246046_())) {
@@ -947,7 +1008,7 @@
  
     public void m_243119_(Packet<?> p_243227_, @Nullable PacketSendListener p_243273_) {
 +      // CraftBukkit start
-+      if (p_243227_ == null) {
++      if (p_243227_ == null || this.processedDisconnect) { // Spigot
 +         return;
 +      } else if (p_243227_ instanceof ClientboundSetDefaultSpawnPositionPacket) {
 +         ClientboundSetDefaultSpawnPositionPacket packet6 = (ClientboundSetDefaultSpawnPositionPacket) p_243227_;
@@ -1021,7 +1082,7 @@
           }
  
        }
-@@ -1207,6 +_,11 @@
+@@ -1207,8 +_,13 @@
           Optional<LastSeenMessages> optional = this.m_247189_(p_215225_.f_237922_(), p_215225_.f_237923_(), p_215225_.f_241638_());
           if (optional.isPresent()) {
              this.f_9745_.m_18707_(() -> {
@@ -1031,8 +1092,11 @@
 +               }
 +               // CraftBukkit end
                 this.m_246958_(p_215225_, optional.get());
-                this.m_215251_();
+-               this.m_215251_();
++               this.detectRateSpam("/" + p_215225_.f_237922_()); // Spigot
              });
+          }
+ 
 @@ -1216,21 +_,31 @@
     }
  
@@ -1078,7 +1142,7 @@
              this.m_9829_(new ClientboundSystemChatPacket(Component.m_237115_("chat.disabled.options").m_130940_(ChatFormatting.RED), false));
              return Optional.empty();
           } else {
-@@ -1310,19 +_,135 @@
+@@ -1310,19 +_,149 @@
        return false;
     }
  
@@ -1110,7 +1174,7 @@
 +                  }
 +                  String message = String.format(queueEvent.getFormat(), queueEvent.getPlayer().getDisplayName(), queueEvent.getMessage());
 +                  if (((LazyPlayerSet) queueEvent.getRecipients()).isLazy()) {
-+                     if (originalFormat.equals(queueEvent.getFormat()) && originalMessage.equals(queueEvent.getMessage()) && queueEvent.getPlayer().getName().equalsIgnoreCase(queueEvent.getPlayer().getDisplayName())) {
++                     if (!org.spigotmc.SpigotConfig.bungee && originalFormat.equals(queueEvent.getFormat()) && originalMessage.equals(queueEvent.getMessage()) && queueEvent.getPlayer().getName().equalsIgnoreCase(queueEvent.getPlayer().getDisplayName())) { // Spigot
 +                        ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.f_130598_, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
 +                        return null;
 +                     }
@@ -1143,7 +1207,7 @@
 +            }
 +            s = String.format(event.getFormat(), event.getPlayer().getDisplayName(), event.getMessage());
 +            if (((LazyPlayerSet) event.getRecipients()).isLazy()) {
-+               if (originalFormat.equals(event.getFormat()) && originalMessage.equals(event.getMessage()) && event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getDisplayName())) {
++               if (!org.spigotmc.SpigotConfig.bungee && originalFormat.equals(event.getFormat()) && originalMessage.equals(event.getMessage()) && event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getDisplayName())) { // Spigot
 +                  ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.f_130598_, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
 +                  return;
 +               }
@@ -1161,11 +1225,14 @@
 +   }
 +
 +   private void handleCommand(String s) {
++      org.bukkit.craftbukkit.SpigotTimings.playerCommandTimer.startTiming(); // Spigot
++      if ( org.spigotmc.SpigotConfig.logCommands ) // Spigot
 +      this.f_9744_.info(this.f_9743_.m_6302_() + " issued server command: " + s);
 +      CraftPlayer player = this.getCraftPlayer();
 +      PlayerCommandPreprocessEvent event = new PlayerCommandPreprocessEvent(player, s, new LazyPlayerSet(f_9745_));
 +      this.cserver.getPluginManager().callEvent(event);
 +      if (event.isCancelled()) {
++         org.bukkit.craftbukkit.SpigotTimings.playerCommandTimer.stopTiming(); // Spigot
 +         return;
 +      }
 +      try {
@@ -1176,6 +1243,8 @@
 +         player.sendMessage(org.bukkit.ChatColor.RED + "An internal error occurred while attempting to perform this command");
 +         java.util.logging.Logger.getLogger(ServerGamePacketListenerImpl.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
 +         return;
++      } finally {
++         org.bukkit.craftbukkit.SpigotTimings.playerCommandTimer.stopTiming(); // Spigot
 +      }
 +   }
 +   // CraftBukkit end
@@ -1187,6 +1256,7 @@
  
     private void m_243086_(PlayerChatMessage p_243277_) {
 -      this.f_9745_.m_6846_().m_243049_(p_243277_, this.f_9743_, ChatType.m_240980_(ChatType.f_130598_, this.f_9743_));
+-      this.m_215251_();
 +      // CraftBukkit start
 +      String s = p_243277_.m_245728_();
 +      if (s.isEmpty()) {
@@ -1205,13 +1275,23 @@
 +         this.chat(s, p_243277_, true);
 +      }
 +      // CraftBukkit end
-       this.m_215251_();
++      this.detectRateSpam(s); // Spigot
     }
  
-    private void m_215251_() {
+-   private void m_215251_() {
 -      this.f_9750_ += 20;
 -      if (this.f_9750_ > 200 && !this.f_9745_.m_6846_().m_11303_(this.f_9743_.m_36316_())) {
++   // Spigot start - spam exclusions
++   private void detectRateSpam(String s) {
 +      // CraftBukkit start - replaced with thread safe throttle
++      boolean counted = true;
++      for (String exclude : org.spigotmc.SpigotConfig.spamExclusions) {
++         if (exclude != null && s.startsWith(exclude)) {
++            counted = false;
++            break;
++         }
++      }
++      // Spigot end
 +      // this.chatSpamTickCount += 20;
 +      if (this.f_9750_.addAndGet(20) > 200 && !this.f_9745_.m_6846_().m_11303_(this.f_9743_.m_36316_())) {
           this.m_9942_(Component.m_237115_("disconnect.spam"));
@@ -1291,14 +1371,32 @@
        this.m_9829_(new ClientboundPlayerChatPacket(p_250321_.f_243882_().f_244443_(), p_250321_.f_243882_().f_244066_(), p_250321_.f_244279_(), p_250321_.f_240885_().m_253217_(this.f_243718_), p_250321_.f_237215_(), p_250321_.f_242992_(), p_250910_.m_240987_(this.f_9743_.m_9236_().m_9598_())));
        this.m_241992_(p_250321_);
     }
-@@ -1430,6 +_,7 @@
+@@ -1428,10 +_,25 @@
+       return this.f_9742_.m_129523_();
+    }
  
++   // Spigot Start
++   public SocketAddress getRawAddress()
++   {
++      return this.f_9742_.f_129468_.remoteAddress();
++   }
++   // Spigot End
++
     public void m_6946_(ServerboundInteractPacket p_9866_) {
        PacketUtils.m_131359_(p_9866_, this, this.f_9743_.m_284548_());
 +      if (this.f_9743_.m_6107_()) return; // CraftBukkit
        final ServerLevel serverlevel = this.f_9743_.m_284548_();
        final Entity entity = p_9866_.m_179603_(serverlevel);
++      // Spigot Start
++      if ( entity == f_9743_ && !f_9743_.m_5833_() )
++      {
++         disconnect( "Cannot interact with self!" );
++         return;
++      }
++      // Spigot End
        this.f_9743_.m_9243_();
+       this.f_9743_.m_20260_(p_9866_.m_134061_());
+       if (entity != null) {
 @@ -1440,13 +_,52 @@
           }
  
@@ -1735,6 +1833,15 @@
        this.f_9743_.m_9243_();
        if (this.f_9743_.f_36096_.f_38840_ == p_9854_.m_133935_() && !this.f_9743_.m_5833_()) {
           if (!this.f_9743_.f_36096_.m_6875_(this.f_9743_)) {
+@@ -1591,7 +_,7 @@
+          }
+ 
+          CompoundTag compoundtag = BlockItem.m_186336_(itemstack);
+-         if (!itemstack.m_41619_() && compoundtag != null && compoundtag.m_128441_("x") && compoundtag.m_128441_("y") && compoundtag.m_128441_("z")) {
++         if (!itemstack.m_41619_() && compoundtag != null && compoundtag.m_128441_("x") && compoundtag.m_128441_("y") && compoundtag.m_128441_("z") && this.f_9743_.getBukkitEntity().hasPermission("minecraft.nbt.copy")) { // Spigot
+             BlockPos blockpos = BlockEntity.m_187472_(compoundtag);
+             if (this.f_9743_.m_9236_().m_46749_(blockpos)) {
+                BlockEntity blockentity = this.f_9743_.m_9236_().m_7702_(blockpos);
 @@ -1603,6 +_,40 @@
  
           boolean flag1 = p_9915_.m_134561_() >= 1 && p_9915_.m_134561_() <= 45;

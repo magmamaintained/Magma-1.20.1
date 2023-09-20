@@ -4,7 +4,7 @@
 [![](https://img.shields.io/badge/Minecraft%20Forge-1.20.1%20--%2046.0.1%20--%20baa30984-orange.svg)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
 [![](https://img.shields.io/badge/Bukkit-1.20%203635fe1-blue)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse)
 [![](https://img.shields.io/badge/CraftBukkit-Build%2078796c9de6c-orange)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse?at=refs%2Fheads%2Fversion%2F1.20)
-[![](https://img.shields.io/badge/Spigot-Build%200000000000-yellow)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse)
+[![](https://img.shields.io/badge/Spigot-Build%20d2eba2c820b-yellow)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse)
 <!-- ![TeamCity build status](https://teamcity.magmafoundation.org/app/rest/builds/buildType:id:MagmaFoundation_Magma120x_Build/statusIcon.svg) -->
 [![](https://img.shields.io/discord/612695539729039411.svg?logo=discord&logoWidth=18&colorB=7289DA)](https://discord.gg/magma)
 

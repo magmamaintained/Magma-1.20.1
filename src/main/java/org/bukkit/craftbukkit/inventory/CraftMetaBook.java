@@ -18,6 +18,8 @@ import org.bukkit.inventory.meta.BookMeta;
 
 import java.util.*;
 
+import static org.spigotmc.ValidateUtils.limit;
+
 @DelegateDeserialization(SerializableMeta.class)
 public class CraftMetaBook extends CraftMetaItem implements BookMeta {
     static final ItemMetaKey BOOK_TITLE = new ItemMetaKey("title");
@@ -78,11 +80,11 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
         super(tag);
 
         if (tag.contains(BOOK_TITLE.NBT)) {
-            this.title = tag.getString(BOOK_TITLE.NBT);
+            this.title = limit( tag.getString(BOOK_TITLE.NBT), 8192 ); // Spigot
         }
 
         if (tag.contains(BOOK_AUTHOR.NBT)) {
-            this.author = tag.getString(BOOK_AUTHOR.NBT);
+            this.author = limit( tag.getString(BOOK_AUTHOR.NBT), 8192 ); // Spigot
         }
 
         if (tag.contains(RESOLVED.NBT)) {
@@ -110,7 +112,7 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
                 } else {
                     page = validatePage(page);
                 }
-                this.pages.add(page);
+                this.pages.add( limit( page, 16384 ) ); // Spigot
             }
         }
     }
@@ -345,6 +347,7 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
         if (this.pages != null) {
             meta.pages = new ArrayList<String>(this.pages);
         }
+        meta.spigot = meta.new SpigotMeta(); // Spigot
         return meta;
     }
 
@@ -416,4 +419,15 @@ public class CraftMetaBook extends CraftMetaItem implements BookMeta {
 
         return builder;
     }
+
+    // Spigot start
+    private BookMeta.Spigot spigot = new SpigotMeta();
+    private class SpigotMeta extends BookMeta.Spigot {
+    };
+
+    @Override
+    public BookMeta.Spigot spigot() {
+        return spigot;
+    }
+    // Spigot end
 }

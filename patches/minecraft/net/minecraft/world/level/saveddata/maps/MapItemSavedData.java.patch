@@ -25,9 +25,14 @@
  import org.slf4j.Logger;
  
  public class MapItemSavedData extends SavedData {
-@@ -46,10 +_,17 @@
-    private final List<MapItemSavedData.HoldingPlayer> f_77893_ = Lists.newArrayList();
-    private final Map<Player, MapItemSavedData.HoldingPlayer> f_77896_ = Maps.newHashMap();
+@@ -43,13 +_,20 @@
+    public byte f_77890_;
+    public byte[] f_77891_ = new byte[16384];
+    public boolean f_77892_;
+-   private final List<MapItemSavedData.HoldingPlayer> f_77893_ = Lists.newArrayList();
+-   private final Map<Player, MapItemSavedData.HoldingPlayer> f_77896_ = Maps.newHashMap();
++   public final List<MapItemSavedData.HoldingPlayer> f_77893_ = Lists.newArrayList();
++   public final Map<Player, MapItemSavedData.HoldingPlayer> f_77896_ = Maps.newHashMap();
     private final Map<String, MapBanner> f_77897_ = Maps.newHashMap();
 -   final Map<String, MapDecoration> f_77894_ = Maps.newLinkedHashMap();
 +   public final Map<String, MapDecoration> f_77894_ = Maps.newLinkedHashMap();

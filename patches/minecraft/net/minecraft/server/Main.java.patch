@@ -40,7 +40,7 @@
  import org.slf4j.Logger;
  
  public class Main {
-@@ -84,6 +_,33 @@
+@@ -84,6 +_,40 @@
        OptionSpec<Void> optionspec13 = optionparser.accepts("jfrProfile");
        OptionSpec<Path> optionspec14 = optionparser.accepts("pidFile").withRequiredArg().withValuesConvertedBy(new PathConverter());
        OptionSpec<String> optionspec15 = optionparser.nonOptions();
@@ -71,17 +71,33 @@
 +              .ofType(File.class)
 +              .defaultsTo(new File("plugins"))
 +              .describedAs("Plugin directory");
++      // Spigot Start
++      optionparser.acceptsAll(Arrays.asList("S", "spigot-settings"), "File for spigot settings")
++              .withRequiredArg()
++              .ofType(File.class)
++              .defaultsTo(new File("spigot.yml"))
++              .describedAs("Yml file");
++      // Spigot End
  
        try {
           OptionSet optionset = optionparser.parse(p_129699_);
-@@ -91,6 +_,13 @@
+@@ -91,6 +_,22 @@
              optionparser.printHelpOn(System.err);
              return;
           }
 +         Path path2 = Paths.get("eula.txt");
 +         Eula eula = new Eula(path2);
 +
-+         if (!eula.m_135944_()) {
++         // Spigot Start
++         boolean eulaAgreed = Boolean.getBoolean( "com.mojang.eula.agree" );
++         if ( eulaAgreed )
++         {
++            System.err.println( "You have used the Spigot command line EULA agreement flag." );
++            System.err.println( "By using this setting you are indicating your agreement to Mojang's EULA (https://account.mojang.com/documents/minecraft_eula)." );
++            System.err.println( "If you do not agree to the above EULA please stop your server and remove this flag immediately." );
++         }
++         // Spigot End
++         if (!eula.m_135944_() && !eulaAgreed) { // Spigot
 +            f_129670_.info("You need to agree to the EULA in order to run the server. Go to eula.txt for more info.");
 +            return;
 +         }

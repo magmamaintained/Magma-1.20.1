@@ -17,6 +17,25 @@
  
  public abstract class AbstractArrow extends Projectile {
     private static final double f_150120_ = 2.0D;
+@@ -66,6 +_,18 @@
+    @Nullable
+    private List<Entity> f_36702_;
+ 
++   // Spigot Start
++   @Override
++   public void inactiveTick()
++   {
++      if ( this.f_36703_ )
++      {
++         this.f_36697_ += 1;
++      }
++      super.inactiveTick();
++   }
++   // Spigot End
++
+    protected AbstractArrow(EntityType<? extends AbstractArrow> p_36721_, Level p_36722_) {
+       super(p_36721_, p_36722_);
+    }
 @@ -150,7 +_,7 @@
           --this.f_36706_;
        }
@@ -38,6 +57,15 @@
 +               this.preOnHit(hitresult); // CraftBukkit - projectile hit event
                 this.f_19812_ = true;
              }
+ 
+@@ -264,7 +_,7 @@
+ 
+    protected void m_6901_() {
+       ++this.f_36697_;
+-      if (this.f_36697_ >= 1200) {
++      if (this.f_36697_ >= ((this instanceof ThrownTrident) ? this.m_9236_().spigotConfig.tridentDespawnRate : this.m_9236_().spigotConfig.arrowDespawnRate)) { // Spigot
+          this.m_146870_();
+       }
  
 @@ -322,7 +_,13 @@
        boolean flag = entity.m_6095_() == EntityType.f_20566_;

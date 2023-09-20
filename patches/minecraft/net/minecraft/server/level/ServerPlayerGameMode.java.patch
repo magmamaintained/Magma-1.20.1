@@ -72,7 +72,7 @@
           this.m_215125_(p_215120_, false, p_215124_, "too far");
        } else if (p_215120_.m_123342_() >= p_215123_) {
           this.f_9245_.f_8906_.m_9829_(new ClientboundBlockUpdatePacket(p_215120_, this.f_9244_.m_8055_(p_215120_)));
-@@ -132,10 +_,32 @@
+@@ -132,16 +_,46 @@
        } else {
           if (p_215121_ == ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK) {
              if (!this.f_9244_.m_7966_(this.f_9245_, p_215120_)) {
@@ -107,6 +107,20 @@
  
              if (this.m_9295_()) {
                 this.m_215116_(p_215120_, p_215124_, "creative destroy");
+                return;
+             }
+ 
++            // Spigot start - handle debug stick left click for non-creative
++            if (this.f_9245_.m_21205_().m_150930_(net.minecraft.world.item.Items.f_42751_)
++                    && ((net.minecraft.world.item.DebugStickItem) net.minecraft.world.item.Items.f_42751_).m_150802_(this.f_9245_, this.f_9244_.m_8055_(p_215120_), this.f_9244_, p_215120_, false, this.f_9245_.m_21205_())) {
++               this.f_9245_.f_8906_.m_9829_(new ClientboundBlockUpdatePacket(this.f_9244_, p_215120_));
++               return;
++            }
++            // Spigot end
++
+             if (this.f_9245_.m_36187_(this.f_9244_, p_215120_, this.f_9247_)) {
+                this.f_9245_.f_8906_.m_9829_(new ClientboundBlockUpdatePacket(p_215120_, this.f_9244_.m_8055_(p_215120_)));
+                this.m_215125_(p_215120_, false, p_215124_, "block action restricted");
 @@ -151,11 +_,44 @@
              this.f_9250_ = this.f_9252_;
              float f = 1.0F;
