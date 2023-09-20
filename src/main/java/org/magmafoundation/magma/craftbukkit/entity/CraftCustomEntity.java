@@ -64,10 +64,4 @@ public class CraftCustomEntity extends CraftEntity {
         return name == null || name.length() == 0 ? this.entity.getName().getString() : name;
     }
 
-    @NotNull
-    @Override
-    public EntityType getType() {
-        // todo implement
-        return null;
-    }
 }

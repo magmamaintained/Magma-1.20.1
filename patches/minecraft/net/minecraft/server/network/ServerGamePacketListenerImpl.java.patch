@@ -153,7 +153,7 @@
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.CommandBlock;
  import net.minecraft.world.level.block.entity.BlockEntity;
-@@ -176,15 +_,35 @@
+@@ -176,15 +_,36 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
@@ -163,6 +163,7 @@
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
 +import org.bukkit.Location;
++import org.bukkit.craftbukkit.entity.CraftEntity;
 +import org.bukkit.craftbukkit.entity.CraftPlayer;
 +import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.inventory.CraftItemStack;
@@ -603,11 +604,14 @@
                       d6 = d0 - this.f_9743_.m_20185_();
                       d7 = d1 - this.f_9743_.m_20186_();
                       if (d7 > -0.5D || d7 < 0.5D) {
-@@ -916,6 +_,65 @@
+@@ -916,6 +_,68 @@
                       }
  
                       if (this.f_9743_.f_19794_ || this.f_9743_.m_5803_() || (!flag2 || !serverlevel.m_45756_(this.f_9743_, aabb)) && !this.m_288208_(serverlevel, aabb, d0, d1, d2)) {
 +                        // CraftBukkit start - fire PlayerMoveEvent
++                        // Reset to old location first
++                        this.f_9743_.m_19890_(prevX, prevY, prevZ, prevYaw, prevPitch);
++
 +                        org.bukkit.entity.Player player = this.getCraftPlayer();
 +                        Location from = new Location(player.getWorld(), lastPosX, lastPosY, lastPosZ, lastYaw, lastPitch); // Get the Players previous Event location.
 +                        Location to = player.getLocation().clone(); // Start off the To location as the Players current location.
@@ -874,7 +878,7 @@
 +            if (f_9743_.f_8941_.firedInteract && f_9743_.f_8941_.interactPosition.equals(movingobjectpositionblock.m_82425_()) && f_9743_.f_8941_.interactHand == interactionhand && ItemStack.m_150942_(f_9743_.f_8941_.interactItemStack, itemstack)) {
 +               cancelled = f_9743_.f_8941_.interactResult;
 +            } else {
-+               org.bukkit.event.player.PlayerInteractEvent event = CraftEventFactory.callPlayerInteractEvent(f_9743_, Action.RIGHT_CLICK_BLOCK, movingobjectpositionblock.m_82425_(), movingobjectpositionblock.m_82434_(), itemstack, true, interactionhand);
++               org.bukkit.event.player.PlayerInteractEvent event = CraftEventFactory.callPlayerInteractEvent(f_9743_, Action.RIGHT_CLICK_BLOCK, movingobjectpositionblock.m_82425_(), movingobjectpositionblock.m_82434_(), itemstack, true, interactionhand, movingobjectpositionblock.m_82450_());
 +               cancelled = event.useItemInHand() == Event.Result.DENY;
 +            }
 +            f_9743_.f_8941_.firedInteract = false;
@@ -1074,7 +1078,7 @@
              this.m_9829_(new ClientboundSystemChatPacket(Component.m_237115_("chat.disabled.options").m_130940_(ChatFormatting.RED), false));
              return Optional.empty();
           } else {
-@@ -1310,19 +_,141 @@
+@@ -1310,19 +_,135 @@
        return false;
     }
  
@@ -1109,9 +1113,6 @@
 +                     if (originalFormat.equals(queueEvent.getFormat()) && originalMessage.equals(queueEvent.getMessage()) && queueEvent.getPlayer().getName().equalsIgnoreCase(queueEvent.getPlayer().getDisplayName())) {
 +                        ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.f_130598_, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
 +                        return null;
-+                     } else if (CraftChatMessage.fromComponent(original.m_245692_()).equals(message)) {
-+                        ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.RAW, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
-+                        return null;
 +                     }
 +                     for (ServerPlayer recipient : f_9745_.m_6846_().f_11196_) {
 +                        recipient.getBukkitEntity().sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_20148_(), message);
@@ -1144,9 +1145,6 @@
 +            if (((LazyPlayerSet) event.getRecipients()).isLazy()) {
 +               if (originalFormat.equals(event.getFormat()) && originalMessage.equals(event.getMessage()) && event.getPlayer().getName().equalsIgnoreCase(event.getPlayer().getDisplayName())) {
 +                  ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.f_130598_, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
-+                  return;
-+               } else if (CraftChatMessage.fromComponent(original.m_245692_()).equals(s)) {
-+                  ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.RAW, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
 +                  return;
 +               }
 +               for (ServerPlayer recipient : f_9745_.m_6846_().f_11196_) {
@@ -1219,7 +1217,7 @@
           this.m_9942_(Component.m_237115_("disconnect.spam"));
        }
  
-@@ -1340,12 +_,57 @@
+@@ -1340,12 +_,60 @@
  
     public void m_7953_(ServerboundSwingPacket p_9926_) {
        PacketUtils.m_131359_(p_9926_, this, this.f_9743_.m_284548_());
@@ -1236,8 +1234,11 @@
 +
 +      double d3 = f_9743_.f_8941_.m_9290_() == GameType.CREATIVE ? 5.0D : 4.5D;
 +      // SPIGOT-5607: Only call interact event if no block or entity is being clicked. Use bukkit ray trace method, because it handles blocks and entities at the same time
-+      org.bukkit.util.RayTraceResult result = this.f_9743_.m_9236_().getWorld().rayTrace(origin, origin.getDirection(), d3, org.bukkit.FluidCollisionMode.NEVER, false, 0.1, entity -> entity != this.f_9743_.getBukkitEntity() && this.f_9743_.getBukkitEntity().canSee(entity));
-+
++      // SPIGOT-7429: Make sure to call PlayerInteractEvent for spectators and non-pickable entities
++      org.bukkit.util.RayTraceResult result = this.f_9743_.m_9236_().getWorld().rayTrace(origin, origin.getDirection(), d3, org.bukkit.FluidCollisionMode.NEVER, false, 0.1, entity -> {
++         Entity handle = ((CraftEntity) entity).getHandle();
++         return entity != this.f_9743_.getBukkitEntity() && this.f_9743_.getBukkitEntity().canSee(entity) && !handle.m_5833_() && handle.m_6087_() && !handle.m_20365_(f_9743_);
++      });
 +      if (result == null) {
 +         CraftEventFactory.callPlayerInteractEvent(this.f_9743_, Action.LEFT_CLICK_AIR, this.f_9743_.m_150109_().m_36056_(), InteractionHand.MAIN_HAND);
 +      }
@@ -1627,7 +1628,7 @@
 +                        }
 +                     }
 +                  }
-+                  if (p_9856_.m_133962_() == 2 && top instanceof SmithingInventory) {
++                  if (p_9856_.m_133962_() == 3 && top instanceof SmithingInventory) {
 +                     org.bukkit.inventory.ItemStack result = ((SmithingInventory) top).getResult();
 +                     if (result != null) {
 +                        if (click == ClickType.NUMBER_KEY) {
@@ -1706,7 +1707,27 @@
  
                 for(Int2ObjectMap.Entry<ItemStack> entry : Int2ObjectMaps.fastIterable(p_9856_.m_179582_())) {
                    this.f_9743_.f_36096_.m_182414_(entry.getIntKey(), entry.getValue());
-@@ -1567,6 +_,7 @@
+@@ -1558,15 +_,25 @@
+          if (!this.f_9743_.f_36096_.m_6875_(this.f_9743_)) {
+             f_9744_.debug("Player {} interacted with invalid menu {}", this.f_9743_, this.f_9743_.f_36096_);
+          } else {
+-            this.f_9745_.m_129894_().m_44043_(p_9882_.m_134252_()).ifPresent((p_287379_) -> {
+-               ((RecipeBookMenu)this.f_9743_.f_36096_).m_6951_(p_9882_.m_134253_(), p_287379_, this.f_9743_);
++            // CraftBukkit start - implement PlayerRecipeBookClickEvent
++            org.bukkit.inventory.Recipe recipe = this.cserver.getRecipe(CraftNamespacedKey.fromMinecraft(p_9882_.m_134252_()));
++            if (recipe == null) {
++               return;
++            }
++            org.bukkit.event.player.PlayerRecipeBookClickEvent event = CraftEventFactory.callRecipeBookClickEvent(this.f_9743_, recipe, p_9882_.m_134253_());
++
++            // Cast to keyed should be safe as the recipe will never be a MerchantRecipe.
++            this.f_9745_.m_129894_().m_44043_(CraftNamespacedKey.toMinecraft(((org.bukkit.Keyed) event.getRecipe()).getKey())).ifPresent((irecipe) -> {
++               ((RecipeBookMenu) this.f_9743_.f_36096_).m_6951_(event.isShiftClick(), irecipe, this.f_9743_);
+             });
++            // CraftBukkit end
+          }
+       }
+    }
  
     public void m_6557_(ServerboundContainerButtonClickPacket p_9854_) {
        PacketUtils.m_131359_(p_9854_, this, this.f_9743_.m_284548_());

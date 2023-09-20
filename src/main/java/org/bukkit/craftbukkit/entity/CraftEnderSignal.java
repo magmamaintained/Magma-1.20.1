@@ -26,11 +26,6 @@ public class CraftEnderSignal extends CraftEntity implements EnderSignal {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ENDER_SIGNAL;
-    }
-
-    @Override
     public Location getTargetLocation() {
         return new Location(getWorld(), getHandle().tx, getHandle().ty, getHandle().tz, getHandle().getYRot(), getHandle().getXRot());
     }

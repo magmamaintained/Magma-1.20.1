@@ -19,9 +19,4 @@ public class CraftDrowned extends CraftZombie implements Drowned {
     public String toString() {
         return "CraftDrowned";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.DROWNED;
-    }
 }

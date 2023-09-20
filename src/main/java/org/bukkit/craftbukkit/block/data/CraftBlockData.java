@@ -31,11 +31,13 @@ import org.bukkit.block.structure.StructureRotation;
 import org.bukkit.craftbukkit.CraftSoundGroup;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.CraftBlock;
+import org.bukkit.craftbukkit.block.CraftBlockStates;
 import org.bukkit.craftbukkit.block.CraftBlockSupport;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.craftbukkit.util.CraftLocation;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -639,5 +641,11 @@ public class CraftBlockData implements BlockData {
     @Override
     public void mirror(Mirror mirror) {
         this.state = state.mirror(net.minecraft.world.level.block.Mirror.valueOf(mirror.name()));
+    }
+
+    @NotNull
+    @Override
+    public org.bukkit.block.BlockState createBlockState() {
+        return CraftBlockStates.getBlockState(this.state, null);
     }
 }

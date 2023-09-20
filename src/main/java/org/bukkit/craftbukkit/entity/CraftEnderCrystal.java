@@ -48,9 +48,4 @@ public class CraftEnderCrystal extends CraftEntity implements EnderCrystal {
     public String toString() {
         return "CraftEnderCrystal";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.ENDER_CRYSTAL;
-    }
 }

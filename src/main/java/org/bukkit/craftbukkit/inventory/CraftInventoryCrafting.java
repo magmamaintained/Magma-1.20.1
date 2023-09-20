@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.inventory;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.world.Container;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
@@ -31,9 +32,7 @@ public class CraftInventoryCrafting extends CraftInventory implements CraftingIn
 
     @Override
     public void setContents(ItemStack[] items) {
-        if (getSize() > items.length) {
-            throw new IllegalArgumentException("Invalid inventory size; expected " + getSize() + " or less");
-        }
+        Preconditions.checkArgument(items.length <= getSize(), "Invalid inventory size (%s); expected %s or less", items.length, getSize());
         setContents(items[0], Arrays.copyOfRange(items, 1, items.length));
     }
 
@@ -97,9 +96,7 @@ public class CraftInventoryCrafting extends CraftInventory implements CraftingIn
 
     @Override
     public void setMatrix(ItemStack[] contents) {
-        if (getMatrixInventory().getContainerSize() > contents.length) {
-            throw new IllegalArgumentException("Invalid inventory size; expected " + getMatrixInventory().getContainerSize() + " or less");
-        }
+        Preconditions.checkArgument(getMatrixInventory().getContainerSize() <= contents.length, "Invalid inventory size (%s); expected %s or less", contents.length, getMatrixInventory().getContainerSize());
 
         for (int i = 0; i < getMatrixInventory().getContainerSize(); i++) {
             if (i < contents.length) {

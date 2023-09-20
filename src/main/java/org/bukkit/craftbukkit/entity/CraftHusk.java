@@ -14,9 +14,4 @@ public class CraftHusk extends CraftZombie implements Husk {
     public String toString() {
         return "CraftHusk";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.HUSK;
-    }
 }

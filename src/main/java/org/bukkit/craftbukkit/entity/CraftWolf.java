@@ -30,11 +30,6 @@ public class CraftWolf extends CraftTameableAnimal implements Wolf {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.WOLF;
-    }
-
-    @Override
     public DyeColor getCollarColor() {
         return DyeColor.getByWoolData((byte) getHandle().getCollarColor().getId());
     }

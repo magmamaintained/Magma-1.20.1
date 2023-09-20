@@ -272,7 +272,7 @@
 +      if (p_9266_.m_36335_().m_41519_(p_9268_.m_41720_())) {
 +         cancelledBlock = true;
 +      }
-+      PlayerInteractEvent eventCB = CraftEventFactory.callPlayerInteractEvent(p_9266_, Action.RIGHT_CLICK_BLOCK, blockpos, p_9270_.m_82434_(), p_9268_, cancelledBlock, p_9269_);
++      PlayerInteractEvent eventCB = CraftEventFactory.callPlayerInteractEvent(p_9266_, Action.RIGHT_CLICK_BLOCK, blockpos, p_9270_.m_82434_(), p_9268_, cancelledBlock, p_9269_, p_9270_.m_82450_());
 +      firedInteract = true;
 +      interactResult = eventCB.useItemInHand() == Event.Result.DENY;
 +      interactPosition = blockpos.m_7949_();
@@ -296,7 +296,7 @@
        } else if (this.f_9247_ == GameType.SPECTATOR) {
           MenuProvider menuprovider = blockstate.m_60750_(p_9267_, blockpos);
           if (menuprovider != null) {
-@@ -308,25 +_,32 @@
+@@ -308,19 +_,24 @@
              return InteractionResult.PASS;
           }
        } else {
@@ -326,15 +326,6 @@
              InteractionResult interactionresult1;
              if (this.m_9295_()) {
                 int i = p_9268_.m_41613_();
--               interactionresult1 = p_9268_.m_41661_(useoncontext);
-+//               interactionresult1 = p_9268_.useOn(useoncontext, p_9269_);
-+               interactionresult1 = p_9268_.m_41661_(useoncontext); // todo: magma come back
-                p_9268_.m_41764_(i);
-             } else {
-+//               interactionresult1 = p_9268_.useOn(useoncontext, p_9269_); // todo: magma come back
-                interactionresult1 = p_9268_.m_41661_(useoncontext);
-             }
- 
 @@ -335,10 +_,10 @@
              }
  

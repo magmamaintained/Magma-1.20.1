@@ -21,11 +21,6 @@ public class CraftWanderingTrader extends CraftAbstractVillager implements Wande
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.WANDERING_TRADER;
-    }
-
-    @Override
     public int getDespawnDelay() {
         return getHandle().getDespawnDelay();
     }

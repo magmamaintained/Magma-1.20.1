@@ -20,8 +20,4 @@ public class CraftDolphin extends CraftWaterMob implements Dolphin {
         return "CraftDolphin";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.DOLPHIN;
-    }
 }

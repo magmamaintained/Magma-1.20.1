@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/entity/monster/EnderMan.java
 +++ b/net/minecraft/world/entity/monster/EnderMan.java
+@@ -68,6 +_,7 @@
+ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.BlockHitResult;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ 
+ public class EnderMan extends Monster implements NeutralMob {
+    private static final UUID f_32472_ = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
 @@ -110,7 +_,17 @@
     }
  
@@ -36,6 +44,24 @@
           return false;
        } else {
           Vec3 vec3 = p_32535_.m_20252_(1.0F).m_82541_();
+@@ -246,7 +_,7 @@
+       super.m_8024_();
+    }
+ 
+-   protected boolean m_32529_() {
++   public boolean m_32529_() {
+       if (!this.m_9236_().m_5776_() && this.m_6084_()) {
+          double d0 = this.m_20185_() + (this.f_19796_.m_188500_() - 0.5D) * 64.0D;
+          double d1 = this.m_20186_() + (double)(this.f_19796_.m_188503_(64) - 32);
+@@ -257,7 +_,7 @@
+       }
+    }
+ 
+-   boolean m_32500_(Entity p_32501_) {
++   public boolean m_32500_(Entity p_32501_) {
+       Vec3 vec3 = new Vec3(this.m_20185_() - p_32501_.m_20185_(), this.m_20227_(0.5D) - p_32501_.m_20188_(), this.m_20189_() - p_32501_.m_20189_());
+       vec3 = vec3.m_82541_();
+       double d0 = 16.0D;
 @@ -278,8 +_,10 @@
        boolean flag = blockstate.m_280555_();
        boolean flag1 = blockstate.m_60819_().m_205070_(FluidTags.f_13131_);
@@ -67,7 +93,7 @@
 -               this.f_32554_.m_32521_((BlockState)null);
 +            if (this.m_32558_(level, blockpos, blockstate2, blockstate, blockstate1, blockpos1) && !net.minecraftforge.event.ForgeEventFactory.onBlockPlace(f_32554_, net.minecraftforge.common.util.BlockSnapshot.create(level.m_46472_(), level, blockpos1), net.minecraft.core.Direction.UP)) {
 +               // CraftBukkit start - Place event
-+               if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.f_32554_, blockpos, blockstate2).isCancelled()) {
++               if (CraftEventFactory.callEntityChangeBlockEvent(this.f_32554_, blockpos, blockstate2)) {
 +                  level.m_7731_(blockpos, blockstate2, 3);
 +                  level.m_220407_(GameEvent.f_157797_, blockpos, GameEvent.Context.m_223719_(this.f_32554_, blockstate2));
 +                  this.f_32554_.m_32521_((BlockState) null);
@@ -101,7 +127,7 @@
 -            level.m_220407_(GameEvent.f_157794_, blockpos, GameEvent.Context.m_223719_(this.f_32583_, blockstate));
 -            this.f_32583_.m_32521_(blockstate.m_60734_().m_49966_());
 +            // CraftBukkit start - Pickup event
-+            if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.f_32583_, blockpos, Blocks.f_50016_.m_49966_()).isCancelled()) {
++            if (CraftEventFactory.callEntityChangeBlockEvent(this.f_32583_, blockpos, Blocks.f_50016_.m_49966_())) {
 +               level.m_7471_(blockpos, false);
 +               level.m_220407_(GameEvent.f_157794_, blockpos, GameEvent.Context.m_223719_(this.f_32583_, blockstate));
 +               this.f_32583_.m_32521_(blockstate.m_60734_().m_49966_());

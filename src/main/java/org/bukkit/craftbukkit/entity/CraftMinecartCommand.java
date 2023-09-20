@@ -49,11 +49,6 @@ public class CraftMinecartCommand extends CraftMinecart implements CommandMineca
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.MINECART_COMMAND;
-    }
-
-    @Override
     public void sendMessage(String message) {
     }
 

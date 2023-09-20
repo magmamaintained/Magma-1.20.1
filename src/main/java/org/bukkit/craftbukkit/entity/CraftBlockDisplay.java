@@ -24,11 +24,6 @@ public class CraftBlockDisplay extends CraftDisplay implements BlockDisplay {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.BLOCK_DISPLAY;
-    }
-
-    @Override
     public BlockData getBlock() {
         return CraftBlockData.fromData(getHandle().getBlockState());
     }

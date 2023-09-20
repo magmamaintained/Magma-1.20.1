@@ -19,8 +19,4 @@ public class CraftAmbient extends CraftMob implements Ambient {
         return "CraftAmbient";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.UNKNOWN;
-    }
 }

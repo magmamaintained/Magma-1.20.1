@@ -91,9 +91,4 @@ public class CraftItem extends CraftEntity implements Item {
     public String toString() {
         return "CraftItem";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.DROPPED_ITEM;
-    }
 }

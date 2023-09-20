@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.Serializable;
+import java.net.InetAddress;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -162,6 +163,15 @@ public final class Bukkit {
      */
     public static int getMaxPlayers() {
         return server.getMaxPlayers();
+    }
+
+    /**
+     * Set the maximum amount of players allowed to be logged in at once.
+     *
+     * @param maxPlayers The maximum amount of concurrent players
+     */
+    public static void setMaxPlayers(int maxPlayers) {
+        server.setMaxPlayers(maxPlayers);
     }
 
     /**
@@ -1197,7 +1207,10 @@ public final class Bukkit {
      * Bans the specified address from the server.
      *
      * @param address the IP address to ban
+     *
+     * @deprecated see {@link #banIP(InetAddress)}
      */
+    @Deprecated
     public static void banIP(@NotNull String address) {
         server.banIP(address);
     }
@@ -1206,8 +1219,29 @@ public final class Bukkit {
      * Unbans the specified address from the server.
      *
      * @param address the IP address to unban
+     *
+     * @deprecated see {@link #unbanIP(InetAddress)}
      */
+    @Deprecated
     public static void unbanIP(@NotNull String address) {
+        server.unbanIP(address);
+    }
+
+    /**
+     * Bans the specified address from the server.
+     *
+     * @param address the IP address to ban
+     */
+    public static void banIP(@NotNull InetAddress address) {
+        server.banIP(address);
+    }
+
+    /**
+     * Unbans the specified address from the server.
+     *
+     * @param address the IP address to unban
+     */
+    public static void unbanIP(@NotNull InetAddress address) {
         server.unbanIP(address);
     }
 
@@ -1223,15 +1257,14 @@ public final class Bukkit {
 
     /**
      * Gets a ban list for the supplied type.
-     * <p>
-     * Bans by name are no longer supported and this method will return
-     * null when trying to request them. The replacement is bans by UUID.
      *
      * @param type the type of list to fetch, cannot be null
+     * @param <T> The ban target
+     *
      * @return a ban list of the specified type
      */
     @NotNull
-    public static BanList getBanList(@NotNull BanList.Type type) {
+    public static <T extends BanList<?>> T getBanList(@NotNull BanList.Type type) {
         return server.getBanList(type);
     }
 
@@ -1532,6 +1565,15 @@ public final class Bukkit {
     @NotNull
     public static String getMotd() {
         return server.getMotd();
+    }
+
+    /**
+     * Set the message that is displayed on the server list.
+     *
+     * @param motd The message to be displayed
+     */
+    public static void setMotd(@NotNull String motd) {
+        server.setMotd(motd);
     }
 
     /**

@@ -30,8 +30,4 @@ public class CraftPufferFish extends CraftFish implements PufferFish {
         return "CraftPufferFish";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.PUFFERFISH;
-    }
 }

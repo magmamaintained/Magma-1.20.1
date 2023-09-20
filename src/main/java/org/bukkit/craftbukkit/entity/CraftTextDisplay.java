@@ -25,11 +25,6 @@ public class CraftTextDisplay extends CraftDisplay implements TextDisplay {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.TEXT_DISPLAY;
-    }
-
-    @Override
     public String getText() {
         return CraftChatMessage.fromComponent(getHandle().getText());
     }
@@ -46,7 +41,7 @@ public class CraftTextDisplay extends CraftDisplay implements TextDisplay {
 
     @Override
     public void setLineWidth(int width) {
-        getHandle().setLineWidth(width);
+        getHandle().getEntityData().set(Display.TextDisplay.DATA_LINE_WIDTH_ID, width);
     }
 
     @Override
@@ -59,9 +54,9 @@ public class CraftTextDisplay extends CraftDisplay implements TextDisplay {
     @Override
     public void setBackgroundColor(Color color) {
         if (color == null) {
-            getHandle().setBackgroundColor(-1);
+            getHandle().getEntityData().set(Display.TextDisplay.DATA_BACKGROUND_COLOR_ID, -1);
         } else {
-            getHandle().setBackgroundColor(color.asARGB());
+            getHandle().getEntityData().set(Display.TextDisplay.DATA_BACKGROUND_COLOR_ID, color.asARGB());
         }
     }
 

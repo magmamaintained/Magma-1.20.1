@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.inventory;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.bukkit.craftbukkit.util.CraftMagicNumbers;
 import org.bukkit.inventory.ItemStack;
@@ -30,8 +31,8 @@ public interface CraftRecipe extends Recipe {
         }
 
         stack.getItems();
-        if (requireNotEmpty && stack.itemStacks.length == 0) {
-            throw new IllegalArgumentException("Recipe requires at least one non-air choice!");
+        if (requireNotEmpty) {
+            Preconditions.checkArgument(stack.itemStacks.length != 0, "Recipe requires at least one non-air choice");
         }
 
         return stack;

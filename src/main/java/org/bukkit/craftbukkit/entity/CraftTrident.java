@@ -32,8 +32,4 @@ public class CraftTrident extends CraftArrow implements Trident {
         return "CraftTrident";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.TRIDENT;
-    }
 }

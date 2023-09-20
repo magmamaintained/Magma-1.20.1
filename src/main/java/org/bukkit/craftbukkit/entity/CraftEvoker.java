@@ -22,11 +22,6 @@ public class CraftEvoker extends CraftSpellcaster implements Evoker {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.EVOKER;
-    }
-
-    @Override
     public Evoker.Spell getCurrentSpell() {
         return Evoker.Spell.values()[getHandle().getCurrentSpell().ordinal()];
     }

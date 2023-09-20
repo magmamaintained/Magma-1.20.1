@@ -17,11 +17,6 @@ public class CraftPanda extends CraftAnimals implements Panda {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.PANDA;
-    }
-
-    @Override
     public String toString() {
         return "CraftPanda";
     }

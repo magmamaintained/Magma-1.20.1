@@ -16,11 +16,6 @@ public class CraftMarker extends CraftEntity implements Marker {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.MARKER;
-    }
-
-    @Override
     public String toString() {
         return "CraftMarker";
     }

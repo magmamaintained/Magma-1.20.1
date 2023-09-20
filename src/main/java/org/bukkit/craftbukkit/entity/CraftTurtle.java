@@ -21,11 +21,6 @@ public class CraftTurtle extends CraftAnimals implements Turtle {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.TURTLE;
-    }
-
-    @Override
     public boolean hasEgg() {
         return getHandle().hasEgg();
     }

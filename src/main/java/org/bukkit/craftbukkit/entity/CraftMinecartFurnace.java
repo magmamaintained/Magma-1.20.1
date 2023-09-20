@@ -31,9 +31,4 @@ public class CraftMinecartFurnace extends CraftMinecart implements PoweredMineca
     public String toString() {
         return "CraftMinecartFurnace";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.MINECART_FURNACE;
-    }
 }

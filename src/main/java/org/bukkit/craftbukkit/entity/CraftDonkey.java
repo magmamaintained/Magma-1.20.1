@@ -15,12 +15,6 @@ public class CraftDonkey extends CraftChestedHorse implements Donkey {
     public String toString() {
         return "CraftDonkey";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.DONKEY;
-    }
-
     @Override
     public Variant getVariant() {
         return Variant.DONKEY;

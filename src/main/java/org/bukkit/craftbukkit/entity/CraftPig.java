@@ -66,8 +66,4 @@ public class CraftPig extends CraftAnimals implements Pig {
         return "CraftPig";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.PIG;
-    }
 }

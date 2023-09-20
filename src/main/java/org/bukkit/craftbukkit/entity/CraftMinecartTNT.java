@@ -52,8 +52,4 @@ public final class CraftMinecartTNT extends CraftMinecart implements ExplosiveMi
         return "CraftMinecartTNT";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.MINECART_TNT;
-    }
 }

@@ -25,11 +25,6 @@ public class CraftBee extends CraftAnimals implements Bee {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.BEE;
-    }
-
-    @Override
     public Location getHive() {
         BlockPos hive = getHandle().getHivePos();
         return (hive == null) ? null : CraftLocation.toBukkit(hive, getWorld());

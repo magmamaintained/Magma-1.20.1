@@ -20,11 +20,6 @@ public class CraftWitch extends CraftRaider implements Witch {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.WITCH;
-    }
-
-    @Override
     public boolean isDrinkingPotion() {
         return getHandle().isDrinkingPotion();
     }

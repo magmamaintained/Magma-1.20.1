@@ -218,7 +218,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
      * @return string
      */
     public String getMappingsVersion() {
-        return "34f399b4f2033891290b7f0700e9e47b";
+        return "bcf3dcb22ad42792794079f9443df2c0";
     }
 
     @Override
@@ -247,9 +247,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
 
     @Override
     public Advancement loadAdvancement(NamespacedKey key, String advancement) {
-        if (Bukkit.getAdvancement(key) != null) {
-            throw new IllegalArgumentException("Advancement " + key + " already exists.");
-        }
+        Preconditions.checkArgument(Bukkit.getAdvancement(key) == null, "Advancement %s already exists", key);
         ResourceLocation minecraftkey = CraftNamespacedKey.toMinecraft(key);
 
         JsonElement jsonelement = ServerAdvancementManager.GSON.fromJson(advancement, JsonElement.class);

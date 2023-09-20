@@ -66,9 +66,4 @@ public class CraftHanging extends CraftEntity implements Hanging {
     public String toString() {
         return "CraftHanging";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.UNKNOWN;
-    }
 }

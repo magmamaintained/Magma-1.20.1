@@ -19,8 +19,4 @@ public class CraftSmallFireball extends CraftSizedFireball implements SmallFireb
         return "CraftSmallFireball";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.SMALL_FIREBALL;
-    }
 }

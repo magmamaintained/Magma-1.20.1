@@ -31,11 +31,6 @@ public class CraftZoglin extends CraftMonster implements Zoglin {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ZOGLIN;
-    }
-
-    @Override
     public int getAge() {
         return getHandle().isBaby() ? -1 : 0;
     }

@@ -17,11 +17,6 @@ public class CraftSkeletonHorse extends CraftAbstractHorse implements SkeletonHo
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.SKELETON_HORSE;
-    }
-
-    @Override
     public Variant getVariant() {
         return Variant.SKELETON_HORSE;
     }

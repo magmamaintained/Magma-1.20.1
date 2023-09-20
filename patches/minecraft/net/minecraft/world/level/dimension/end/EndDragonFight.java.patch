@@ -1,5 +1,58 @@
 --- a/net/minecraft/world/level/dimension/end/EndDragonFight.java
 +++ b/net/minecraft/world/level/dimension/end/EndDragonFight.java
+@@ -146,7 +_,7 @@
+          if (this.f_64073_ != null) {
+             if (this.f_64075_ == null && flag) {
+                this.f_64073_ = null;
+-               this.m_64100_();
++               this.tryRespawn();
+             }
+ 
+             this.f_64073_.m_6363_(this.f_64061_, this, this.f_64075_, this.f_64074_++, this.f_64072_);
+@@ -449,7 +_,7 @@
+       return this.f_64069_;
+    }
+ 
+-   public void m_64100_() {
++   public boolean tryRespawn() { // CraftBukkit - return boolean
+       if (this.f_64068_ && this.f_64073_ == null) {
+          BlockPos blockpos = this.f_64072_;
+          if (blockpos == null) {
+@@ -471,19 +_,20 @@
+          for(Direction direction : Direction.Plane.HORIZONTAL) {
+             List<EndCrystal> list = this.f_64061_.m_45976_(EndCrystal.class, new AABB(blockpos1.m_5484_(direction, 2)));
+             if (list.isEmpty()) {
+-               return;
++               return false; // CraftBukkit - return value
+             }
+ 
+             list1.addAll(list);
+          }
+ 
+          f_64058_.debug("Found all crystals, respawning dragon.");
+-         this.m_64091_(list1);
++         return this.respawnDragon(list1); // CraftBukkit - return value
+       }
+ 
++      return false; // CraftBukkit - return value
+    }
+ 
+-   private void m_64091_(List<EndCrystal> p_64092_) {
++   public boolean respawnDragon(List<EndCrystal> p_64092_) {  // PAIL private -> public // CraftBukkit - return boolean
+       if (this.f_64068_ && this.f_64073_ == null) {
+          for(BlockPattern.BlockPatternMatch blockpattern$blockpatternmatch = this.m_64105_(); blockpattern$blockpatternmatch != null; blockpattern$blockpatternmatch = this.m_64105_()) {
+             for(int i = 0; i < this.f_64063_.m_61203_(); ++i) {
+@@ -502,8 +_,10 @@
+          this.f_64074_ = 0;
+          this.m_64093_(false);
+          this.f_64075_ = p_64092_;
++         return true; // CraftBukkit - return value
+       }
+ 
++      return false; // CraftBukkit - return value
+    }
+ 
+    public void m_64101_() {
 @@ -513,7 +_,14 @@
              endcrystal.m_31052_((BlockPos)null);
           }

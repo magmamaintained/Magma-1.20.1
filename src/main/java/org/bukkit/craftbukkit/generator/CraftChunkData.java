@@ -2,6 +2,7 @@ package org.bukkit.craftbukkit.generator;
 
 import java.lang.ref.WeakReference;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
@@ -38,9 +39,7 @@ public final class CraftChunkData implements ChunkGenerator.ChunkData {
     public ChunkAccess getHandle() {
         ChunkAccess access = weakChunk.get();
 
-        if (access == null) {
-            throw new IllegalStateException("ChunkAccess no longer present, are you using it in a different tick?");
-        }
+        Preconditions.checkState(access != null, "IChunkAccess no longer present, are you using it in a different tick?");
 
         return access;
     }

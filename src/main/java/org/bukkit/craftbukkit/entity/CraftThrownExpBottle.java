@@ -19,8 +19,4 @@ public class CraftThrownExpBottle extends CraftThrowableProjectile implements Th
         return "EntityThrownExpBottle";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.THROWN_EXP_BOTTLE;
-    }
 }

@@ -24,11 +24,6 @@ public class CraftInteraction extends CraftEntity implements Interaction {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.INTERACTION;
-    }
-
-    @Override
     public float getInteractionWidth() {
         return getHandle().getWidth();
     }

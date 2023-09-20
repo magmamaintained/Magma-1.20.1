@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/entity/animal/Bee.java
 +++ b/net/minecraft/world/entity/animal/Bee.java
+@@ -87,6 +_,7 @@
+ import net.minecraft.world.level.pathfinder.BlockPathTypes;
+ import net.minecraft.world.level.pathfinder.Path;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
+ 
+ public class Bee extends Animal implements NeutralMob, FlyingAnimal {
+    public static final float f_148718_ = 120.32113F;
 @@ -230,7 +_,7 @@
              }
  
@@ -23,15 +31,15 @@
           return false;
        } else {
 -         if (!this.m_9236_().f_46443_) {
-+         // CraftBukkit start
++         // CraftBukkit start - Only stop pollinating if entity was damaged
 +         boolean result = super.m_6469_(p_27762_, p_27763_);
 +         if (result && !this.m_9236_().f_46443_) {
++            // CraftBukkit end
              this.f_27699_.m_28087_();
           }
  
 -         return super.m_6469_(p_27762_, p_27763_);
-+         return result;
-+         // CraftBukkit end
++         return result; // CraftBukkit
        }
     }
  
@@ -61,7 +69,7 @@
                    }
  
 -                  if (blockstate1 != null) {
-+                  if (blockstate1 != null&& !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(Bee.this, blockpos, blockstate1).isCancelled()) { // CraftBukkit
++                  if (blockstate1 != null && CraftEventFactory.callEntityChangeBlockEvent(Bee.this, blockpos, blockstate1)) { // CraftBukkit
                       Bee.this.m_9236_().m_46796_(2005, blockpos, 0);
                       Bee.this.m_9236_().m_46597_(blockpos, blockstate1);
                       Bee.this.m_27871_();

@@ -21,11 +21,6 @@ public class CraftGhast extends CraftFlying implements Ghast, CraftEnemy {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.GHAST;
-    }
-
-    @Override
     public boolean isCharging() {
         return getHandle().isCharging();
     }

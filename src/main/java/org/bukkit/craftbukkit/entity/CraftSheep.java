@@ -40,8 +40,4 @@ public class CraftSheep extends CraftAnimals implements Sheep {
         return "CraftSheep";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.SHEEP;
-    }
 }

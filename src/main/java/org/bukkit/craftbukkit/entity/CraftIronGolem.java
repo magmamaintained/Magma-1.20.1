@@ -28,9 +28,4 @@ public class CraftIronGolem extends CraftGolem implements IronGolem {
     public void setPlayerCreated(boolean playerCreated) {
         getHandle().setPlayerCreated(playerCreated);
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.IRON_GOLEM;
-    }
 }

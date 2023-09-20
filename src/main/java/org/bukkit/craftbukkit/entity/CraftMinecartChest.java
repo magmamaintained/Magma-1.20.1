@@ -24,9 +24,4 @@ public class CraftMinecartChest extends CraftMinecartContainer implements Storag
     public String toString() {
         return "CraftMinecartChest{" + "inventory=" + inventory + '}';
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.MINECART_CHEST;
-    }
 }

@@ -24,11 +24,6 @@ public class CraftDisplay extends CraftEntity implements Display {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.UNKNOWN;
-    }
-
-    @Override
     public Transformation getTransformation() {
         com.mojang.math.Transformation nms = net.minecraft.world.entity.Display.createTransformation(getHandle().getEntityData());
 

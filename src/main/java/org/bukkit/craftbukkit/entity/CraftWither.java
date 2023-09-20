@@ -32,11 +32,6 @@ public class CraftWither extends CraftMonster implements Wither {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.WITHER;
-    }
-
-    @Override
     public BossBar getBossBar() {
         return bossBar;
     }

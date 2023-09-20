@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/level/BaseSpawner.java
 +++ b/net/minecraft/world/level/BaseSpawner.java
+@@ -30,7 +_,7 @@
+    private static final Logger f_45441_ = LogUtils.getLogger();
+    private static final int f_151303_ = 1;
+    public int f_45442_ = 20;
+-   private SimpleWeightedRandomList<SpawnData> f_45443_ = SimpleWeightedRandomList.m_185864_();
++   public SimpleWeightedRandomList<SpawnData> f_45443_ = SimpleWeightedRandomList.m_185864_();
+    @Nullable
+    public SpawnData f_45444_;
+    private double f_45445_;
 @@ -46,6 +_,7 @@
  
     public void m_253197_(EntityType<?> p_253682_, @Nullable Level p_254041_, RandomSource p_254221_, BlockPos p_254050_) {
@@ -8,7 +17,7 @@
     }
  
     private boolean m_151343_(Level p_151344_, BlockPos p_151345_) {
-@@ -135,12 +_,14 @@
+@@ -135,12 +_,19 @@
                          continue;
                       }
  
@@ -22,7 +31,12 @@
                    }
  
 -                  if (!p_151312_.m_8860_(entity)) {
-+                  if (!p_151312_.tryAddFreshEntityWithPassengers(entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER)) { // CraftBukkit
++                  // CraftBukkit start
++                  if (org.bukkit.craftbukkit.event.CraftEventFactory.callSpawnerSpawnEvent(entity, p_151313_).isCancelled()) {
++                     continue;
++                  }
++                  if (!p_151312_.tryAddFreshEntityWithPassengers(entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER)) {
++                     // CraftBukkit end
                       this.m_151350_(p_151312_, p_151313_);
                       return;
                    }

@@ -24,9 +24,4 @@ public class CraftLargeFireball extends CraftSizedFireball implements LargeFireb
     public String toString() {
         return "CraftLargeFireball";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.FIREBALL;
-    }
 }

@@ -37,10 +37,4 @@ public class CraftCustomMinecart extends CraftMinecart {
                 '}';
     }
 
-    @NotNull
-    @Override
-    public EntityType getType() {
-        // todo: implement
-        return null;
-    }
 }

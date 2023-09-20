@@ -36,11 +36,4 @@ public class CraftCustomMinecartContainer extends CraftMinecartContainer {
                 "entityType=" + getType() +
                 '}';
     }
-
-    @NotNull
-    @Override
-    public EntityType getType() {
-        // tood: implement
-        return null;
-    }
 }

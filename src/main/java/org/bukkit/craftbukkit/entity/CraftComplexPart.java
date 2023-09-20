@@ -41,9 +41,4 @@ public class CraftComplexPart extends CraftEntity implements ComplexEntityPart {
     public String toString() {
         return "CraftComplexPart";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.UNKNOWN;
-    }
 }

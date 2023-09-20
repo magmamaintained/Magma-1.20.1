@@ -43,11 +43,6 @@ public class CraftSkeleton extends CraftAbstractSkeleton implements Skeleton {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.SKELETON;
-    }
-
-    @Override
     public SkeletonType getSkeletonType() {
        return SkeletonType.NORMAL;
     }

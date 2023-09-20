@@ -20,8 +20,4 @@ public class CraftSalmon extends CraftFish implements Salmon {
         return "CraftSalmon";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.SALMON;
-    }
 }

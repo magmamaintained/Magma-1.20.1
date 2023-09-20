@@ -47,10 +47,7 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.block.CraftBlock;
 import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
 import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
-import org.bukkit.craftbukkit.util.CraftChatMessage;
-import org.bukkit.craftbukkit.util.CraftLocation;
-import org.bukkit.craftbukkit.util.CraftSpawnCategory;
-import org.bukkit.craftbukkit.util.CraftVector;
+import org.bukkit.craftbukkit.util.*;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.SpawnCategory;
@@ -76,12 +73,15 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     protected final CraftServer server;
     protected Entity entity;
+    private final org.bukkit.entity.EntityType entityType;
     private EntityDamageEvent lastDamageEvent;
     private final CraftPersistentDataContainer persistentDataContainer = new CraftPersistentDataContainer(DATA_TYPE_REGISTRY);
 
     public CraftEntity(final CraftServer server, final Entity entity) {
         this.server = server;
         this.entity = entity;
+        org.bukkit.entity.EntityType type = Registry.ENTITY_TYPE.get(CraftNamespacedKey.fromMinecraft(EntityType.getKey(entity.getType())));
+        this.entityType = (type != null) ? type : org.bukkit.entity.EntityType.UNKNOWN;
     }
 
     public static CraftEntity getEntity(CraftServer server, Entity entity) {
@@ -466,7 +466,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public int getFireTicks() {
-        return entity.remainingFireTicks;
+        return entity.getRemainingFireTicks();
     }
 
     @Override
@@ -476,7 +476,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public void setFireTicks(int ticks) {
-        entity.remainingFireTicks = ticks;
+        entity.setRemainingFireTicks(ticks);
     }
 
     @Override
@@ -501,7 +501,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public void setFreezeTicks(int ticks) {
-        Preconditions.checkArgument(0 <= ticks, "Ticks cannot be less than 0");
+        Preconditions.checkArgument(0 <= ticks, "Ticks (%s) cannot be less than 0", ticks);
 
         getHandle().setTicksFrozen(ticks);
     }
@@ -567,17 +567,12 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public List<org.bukkit.entity.Entity> getPassengers() {
-        return Lists.newArrayList(Lists.transform(getHandle().passengers, new Function<Entity, org.bukkit.entity.Entity>() {
-            @Override
-            public org.bukkit.entity.Entity apply(Entity input) {
-                return input.getBukkitEntity();
-            }
-        }));
+        return Lists.newArrayList(Lists.transform(getHandle().passengers, (Function<Entity, org.bukkit.entity.Entity>) input -> input.getBukkitEntity()));
     }
 
     @Override
     public boolean addPassenger(org.bukkit.entity.Entity passenger) {
-        Preconditions.checkArgument(passenger != null, "passenger == null");
+        Preconditions.checkArgument(passenger != null, "Entity passenger cannot be null");
         Preconditions.checkArgument(!this.equals(passenger), "Entity cannot ride itself.");
 
         return ((CraftEntity) passenger).getHandle().startRiding(getHandle(), true);
@@ -585,7 +580,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public boolean removePassenger(org.bukkit.entity.Entity passenger) {
-        Preconditions.checkArgument(passenger != null, "passenger == null");
+        Preconditions.checkArgument(passenger != null, "Entity passenger cannot be null");
 
         ((CraftEntity) passenger).getHandle().stopRiding();
         return true;
@@ -638,14 +633,17 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
 
     @Override
     public void setTicksLived(int value) {
-        if (value <= 0) {
-            throw new IllegalArgumentException("Age must be at least 1 tick");
-        }
+        Preconditions.checkArgument(value > 0, "Age value (%s) must be greater than 0", value);
         getHandle().tickCount = value;
     }
 
     public Entity getHandle() {
         return entity;
+    }
+
+    @Override
+    public final org.bukkit.entity.EntityType getType() {
+        return entityType;
     }
 
     @Override

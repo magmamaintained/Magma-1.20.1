@@ -8,10 +8,11 @@
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.server.level.ServerPlayer;
  import net.minecraft.tags.BlockTags;
-@@ -28,6 +_,9 @@
+@@ -28,6 +_,10 @@
  import net.minecraft.world.level.gameevent.PositionSource;
  import net.minecraft.world.phys.HitResult;
  import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.CraftGameEvent;
 +import org.bukkit.craftbukkit.block.CraftBlock;
 +import org.bukkit.craftbukkit.util.CraftNamespacedKey;
 +import org.bukkit.event.block.BlockReceiveGameEvent;
@@ -26,7 +27,7 @@
 +               // CraftBukkit start
 +               boolean defaultCancel = !vibrationsystem$user.m_280080_(p_282254_, BlockPos.m_274446_(p_282426_), p_283599_, p_283664_);
 +               Entity entity = p_283664_.f_223711_();
-+               BlockReceiveGameEvent event = new BlockReceiveGameEvent(org.bukkit.GameEvent.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256726_.m_7981_(p_283599_))), CraftBlock.at(p_282254_, BlockPos.m_274446_(vec3)), (entity == null) ? null : entity.getBukkitEntity());
++               BlockReceiveGameEvent event = new BlockReceiveGameEvent(CraftGameEvent.minecraftToBukkit(p_283599_), CraftBlock.at(p_282254_, BlockPos.m_274446_(vec3)), (entity == null) ? null : entity.getBukkitEntity());
 +               event.setCancelled(defaultCancel);
 +               p_282254_.getCraftServer().getPluginManager().callEvent(event);
 +               if (event.isCancelled()) {

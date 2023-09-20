@@ -53,11 +53,6 @@ public class CraftTNTPrimed extends CraftEntity implements TNTPrimed {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.PRIMED_TNT;
-    }
-
-    @Override
     public Entity getSource() {
         net.minecraft.world.entity.LivingEntity source = getHandle().getOwner();
 

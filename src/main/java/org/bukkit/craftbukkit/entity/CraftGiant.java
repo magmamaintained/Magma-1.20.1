@@ -19,9 +19,4 @@ public class CraftGiant extends CraftMonster implements Giant {
     public String toString() {
         return "CraftGiant";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.GIANT;
-    }
 }

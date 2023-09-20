@@ -89,9 +89,4 @@ public class CraftCreeper extends CraftMonster implements Creeper {
     public String toString() {
         return "CraftCreeper";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.CREEPER;
-    }
 }

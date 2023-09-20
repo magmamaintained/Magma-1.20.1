@@ -16,11 +16,6 @@ public class CraftPiglinBrute extends CraftPiglinAbstract implements PiglinBrute
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.PIGLIN_BRUTE;
-    }
-
-    @Override
     public String toString() {
         return "CraftPiglinBrute";
     }

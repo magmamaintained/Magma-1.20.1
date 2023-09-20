@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.map;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -29,14 +30,11 @@ public final class CraftMapView implements MapView {
     @Override
     public int getId() {
         String text = worldMap.id;
-        if (text.startsWith("map_")) {
-            try {
-                return Integer.parseInt(text.substring("map_".length()));
-            } catch (NumberFormatException ex) {
-                throw new IllegalStateException("Map has non-numeric ID");
-            }
-        } else {
-            throw new IllegalStateException("Map has invalid ID");
+        Preconditions.checkState(text.startsWith("map_"), "Map has a invalid ID");
+        try {
+            return Integer.parseInt(text.substring("map_".length()));
+        } catch (NumberFormatException ex) {
+            throw new IllegalStateException("Map has non-numeric ID");
         }
     }
 

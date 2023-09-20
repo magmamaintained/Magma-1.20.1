@@ -18,11 +18,6 @@ public class CraftPillager extends CraftIllager implements Pillager {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.PILLAGER;
-    }
-
-    @Override
     public String toString() {
         return "CraftPillager";
     }

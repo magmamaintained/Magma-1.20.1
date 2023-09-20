@@ -1,5 +1,30 @@
 --- a/net/minecraft/server/rcon/RconConsoleSource.java
 +++ b/net/minecraft/server/rcon/RconConsoleSource.java
+@@ -8,6 +_,9 @@
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.phys.Vec2;
+ import net.minecraft.world.phys.Vec3;
++import org.bukkit.craftbukkit.command.CraftRemoteConsoleCommandSender;
++
++import java.net.SocketAddress;
+ 
+ public class RconConsoleSource implements CommandSource {
+    private static final String f_144022_ = "Rcon";
+@@ -15,7 +_,13 @@
+    private final StringBuffer f_11501_ = new StringBuffer();
+    private final MinecraftServer f_11502_;
+ 
+-   public RconConsoleSource(MinecraftServer p_11505_) {
++   // CraftBukkit start
++   public final SocketAddress socketAddress;
++   private final CraftRemoteConsoleCommandSender remoteConsole = new CraftRemoteConsoleCommandSender(this);
++
++   public RconConsoleSource(MinecraftServer p_11505_, SocketAddress socketAddress) {
++      this.socketAddress = socketAddress;
++      // CraftBukkit end
+       this.f_11502_ = p_11505_;
+    }
+ 
 @@ -32,8 +_,19 @@
        return new CommandSourceStack(this, Vec3.m_82528_(serverlevel.m_220360_()), Vec2.f_82462_, serverlevel, 4, "Rcon", f_11500_, this.f_11502_, (Entity)null);
     }
@@ -11,7 +36,7 @@
 +
 +   @Override
 +   public org.bukkit.command.CommandSender getBukkitSender(CommandSourceStack wrapper) {
-+      return f_11502_.remoteConsole;
++      return this.remoteConsole;
 +   }
 +   // CraftBukkit end
 +

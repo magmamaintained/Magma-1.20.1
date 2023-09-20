@@ -16,11 +16,6 @@ public class CraftGlowItemFrame extends CraftItemFrame implements GlowItemFrame 
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.GLOW_ITEM_FRAME;
-    }
-
-    @Override
     public String toString() {
         return "CraftGlowItemFrame{item=" + getItem() + ", rotation=" + getRotation() + "}";
     }

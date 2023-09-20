@@ -28,9 +28,4 @@ public class CraftExperienceOrb extends CraftEntity implements ExperienceOrb {
     public String toString() {
         return "CraftExperienceOrb";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.EXPERIENCE_ORB;
-    }
 }

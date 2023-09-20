@@ -30,8 +30,4 @@ public class CraftPhantom extends CraftFlying implements Phantom, CraftEnemy {
         return "CraftPhantom";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.PHANTOM;
-    }
 }

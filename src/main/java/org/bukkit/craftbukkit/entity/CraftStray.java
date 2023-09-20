@@ -17,11 +17,6 @@ public class CraftStray extends CraftAbstractSkeleton implements Stray {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.STRAY;
-    }
-
-    @Override
     public SkeletonType getSkeletonType() {
         return SkeletonType.STRAY;
     }

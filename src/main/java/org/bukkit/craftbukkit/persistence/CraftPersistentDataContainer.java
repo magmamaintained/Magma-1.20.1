@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.persistence;
 
+import com.google.common.base.Preconditions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import org.apache.commons.lang3.Validate;
@@ -31,17 +32,17 @@ public class CraftPersistentDataContainer implements PersistentDataContainer {
 
     @Override
     public <T, Z> void set(NamespacedKey key, PersistentDataType<T, Z> type, Z value) {
-        Validate.notNull(key, "The provided key for the custom value was null");
-        Validate.notNull(type, "The provided type for the custom value was null");
-        Validate.notNull(value, "The provided value for the custom value was null");
+        Preconditions.checkArgument(key != null, "The NamespacedKey key cannot be null");
+        Preconditions.checkArgument(type != null, "The provided type cannot be null");
+        Preconditions.checkArgument(value != null, "The provided value cannot be null");
 
         this.customDataTags.put(key.toString(), registry.wrap(type.getPrimitiveType(), type.toPrimitive(value, adapterContext)));
     }
 
     @Override
     public <T, Z> boolean has(NamespacedKey key, PersistentDataType<T, Z> type) {
-        Validate.notNull(key, "The provided key for the custom value was null");
-        Validate.notNull(type, "The provided type for the custom value was null");
+        Preconditions.checkArgument(key != null, "The NamespacedKey key cannot be null");
+        Preconditions.checkArgument(type != null, "The provided type cannot be null");
 
         Tag value = this.customDataTags.get(key.toString());
         if (value == null) {
@@ -53,8 +54,8 @@ public class CraftPersistentDataContainer implements PersistentDataContainer {
 
     @Override
     public <T, Z> Z get(NamespacedKey key, PersistentDataType<T, Z> type) {
-        Validate.notNull(key, "The provided key for the custom value was null");
-        Validate.notNull(type, "The provided type for the custom value was null");
+        Preconditions.checkArgument(key != null, "The NamespacedKey key cannot be null");
+        Preconditions.checkArgument(type != null, "The provided type cannot be null");
 
         Tag value = this.customDataTags.get(key.toString());
         if (value == null) {
@@ -86,7 +87,7 @@ public class CraftPersistentDataContainer implements PersistentDataContainer {
 
     @Override
     public void remove(NamespacedKey key) {
-        Validate.notNull(key, "The provided key for the custom value was null");
+        Preconditions.checkArgument(key != null, "The NamespacedKey key cannot be null");
 
         this.customDataTags.remove(key.toString());
     }

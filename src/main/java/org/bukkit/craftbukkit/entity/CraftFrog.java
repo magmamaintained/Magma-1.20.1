@@ -26,11 +26,6 @@ public class CraftFrog extends CraftAnimals implements org.bukkit.entity.Frog {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.FROG;
-    }
-
-    @Override
     public Entity getTongueTarget() {
         return getHandle().getTongueTarget().map(net.minecraft.world.entity.Entity::getBukkitEntity).orElse(null);
     }

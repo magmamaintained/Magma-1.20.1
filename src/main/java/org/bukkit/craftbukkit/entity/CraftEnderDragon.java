@@ -41,11 +41,6 @@ public class CraftEnderDragon extends CraftMob implements EnderDragon, CraftEnem
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ENDER_DRAGON;
-    }
-
-    @Override
     public Phase getPhase() {
         return Phase.values()[getHandle().getEntityData().get(net.minecraft.world.entity.boss.enderdragon.EnderDragon.DATA_PHASE)];
     }

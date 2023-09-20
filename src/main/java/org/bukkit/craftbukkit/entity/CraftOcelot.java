@@ -39,8 +39,4 @@ public class CraftOcelot extends CraftAnimals implements Ocelot {
         return "CraftOcelot";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.OCELOT;
-    }
 }

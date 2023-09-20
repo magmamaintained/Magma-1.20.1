@@ -2,6 +2,8 @@ package org.bukkit.craftbukkit.entity;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
@@ -61,9 +63,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     @Override
     public void setHealth(double health) {
         health = (float) health;
-        if ((health < 0) || (health > getMaxHealth())) {
-            throw new IllegalArgumentException("Health must be between 0 and " + getMaxHealth() + "(" + health + ")");
-        }
+        Preconditions.checkArgument(health >= 0 && health <= this.getMaxHealth(), "Health value (%s) must be between 0 and %s", health, this.getMaxHealth());
 
         // during world generation, we don't want to run logic for dropping items and xp
         if (getHandle().generation && health == 0) {
@@ -286,6 +286,17 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     }
 
     @Override
+    public int getNoActionTicks() {
+        return getHandle().getNoActionTime();
+    }
+
+    @Override
+    public void setNoActionTicks(int ticks) {
+        Preconditions.checkArgument(ticks >= 0, "ticks must be >= 0");
+        getHandle().setNoActionTime(ticks);
+    }
+
+    @Override
     public net.minecraft.world.entity.LivingEntity getHandle() {
         return (net.minecraft.world.entity.LivingEntity) entity;
     }
@@ -374,7 +385,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         } else if (AbstractArrow.class.isAssignableFrom(projectile)) {
             if (TippedArrow.class.isAssignableFrom(projectile)) {
                 launch = new net.minecraft.world.entity.projectile.Arrow(world, getHandle());
-                ((net.minecraft.world.entity.projectile.Arrow) launch).setPotionType(CraftPotionUtil.fromBukkit(new PotionData(PotionType.WATER, false, false)));
+                ((Arrow) launch.getBukkitEntity()).setBasePotionData(new PotionData(PotionType.WATER, false, false));
             } else if (SpectralArrow.class.isAssignableFrom(projectile)) {
                 launch = new net.minecraft.world.entity.projectile.SpectralArrow(world, getHandle());
             } else if (Trident.class.isAssignableFrom(projectile)) {
@@ -434,7 +445,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
             launch.moveTo(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         }
 
-        Validate.notNull(launch, "Projectile not supported");
+        Preconditions.checkArgument(launch != null, "Projectile (%s) not supported", projectile.getName());
 
         if (velocity != null) {
             ((T) launch.getBukkitEntity()).setVelocity(velocity);
@@ -442,11 +453,6 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
 
         world.addFreshEntity(launch);
         return (T) launch.getBukkitEntity();
-    }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.UNKNOWN;
     }
 
     @Override
@@ -510,9 +516,7 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
 
     @Override
     public Entity getLeashHolder() throws IllegalStateException {
-        if (!isLeashed()) {
-            throw new IllegalStateException("Entity not leashed");
-        }
+        Preconditions.checkState(isLeashed(), "Entity not leashed");
         return ((Mob) getHandle()).getLeashHolder().getBukkitEntity();
     }
 
@@ -621,6 +625,20 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
         Preconditions.checkState(!getHandle().generation, "Cannot swing hand during world generation");
 
         getHandle().swing(InteractionHand.OFF_HAND, true);
+    }
+
+    @Override
+    public void playHurtAnimation(float yaw) {
+        if (getHandle().level() instanceof ServerLevel world) {
+            /*
+             * Vanilla degrees state that 0 = left, 90 = front, 180 = right, and 270 = behind.
+             * This makes no sense. We'll add 90 to it so that 0 = front, clockwise from there.
+             */
+            float actualYaw = yaw + 90;
+            ClientboundHurtAnimationPacket packet = new ClientboundHurtAnimationPacket(getEntityId(), actualYaw);
+
+            world.getChunkSource().broadcastAndSend(getHandle(), packet);
+        }
     }
 
     @Override

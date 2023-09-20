@@ -19,8 +19,4 @@ public class CraftPolarBear extends CraftAnimals implements PolarBear {
         return "CraftPolarBear";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.POLAR_BEAR;
-    }
 }

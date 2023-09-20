@@ -1,0 +1,35 @@
+--- a/net/minecraft/world/level/block/SignBlock.java
++++ b/net/minecraft/world/level/block/SignBlock.java
+@@ -36,6 +_,7 @@
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.phys.shapes.CollisionContext;
+ import net.minecraft.world.phys.shapes.VoxelShape;
++import org.bukkit.event.player.PlayerSignOpenEvent;
+ 
+ public abstract class SignBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+    public static final BooleanProperty f_56268_ = BlockStateProperties.f_61362_;
+@@ -101,7 +_,7 @@
+             } else if (flag) {
+                return InteractionResult.SUCCESS;
+             } else if (!this.m_277189_(p_56281_, signblockentity) && p_56281_.m_36326_() && this.m_278656_(p_56281_, signblockentity, flag2)) {
+-               this.m_276926_(p_56281_, signblockentity, flag2);
++               this.openTextEdit(p_56281_, signblockentity, flag2, PlayerSignOpenEvent.Cause.INTERACT); // CraftBukkit
+                return InteractionResult.SUCCESS;
+             } else {
+                return InteractionResult.PASS;
+@@ -147,6 +_,15 @@
+    }
+ 
+    public void m_276926_(Player p_277738_, SignBlockEntity p_277467_, boolean p_277771_) {
++      // Craftbukkit start
++      openTextEdit(p_277738_, p_277467_, p_277771_, org.bukkit.event.player.PlayerSignOpenEvent.Cause.UNKNOWN);
++   }
++
++   public void openTextEdit(Player p_277738_, SignBlockEntity p_277467_, boolean p_277771_, org.bukkit.event.player.PlayerSignOpenEvent.Cause cause) {
++      if (!org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerSignOpenEvent(p_277738_, p_277467_, p_277771_, cause)) {
++         return;
++      }
++      // Craftbukkit end
+       p_277467_.m_155713_(p_277738_.m_20148_());
+       p_277738_.m_7739_(p_277467_, p_277771_);
+    }

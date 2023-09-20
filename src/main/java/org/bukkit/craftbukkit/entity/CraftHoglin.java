@@ -61,9 +61,4 @@ public class CraftHoglin extends CraftAnimals implements Hoglin, CraftEnemy {
     public String toString() {
         return "CraftHoglin";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.HOGLIN;
-    }
 }

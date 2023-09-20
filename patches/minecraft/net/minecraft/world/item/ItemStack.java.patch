@@ -174,19 +174,19 @@
     }
  
     public Holder<Item> m_220173_() {
-@@ -226,17 +_,179 @@
+@@ -226,17 +_,184 @@
     }
  
     public InteractionResult m_41661_(UseOnContext p_41662_) {
 +      if (!p_41662_.m_43725_().f_46443_) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(p_41662_);
-+      return onItemUse(p_41662_, (c) -> m_41720_().m_6225_(p_41662_), p_41662_.m_43724_()); // CraftBukkit - add hand
++      return onItemUse(p_41662_, (c) -> m_41720_().m_6225_(p_41662_));
 +   }
 +
 +   public InteractionResult onItemUseFirst(UseOnContext p_41662_) {
-+      return onItemUse(p_41662_, (c) -> m_41720_().onItemUseFirst(this, p_41662_), p_41662_.m_43724_()); // CraftBukkit - add hand
++      return onItemUse(p_41662_, (c) -> m_41720_().onItemUseFirst(this, p_41662_));
 +   }
 +
-+   private InteractionResult onItemUse(UseOnContext p_41662_, java.util.function.Function<UseOnContext, InteractionResult> callback, InteractionHand hand) { // CraftBukkit - add hand
++   private InteractionResult onItemUse(UseOnContext p_41662_, java.util.function.Function<UseOnContext, InteractionResult> callback) {
        Player player = p_41662_.m_43723_();
        BlockPos blockpos = p_41662_.m_8083_();
        BlockInWorld blockinworld = new BlockInWorld(p_41662_.m_43725_(), blockpos, false);
@@ -197,7 +197,7 @@
 +         CompoundTag oldData = this.getTagClone();
 +         int oldCount = this.m_41613_();
 +         ServerLevel world = (ServerLevel) p_41662_.m_43725_();
-+         if (!(this.m_41720_() instanceof BucketItem || this.m_41720_() instanceof SolidBucketItem)) { // if not bucket
++         if (!(f_41589_ instanceof BucketItem || f_41589_ instanceof SolidBucketItem)) { // if not bucket
 +            world.captureBlockStates = true;
 +            // special case bonemeal
 +            if (this.m_41720_() == Items.f_42499_) {
@@ -206,12 +206,16 @@
 +         }
           Item item = this.m_41720_();
 -         InteractionResult interactionresult = item.m_6225_(p_41662_);
-+         InteractionResult interactionresult = callback.apply(p_41662_);
++         InteractionResult interactionresult;
++         try {
++            interactionresult = item.m_6225_(p_41662_);
++         } finally {
++            world.captureBlockStates = false;
++         }
 +         CompoundTag newData = this.getTagClone();
 +         int newCount = this.m_41613_();
 +         this.m_41764_(oldCount);
 +         this.setTagClone(oldData);
-+         world.captureBlockStates = false;
 +         if (interactionresult.m_19077_() && world.captureTreeGeneration && world.capturedBlockStates.size() > 0) {
 +            world.captureTreeGeneration = false;
 +            Location location = CraftLocation.toBukkit(blockpos, world.getWorld());
@@ -246,6 +250,7 @@
           if (player != null && interactionresult.m_146666_()) {
 -            player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
++            InteractionHand hand = p_41662_.m_43724_();
 +            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
 +            world.capturedBlockStates.clear();
 +            if (blocks.size() > 1) {
@@ -326,7 +331,7 @@
 +                  try {
 +                     if (world.m_7702_(SignItem.openSign) instanceof SignBlockEntity tileentitysign) {
 +                        if (world.m_8055_(SignItem.openSign).m_60734_() instanceof SignBlock blocksign) {
-+                           blocksign.m_276926_(player, tileentitysign, true);
++                           blocksign.openTextEdit(player, tileentitysign, true, org.bukkit.event.player.PlayerSignOpenEvent.Cause.PLACE); // Craftbukkit
 +                        }
 +                     }
 +                  } finally {
@@ -344,7 +349,7 @@
 +               }
 +               // SPIGOT-1288 - play sound stripped from ItemBlock
 +               if (this.f_41589_ instanceof BlockItem) {
-+                  SoundType soundeffecttype = ((BlockItem) this.f_41589_).m_40614_().m_49962_(null);
++                  SoundType soundeffecttype = ((BlockItem) this.f_41589_).m_40614_().m_49966_().m_60827_(); // TODO: not strictly correct, however currently only affects decorated pots
 +                  world.m_5594_(player, blockpos, soundeffecttype.m_56777_(), SoundSource.BLOCKS, (soundeffecttype.m_56773_() + 1.0F) / 2.0F, soundeffecttype.m_56774_() * 0.8F);
 +               }
 +               player.m_36246_(Stats.f_12982_.m_12902_(item));

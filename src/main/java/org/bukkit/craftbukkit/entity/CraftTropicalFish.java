@@ -25,11 +25,6 @@ public class CraftTropicalFish extends CraftFish implements TropicalFish {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.TROPICAL_FISH;
-    }
-
-    @Override
     public DyeColor getPatternColor() {
         return getPatternColor(getHandle().getPackedVariant());
     }

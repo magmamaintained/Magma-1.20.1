@@ -20,8 +20,4 @@ public class CraftTraderLlama extends CraftLlama implements TraderLlama {
         return "CraftTraderLlama";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.TRADER_LLAMA;
-    }
 }

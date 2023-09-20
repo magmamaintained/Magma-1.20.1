@@ -31,7 +31,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setStructureName(String name) {
-        Preconditions.checkArgument(name != null, "Structure Name cannot be null");
+        Preconditions.checkArgument(name != null, "Structure name cannot be null");
         getSnapshot().setStructureName(name);
     }
 
@@ -42,7 +42,8 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setAuthor(String author) {
-        Preconditions.checkArgument(author != null && !author.isEmpty(), "Author name cannot be null nor empty");
+        Preconditions.checkArgument(author != null, "Author name cannot be null");
+        Preconditions.checkArgument(!author.isEmpty(), "Author name cannot be empty");
         getSnapshot().author = author;
     }
 
@@ -59,9 +60,9 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setRelativePosition(BlockVector vector) {
-        Validate.isTrue(isBetween(vector.getBlockX(), -MAX_SIZE, MAX_SIZE), "Structure Size (X) must be between -" + MAX_SIZE + " and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockY(), -MAX_SIZE, MAX_SIZE), "Structure Size (Y) must be between -" + MAX_SIZE + " and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockZ(), -MAX_SIZE, MAX_SIZE), "Structure Size (Z) must be between -" + MAX_SIZE + " and " + MAX_SIZE);
+        Preconditions.checkArgument(isBetween(vector.getBlockX(), -MAX_SIZE, MAX_SIZE), "Structure Size (X) must be between -%s and %s but got %s", MAX_SIZE, MAX_SIZE, vector.getBlockX());
+        Preconditions.checkArgument(isBetween(vector.getBlockY(), -MAX_SIZE, MAX_SIZE), "Structure Size (Y) must be between -%s and %s but got %s", MAX_SIZE, MAX_SIZE, vector.getBlockY());
+        Preconditions.checkArgument(isBetween(vector.getBlockZ(), -MAX_SIZE, MAX_SIZE), "Structure Size (Z) must be between -%s and %s but got %s", MAX_SIZE, MAX_SIZE, vector.getBlockZ());
         getSnapshot().structurePos = CraftBlockVector.toBlockPosition(vector);
     }
 
@@ -72,14 +73,15 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setStructureSize(BlockVector vector) {
-        Validate.isTrue(isBetween(vector.getBlockX(), 0, MAX_SIZE), "Structure Size (X) must be between 0 and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockY(), 0, MAX_SIZE), "Structure Size (Y) must be between 0 and " + MAX_SIZE);
-        Validate.isTrue(isBetween(vector.getBlockZ(), 0, MAX_SIZE), "Structure Size (Z) must be between 0 and " + MAX_SIZE);
+        Preconditions.checkArgument(isBetween(vector.getBlockX(), 0, MAX_SIZE), "Structure Size (X) must be between %s and %s but got %s", 0, MAX_SIZE, vector.getBlockX());
+        Preconditions.checkArgument(isBetween(vector.getBlockY(), 0, MAX_SIZE), "Structure Size (Y) must be between %s and %s but got %s", 0, MAX_SIZE, vector.getBlockY());
+        Preconditions.checkArgument(isBetween(vector.getBlockZ(), 0, MAX_SIZE), "Structure Size (Z) must be between %s and %s but got %s", 0, MAX_SIZE, vector.getBlockZ());
         getSnapshot().structureSize = CraftBlockVector.toBlockPosition(vector);
     }
 
     @Override
     public void setMirror(Mirror mirror) {
+        Preconditions.checkArgument(mirror != null, "Mirror cannot be null");
         getSnapshot().mirror = net.minecraft.world.level.block.Mirror.valueOf(mirror.name());
     }
 
@@ -90,6 +92,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setRotation(StructureRotation rotation) {
+        Preconditions.checkArgument(rotation != null, "StructureRotation cannot be null");
         getSnapshot().rotation = Rotation.valueOf(rotation.name());
     }
 
@@ -100,6 +103,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setUsageMode(UsageMode mode) {
+        Preconditions.checkArgument(mode != null, "UsageMode cannot be null");
         getSnapshot().mode = StructureMode.valueOf(mode.name());
     }
 
@@ -140,7 +144,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setIntegrity(float integrity) {
-        Validate.isTrue(isBetween(integrity, 0.0f, 1.0f), "Integrity must be between 0.0f and 1.0f");
+        Preconditions.checkArgument(isBetween(integrity, 0.0f, 1.0f), "Integrity must be between 0.0f and 1.0f but got %s", integrity);
         getSnapshot().integrity = integrity;
     }
 
@@ -161,7 +165,7 @@ public class CraftStructureBlock extends CraftBlockEntityState<StructureBlockEnt
 
     @Override
     public void setMetadata(String metadata) {
-        Validate.notNull(metadata, "Structure metadata cannot be null");
+        Preconditions.checkArgument(metadata != null, "Structure metadata cannot be null");
         if (getUsageMode() == UsageMode.DATA) {
             getSnapshot().metaData = metadata;
         }

@@ -1,14 +1,17 @@
-package org.bukkit.craftbukkit;
+package org.bukkit.craftbukkit.ban;
 
+import com.google.common.net.InetAddresses;
 import net.minecraft.server.players.IpBanList;
 import net.minecraft.server.players.IpBanListEntry;
-import org.bukkit.Bukkit;
+import org.bukkit.BanEntry;
 
-import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.time.Instant;
 import java.util.Date;
-import java.util.logging.Level;
 
-public final class CraftIpBanEntry implements org.bukkit.BanEntry {
+public final class CraftIpBanEntry implements BanEntry<InetAddress> {
+    private static final Date minorDate = Date.from(Instant.parse("1899-12-31T04:00:00Z"));
     private final IpBanList list;
     private final String target;
     private Date created;
@@ -28,6 +31,11 @@ public final class CraftIpBanEntry implements org.bukkit.BanEntry {
     @Override
     public String getTarget() {
         return this.target;
+    }
+
+    @Override
+    public InetAddress getBanTarget() {
+        return InetAddresses.forString(this.target);
     }
 
     @Override
@@ -57,7 +65,7 @@ public final class CraftIpBanEntry implements org.bukkit.BanEntry {
 
     @Override
     public void setExpiration(Date expiration) {
-        if (expiration != null && expiration.getTime() == new Date(0, 0, 0, 0, 0, 0).getTime()) {
+        if (expiration != null && expiration.getTime() == minorDate.getTime()) {
             expiration = null; // Forces "forever"
         }
 
@@ -76,12 +84,11 @@ public final class CraftIpBanEntry implements org.bukkit.BanEntry {
 
     @Override
     public void save() {
-        IpBanListEntry entry = new IpBanListEntry(target, this.created, this.source, this.expiration, this.reason);
+        IpBanListEntry entry = new IpBanListEntry(this.target, this.created, this.source, this.expiration, this.reason);
         this.list.add(entry);
-        try {
-            this.list.save();
-        } catch (IOException ex) {
-            Bukkit.getLogger().log(Level.SEVERE, "Failed to save banned-ips.json, {0}", ex.getMessage());
-        }
     }
+    public void remove() {
+        this.list.remove(target);
+    }
+
 }

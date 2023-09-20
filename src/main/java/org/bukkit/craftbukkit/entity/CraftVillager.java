@@ -36,11 +36,6 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.VILLAGER;
-    }
-
-    @Override
     public void remove() {
         getHandle().releaseAllPois();
 
@@ -54,7 +49,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
 
     @Override
     public void setProfession(Profession profession) {
-        Validate.notNull(profession);
+        Preconditions.checkArgument(profession != null, "Profession cannot be null");
         getHandle().setVillagerData(getHandle().getVillagerData().setProfession(CraftVillager.bukkitToNmsProfession(profession)));
     }
 
@@ -65,7 +60,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
 
     @Override
     public void setVillagerType(Type type) {
-        Validate.notNull(type);
+        Preconditions.checkArgument(type != null, "Type cannot be null");
         getHandle().setVillagerData(getHandle().getVillagerData().setType(BuiltInRegistries.VILLAGER_TYPE.get(CraftNamespacedKey.toMinecraft(type.getKey()))));
     }
 
@@ -76,7 +71,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
 
     @Override
     public void setVillagerLevel(int level) {
-        Preconditions.checkArgument(1 <= level && level <= 5, "level must be between [1, 5]");
+        Preconditions.checkArgument(1 <= level && level <= 5, "level (%s) must be between [1, 5]", level);
 
         getHandle().setVillagerData(getHandle().getVillagerData().setLevel(level));
     }
@@ -88,7 +83,7 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
 
     @Override
     public void setVillagerExperience(int experience) {
-        Preconditions.checkArgument(experience >= 0, "Experience must be positive");
+        Preconditions.checkArgument(experience >= 0, "Experience (%s) must be positive", experience);
 
         getHandle().setVillagerXp(experience);
     }

@@ -19,9 +19,4 @@ public class CraftChicken extends CraftAnimals implements Chicken {
     public String toString() {
         return "CraftChicken";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.CHICKEN;
-    }
 }

@@ -28,11 +28,6 @@ public class CraftAllay extends CraftCreature implements org.bukkit.entity.Allay
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ALLAY;
-    }
-
-    @Override
     public Inventory getInventory() {
         return new CraftInventory(getHandle().getInventory());
     }

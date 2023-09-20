@@ -10,7 +10,7 @@
  
  public class Creeper extends Monster implements PowerableMob {
     private static final EntityDataAccessor<Integer> f_32268_ = SynchedEntityData.m_135353_(Creeper.class, EntityDataSerializers.f_135028_);
-@@ -196,8 +_,17 @@
+@@ -196,8 +_,19 @@
  
     public void m_8038_(ServerLevel p_32286_, LightningBolt p_32287_) {
        super.m_8038_(p_32286_, p_32287_);
@@ -20,9 +20,11 @@
 +      if (CraftEventFactory.callCreeperPowerEvent(this, p_32287_, org.bukkit.event.entity.CreeperPowerEvent.PowerCause.LIGHTNING).isCancelled()) {
 +         return;
 +      }
-+      this.setPowered(true);
++      // CraftBukkit end
++      this.f_19804_.m_135381_(Creeper.f_32274_, true);
 +   }
 +
++   // CraftBukkit start
 +   public void setPowered(boolean powered) {
 +      this.f_19804_.m_135381_(Creeper.f_32274_, powered);
 +   }
@@ -30,7 +32,7 @@
  
     protected InteractionResult m_6071_(Player p_32301_, InteractionHand p_32302_) {
        ItemStack itemstack = p_32301_.m_21120_(p_32302_);
-@@ -224,10 +_,18 @@
+@@ -224,10 +_,19 @@
     public void m_32315_() {
        if (!this.m_9236_().f_46443_) {
           float f = this.m_7090_() ? 2.0F : 1.0F;
@@ -39,13 +41,14 @@
 -         this.m_146870_();
 -         this.m_32316_();
 +         // CraftBukkit start
-+         ExplosionPrimeEvent event = new ExplosionPrimeEvent(this.getBukkitEntity(), this.f_32272_ * f, false);
-+         this.m_9236_().getCraftServer().getPluginManager().callEvent(event);
++         ExplosionPrimeEvent event = CraftEventFactory.callExplosionPrimeEvent(this, this.f_32272_ * f, false);
 +         if (!event.isCancelled()) {
++            // CraftBukkit end
 +            this.f_20890_ = true;
 +            this.m_9236_().m_255391_(this, this.m_20185_(), this.m_20186_(), this.m_20189_(), event.getRadius(), event.getFire(), Level.ExplosionInteraction.MOB);
 +            this.m_146870_();
 +            this.m_32316_();
++            // CraftBukkit start
 +         } else {
 +            f_32270_ = 0;
 +         }

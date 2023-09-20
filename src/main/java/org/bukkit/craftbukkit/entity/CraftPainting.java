@@ -62,8 +62,4 @@ public class CraftPainting extends CraftHanging implements Painting {
         return "CraftPainting{art=" + getArt() + "}";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.PAINTING;
-    }
 }

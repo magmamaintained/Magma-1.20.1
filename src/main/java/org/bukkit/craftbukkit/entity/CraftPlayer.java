@@ -28,6 +28,7 @@ import net.minecraft.server.players.UserWhiteListEntry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
+import net.minecraft.world.food.FoodData;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
@@ -39,9 +40,12 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.*;
+import org.bukkit.ban.IpBanList;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.block.TileState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.sign.Side;
 import org.bukkit.configuration.serialization.DelegateDeserialization;
@@ -51,6 +55,7 @@ import org.bukkit.conversations.ManuallyAbandonedConversationCanceller;
 import org.bukkit.craftbukkit.*;
 import org.bukkit.craftbukkit.advancement.CraftAdvancement;
 import org.bukkit.craftbukkit.advancement.CraftAdvancementProgress;
+import org.bukkit.craftbukkit.block.CraftBlockEntityState;
 import org.bukkit.craftbukkit.block.CraftBlockState;
 import org.bukkit.craftbukkit.block.CraftSign;
 import org.bukkit.craftbukkit.block.data.CraftBlockData;
@@ -85,8 +90,11 @@ import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -168,15 +176,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendRawMessage(String message) {
-        if (getHandle().connection == null) return;
-
-        for (Component component : CraftChatMessage.fromString(message)) {
-            getHandle().sendSystemMessage(component);
-        }
+        this.sendRawMessage(null, message);
     }
 
     @Override
     public void sendRawMessage(UUID sender, String message) {
+        Preconditions.checkArgument(message != null, "message cannot be null");
+
         if (getHandle().connection == null) return;
 
         for (Component component : CraftChatMessage.fromString(message)) {
@@ -308,6 +314,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void setCompassTarget(Location loc) {
+        Preconditions.checkArgument(loc != null, "Location cannot be null");
+
         if (getHandle().connection == null) return;
 
         // Do not directly assign here, from the packethandler we'll assign it.
@@ -321,6 +329,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void chat(String msg) {
+        Preconditions.checkArgument(msg != null, "msg cannot be null");
+
         if (getHandle().connection == null) return;
 
         getHandle().connection.chat(msg, PlayerChatMessage.system(msg), false);
@@ -328,109 +338,44 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public boolean performCommand(String command) {
+        Preconditions.checkArgument(command != null, "command cannot be null");
         return server.dispatchCommand(this, command);
     }
 
     @Override
     public void playNote(Location loc, byte instrument, byte note) {
-        if (getHandle().connection == null) return;
-
-        String instrumentName = null;
-        switch (instrument) {
-        case 0:
-            instrumentName = "harp";
-            break;
-        case 1:
-            instrumentName = "basedrum";
-            break;
-        case 2:
-            instrumentName = "snare";
-            break;
-        case 3:
-            instrumentName = "hat";
-            break;
-        case 4:
-            instrumentName = "bass";
-            break;
-        case 5:
-            instrumentName = "flute";
-            break;
-        case 6:
-            instrumentName = "bell";
-            break;
-        case 7:
-            instrumentName = "guitar";
-            break;
-        case 8:
-            instrumentName = "chime";
-            break;
-        case 9:
-            instrumentName = "xylophone";
-            break;
-        }
-
-        float f = (float) Math.pow(2.0D, (note - 12.0D) / 12.0D);
-        getHandle().connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect("block.note_block." + instrumentName)), net.minecraft.sounds.SoundSource.RECORDS, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), 3.0f, f, getHandle().getRandom().nextLong()));
+        playNote(loc, Instrument.getByType(instrument), new Note(note));
     }
 
     @Override
     public void playNote(Location loc, Instrument instrument, Note note) {
+        Preconditions.checkArgument(loc != null, "Location cannot be null");
+        Preconditions.checkArgument(instrument != null, "Instrument cannot be null");
+        Preconditions.checkArgument(note != null, "Note cannot be null");
+
         if (getHandle().connection == null) return;
 
-        String instrumentName = null;
-        switch (instrument.ordinal()) {
-            case 0:
-                instrumentName = "harp";
-                break;
-            case 1:
-                instrumentName = "basedrum";
-                break;
-            case 2:
-                instrumentName = "snare";
-                break;
-            case 3:
-                instrumentName = "hat";
-                break;
-            case 4:
-                instrumentName = "bass";
-                break;
-            case 5:
-                instrumentName = "flute";
-                break;
-            case 6:
-                instrumentName = "bell";
-                break;
-            case 7:
-                instrumentName = "guitar";
-                break;
-            case 8:
-                instrumentName = "chime";
-                break;
-            case 9:
-                instrumentName = "xylophone";
-                break;
-            case 10:
-                instrumentName = "iron_xylophone";
-                break;
-            case 11:
-                instrumentName = "cow_bell";
-                break;
-            case 12:
-                instrumentName = "didgeridoo";
-                break;
-            case 13:
-                instrumentName = "bit";
-                break;
-            case 14:
-                instrumentName = "banjo";
-                break;
-            case 15:
-                instrumentName = "pling";
-                break;
-            case 16:
-                instrumentName = "xylophone";
-                break;
-        }
+        String instrumentName = switch (instrument.ordinal()) {
+            case 0 -> "harp";
+            case 1 -> "basedrum";
+            case 2 -> "snare";
+            case 3 -> "hat";
+            case 4 -> "bass";
+            case 5 -> "flute";
+            case 6 -> "bell";
+            case 7 -> "guitar";
+            case 8 -> "chime";
+            case 9 -> "xylophone";
+            case 10 -> "iron_xylophone";
+            case 11 -> "cow_bell";
+            case 12 -> "didgeridoo";
+            case 13 -> "bit";
+            case 14 -> "banjo";
+            case 15 -> "pling";
+            case 16 -> "xylophone";
+            default -> null;
+        };
+
         float f = (float) Math.pow(2.0D, (note.getId() - 12.0D) / 12.0D);
         getHandle().connection.send(new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect("block.note_block." + instrumentName)), net.minecraft.sounds.SoundSource.RECORDS, loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), 3.0f, f, getHandle().getRandom().nextLong()));
     }
@@ -449,15 +394,22 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void playSound(Location loc, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
         if (loc == null || sound == null || category == null || getHandle().connection == null) return;
 
-        ClientboundSoundPacket packet = new ClientboundSoundPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect(sound)), net.minecraft.sounds.SoundSource.valueOf(category.name()), loc.getX(), loc.getY(), loc.getZ(), volume, pitch, getHandle().getRandom().nextLong());
-        getHandle().connection.send(packet);
+        playSound0(loc, BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect(sound)), net.minecraft.sounds.SoundSource.valueOf(category.name()), volume, pitch);
     }
 
     @Override
     public void playSound(Location loc, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
         if (loc == null || sound == null || category == null || getHandle().connection == null) return;
 
-        ClientboundSoundPacket packet = new ClientboundSoundPacket(Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), loc.getX(), loc.getY(), loc.getZ(), volume, pitch, getHandle().getRandom().nextLong());
+        playSound0(loc, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), volume, pitch);
+    }
+
+    private void playSound0(Location loc, Holder<SoundEvent> soundEffectHolder, net.minecraft.sounds.SoundSource categoryNMS, float volume, float pitch) {
+        Preconditions.checkArgument(loc != null, "Location cannot be null");
+
+        if (getHandle().connection == null) return;
+
+        ClientboundSoundPacket packet = new ClientboundSoundPacket(soundEffectHolder, categoryNMS, loc.getX(), loc.getY(), loc.getZ(), volume, pitch, getHandle().getRandom().nextLong());
         getHandle().connection.send(packet);
     }
 
@@ -475,15 +427,25 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     public void playSound(org.bukkit.entity.Entity entity, Sound sound, org.bukkit.SoundCategory category, float volume, float pitch) {
         if (!(entity instanceof CraftEntity craftEntity) || sound == null || category == null || getHandle().connection == null) return;
 
-        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect(sound)), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, getHandle().getRandom().nextLong());
-        getHandle().connection.send(packet);
+        playSound0(entity, BuiltInRegistries.SOUND_EVENT.wrapAsHolder(CraftSound.getSoundEffect(sound)), net.minecraft.sounds.SoundSource.valueOf(category.name()), volume, pitch);
     }
 
     @Override
     public void playSound(org.bukkit.entity.Entity entity, String sound, org.bukkit.SoundCategory category, float volume, float pitch) {
         if (!(entity instanceof CraftEntity craftEntity) || sound == null || category == null || getHandle().connection == null) return;
 
-        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), craftEntity.getHandle(), volume, pitch, getHandle().getRandom().nextLong());
+        playSound0(entity, Holder.direct(SoundEvent.createVariableRangeEvent(new ResourceLocation(sound))), net.minecraft.sounds.SoundSource.valueOf(category.name()), volume, pitch);
+    }
+
+    private void playSound0(org.bukkit.entity.Entity entity, Holder<SoundEvent> soundEffectHolder, net.minecraft.sounds.SoundSource categoryNMS, float volume, float pitch) {
+        Preconditions.checkArgument(entity != null, "Entity cannot be null");
+        Preconditions.checkArgument(soundEffectHolder != null, "Holder of SoundEffect cannot be null");
+        Preconditions.checkArgument(categoryNMS != null, "SoundCategory cannot be null");
+
+        if (getHandle().connection == null) return;
+        if (!(entity instanceof CraftEntity craftEntity)) return;
+
+        ClientboundSoundEntityPacket packet = new ClientboundSoundEntityPacket(soundEffectHolder, categoryNMS, craftEntity.getHandle(), volume, pitch, getHandle().getRandom().nextLong());
         getHandle().connection.send(packet);
     }
 
@@ -525,6 +487,9 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void playEffect(Location loc, Effect effect, int data) {
+        Preconditions.checkArgument(effect != null, "Effect cannot be null");
+        Preconditions.checkArgument(loc != null, "Location cannot be null");
+
         if (getHandle().connection == null) return;
 
         int packetData = effect.getId();
@@ -534,11 +499,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public <T> void playEffect(Location loc, Effect effect, T data) {
+        Preconditions.checkArgument(effect != null, "Effect cannot be null");
         if (data != null) {
-            Validate.isTrue(effect.getData() != null && effect.getData().isAssignableFrom(data.getClass()), "Wrong kind of data for this effect!");
+            Preconditions.checkArgument(effect.getData() != null, "Effect.%s does not have a valid Data", effect);
+            Preconditions.checkArgument(effect.getData().isAssignableFrom(data.getClass()), "%s data cannot be used for the %s effect", data.getClass().getName(), effect);
         } else {
             // Special case: the axis is optional for ELECTRIC_SPARK
-            Validate.isTrue(effect.getData() == null || effect == Effect.ELECTRIC_SPARK, "Wrong kind of data for this effect!");
+            Preconditions.checkArgument(effect.getData() == null || effect == Effect.ELECTRIC_SPARK, "Wrong kind of data for the %s effect", effect);
         }
 
         int datavalue = CraftEffect.getDataValue(effect, data);
@@ -651,30 +618,38 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendSignChange(Location loc, String[] lines, DyeColor dyeColor, boolean hasGlowingText) {
-        if (getHandle().connection == null) {
-            return;
-        }
+        Preconditions.checkArgument(loc != null, "Location cannot be null");
+        Preconditions.checkArgument(dyeColor != null, "DyeColor cannot be null");
 
         if (lines == null) {
             lines = new String[4];
         }
+        Preconditions.checkArgument(lines.length >= 4, "Must have at least 4 lines (%s)", lines.length);
 
-        Validate.notNull(loc, "Location can not be null");
-        Validate.notNull(dyeColor, "DyeColor can not be null");
-        if (lines.length < 4) {
-            throw new IllegalArgumentException("Must have at least 4 lines");
-        }
+        if (getHandle().connection == null) return;
 
         Component[] components = CraftSign.sanitizeLines(lines);
         SignBlockEntity sign = new SignBlockEntity(CraftLocation.toBlockPosition(loc), Blocks.OAK_SIGN.defaultBlockState());
         SignText text = sign.getFrontText();
-        text.setColor(net.minecraft.world.item.DyeColor.byId(dyeColor.getWoolData()));
-        text.setHasGlowingText(hasGlowingText);
+        text = text.setColor(net.minecraft.world.item.DyeColor.byId(dyeColor.getWoolData()));
+        text = text.setHasGlowingText(hasGlowingText);
         for (int i = 0; i < components.length; i++) {
-            text.setMessage(i, components[i]);
+            text = text.setMessage(i, components[i]);
         }
+        sign.setText(text, true);
 
         getHandle().connection.send(sign.getUpdatePacket());
+    }
+
+    @Override
+    public void sendBlockUpdate(@NotNull Location location, @NotNull TileState tileState) throws IllegalArgumentException {
+        Preconditions.checkArgument(location != null, "Location can not be null");
+        Preconditions.checkArgument(tileState != null, "TileState can not be null");
+
+        if (getHandle().connection == null) return;
+
+        CraftBlockEntityState<?> craftState = ((CraftBlockEntityState<?>) tileState);
+        getHandle().connection.send(craftState.getUpdatePacket(location));
     }
 
     @Override
@@ -684,8 +659,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void sendEquipmentChange(LivingEntity entity, Map<EquipmentSlot, ItemStack> items) {
-        Preconditions.checkArgument(entity != null, "entity must not be null");
-        Preconditions.checkArgument(items != null, "items must not be null");
+        Preconditions.checkArgument(entity != null, "Entity cannot be null");
+        Preconditions.checkArgument(items != null, "items cannot be null");
 
         if (getHandle().connection == null) {
             return;
@@ -1139,7 +1114,61 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public boolean isBanned() {
-        return server.getBanList(BanList.Type.NAME).isBanned(getName());
+        return ((ProfileBanList) server.getBanList(BanList.Type.PROFILE)).isBanned(getPlayerProfile());
+    }
+
+    @Override
+    public BanEntry<PlayerProfile> ban(String reason, Date expires, String source) {
+        return this.ban(reason, expires, source, true);
+    }
+
+    @Override
+    public BanEntry<PlayerProfile> ban(String reason, Instant expires, String source) {
+        return ban(reason, expires != null ? Date.from(expires) : null, source);
+    }
+
+    @Override
+    public BanEntry<PlayerProfile> ban(String reason, Duration duration, String source) {
+        return ban(reason, duration != null ? Instant.now().plus(duration) : null, source);
+    }
+
+    @Override
+    public BanEntry<PlayerProfile> ban(String reason, Date expires, String source, boolean kickPlayer) {
+        BanEntry<PlayerProfile> banEntry = ((ProfileBanList) server.getBanList(BanList.Type.PROFILE)).addBan(getPlayerProfile(), reason, expires, source);
+        if (kickPlayer) {
+            this.kickPlayer(reason);
+        }
+        return banEntry;
+    }
+
+    @Override
+    public BanEntry<PlayerProfile> ban(String reason, Instant instant, String source, boolean kickPlayer) {
+        return ban(reason, instant != null ? Date.from(instant) : null, source, kickPlayer);
+    }
+
+    @Override
+    public BanEntry<PlayerProfile> ban(String reason, Duration duration, String source, boolean kickPlayer) {
+        return ban(reason, duration != null ? Instant.now().plus(duration) : null, source, kickPlayer);
+    }
+
+    @Override
+    public BanEntry<InetAddress> banIp(String reason, Date expires, String source, boolean kickPlayer) {
+        Preconditions.checkArgument(getAddress() != null, "The Address of this Player is null");
+        BanEntry<InetAddress> banEntry = ((IpBanList) server.getBanList(BanList.Type.IP)).addBan(getAddress().getAddress(), reason, expires, source);
+        if (kickPlayer) {
+            this.kickPlayer(reason);
+        }
+        return banEntry;
+    }
+
+    @Override
+    public BanEntry<InetAddress> banIp(String reason, Instant instant, String source, boolean kickPlayer) {
+        return banIp(reason, instant != null ? Date.from(instant) : null, source, kickPlayer);
+    }
+
+    @Override
+    public BanEntry<InetAddress> banIp(String reason, Duration duration, String source, boolean kickPlayer) {
+        return banIp(reason, duration != null ? Instant.now().plus(duration) : null, source, kickPlayer);
     }
 
     @Override
@@ -1158,11 +1187,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void setGameMode(GameMode mode) {
+        Preconditions.checkArgument(mode != null, "GameMode cannot be null");
         if (getHandle().connection == null) return;
-
-        if (mode == null) {
-            throw new IllegalArgumentException("Mode cannot be null");
-        }
 
         getHandle().setGameMode(GameType.byId(mode.getValue()));
     }
@@ -1260,14 +1286,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void hideEntity(Plugin plugin, org.bukkit.entity.Entity entity) {
-        Validate.notNull(plugin, "Plugin cannot be null");
-        Validate.isTrue(plugin.isEnabled(), "Plugin attempted to hide player while disabled");
+        Preconditions.checkArgument(plugin != null, "Plugin cannot be null");
+        Preconditions.checkArgument(plugin.isEnabled(), "Plugin (%s) cannot be disabled", plugin.getName());
 
         hideEntity0(plugin, entity);
     }
 
     private void hideEntity0(@Nullable Plugin plugin, org.bukkit.entity.Entity entity) {
-        Validate.notNull(entity, "hidden entity cannot be null");
+        Preconditions.checkArgument(entity != null, "Entity hidden cannot be null");
         if (getHandle().connection == null) return;
         if (equals(entity)) return;
 
@@ -1342,14 +1368,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void showEntity(Plugin plugin, org.bukkit.entity.Entity entity) {
-        Validate.notNull(plugin, "Plugin cannot be null");
+        Preconditions.checkArgument(plugin != null, "Plugin cannot be null");
         // Don't require that plugin be enabled. A plugin must be allowed to call
         // showPlayer during its onDisable() method.
         showEntity0(plugin, entity);
     }
 
     private void showEntity0(@Nullable Plugin plugin, org.bukkit.entity.Entity entity) {
-        Validate.notNull(entity, "shown entity cannot be null");
+        Preconditions.checkArgument(entity != null, "Entity show cannot be null");
         if (getHandle().connection == null) return;
         if (equals(entity)) return;
 
@@ -1587,10 +1613,10 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void setResourcePack(String url, byte[] hash, String prompt, boolean force) {
-        Validate.notNull(url, "Resource pack URL cannot be null");
+        Preconditions.checkArgument(url != null, "Resource pack URL cannot be null");
 
         if (hash != null) {
-            Validate.isTrue(hash.length == 20, "Resource pack hash should be 20 bytes long but was " + hash.length);
+            Preconditions.checkArgument(hash.length == 20, "Resource pack hash should be 20 bytes long but was %s", hash.length);
 
             getHandle().sendTexturePack(url, BaseEncoding.base16().lowerCase().encode(hash), force, CraftChatMessage.fromStringOrNull(prompt, true));
         } else {
@@ -1639,11 +1665,6 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.PLAYER;
-    }
-
-    @Override
     public void setMetadata(String metadataKey, MetadataValue newMetadataValue) {
         server.getPlayerMetadata().setMetadata(this, metadataKey, newMetadataValue);
     }
@@ -1685,8 +1706,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void setFlying(boolean value) {
-        if (!getAllowFlight() && value) {
-            throw new IllegalArgumentException("Cannot make player fly if getAllowFlight() is false");
+        if (!getAllowFlight()) {
+            Preconditions.checkArgument(!value, "Player is not allowed to fly (check #getAllowFlight())");
         }
 
         getHandle().getAbilities().flying = value;
@@ -1752,21 +1773,13 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     }
 
     private void validateSpeed(float value) {
-        if (value < 0) {
-            if (value < -1f) {
-                throw new IllegalArgumentException(value + " is too low");
-            }
-        } else {
-            if (value > 1f) {
-                throw new IllegalArgumentException(value + " is too high");
-            }
-        }
+        Preconditions.checkArgument(value <= 1f && value >= -1f, "Speed value (%s) need to be between -1f and 1f", value);
     }
 
     @Override
     public void setMaxHealth(double amount) {
         super.setMaxHealth(amount);
-        this.health = Math.min(this.health, health);
+        this.health = Math.min(this.health, amount);
         getHandle().resetSentInfo();
     }
 
@@ -1783,21 +1796,16 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void setScoreboard(Scoreboard scoreboard) {
-        Validate.notNull(scoreboard, "Scoreboard cannot be null");
-        ServerGamePacketListenerImpl playerConnection = getHandle().connection;
-        if (playerConnection == null) {
-            throw new IllegalStateException("Cannot set scoreboard yet");
-        }
-        if (playerConnection.isDisconnected()) {
-            throw new IllegalStateException("Cannot set scoreboard for invalid CraftPlayer");
-        }
+        Preconditions.checkArgument(scoreboard != null, "Scoreboard cannot be null");
+        Preconditions.checkState(getHandle().connection != null, "Cannot set scoreboard yet (invalid player connection)");
+        Preconditions.checkState(!getHandle().connection.isDisconnected(), "Cannot set scoreboard for invalid CraftPlayer (player is disconnected)");
 
         this.server.getScoreboardManager().setPlayerBoard(this, scoreboard);
     }
 
     @Override
     public void setHealthScale(double value) {
-        Validate.isTrue((float) value > 0F, "Must be greater than 0");
+        Preconditions.checkArgument(value > 0F, "Health value (%s) must be greater than 0", value);
         healthScale = value;
         scaledHealth = true;
         updateScaledHealth();
@@ -1855,8 +1863,14 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         getHandle().maxHealthCache = getMaxHealth();
     }
 
+    @Override
+    public void sendHealthUpdate(double health, int foodLevel, float saturation) {
+        getHandle().connection.send(new ClientboundSetHealthPacket((float) health, foodLevel, saturation));
+    }
+
     public void sendHealthUpdate() {
-        getHandle().connection.send(new ClientboundSetHealthPacket(getScaledHealth(), getHandle().getFoodData().getFoodLevel(), getHandle().getFoodData().getSaturationLevel()));
+        FoodData foodData = getHandle().getFoodData();
+        sendHealthUpdate(getScaledHealth(), foodData.getFoodLevel(), foodData.getSaturationLevel());
     }
 
     public void injectScaledMaxHealth(Collection<net.minecraft.world.entity.ai.attributes.AttributeInstance> collection, boolean force) {
@@ -1970,8 +1984,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ, double extra, T data) {
-        if (data != null && !particle.getDataType().isInstance(data)) {
-            throw new IllegalArgumentException("data should be " + particle.getDataType() + " got " + data.getClass());
+        if (data != null) {
+            Preconditions.checkArgument(particle.getDataType().isInstance(data), "data (%s) should be %s", data.getClass(), particle.getDataType());
         }
         ClientboundLevelParticlesPacket packetplayoutworldparticles = new ClientboundLevelParticlesPacket(CraftParticle.toNMS(particle, data), true, (float) x, (float) y, (float) z, (float) offsetX, (float) offsetY, (float) offsetZ, (float) extra, count);
         getHandle().connection.send(packetplayoutworldparticles);
@@ -2013,8 +2027,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public void openBook(ItemStack book) {
-        Validate.isTrue(book != null, "book == null");
-        Validate.isTrue(book.getType() == Material.WRITTEN_BOOK, "Book must be Material.WRITTEN_BOOK");
+        Preconditions.checkArgument(book != null, "ItemStack cannot be null");
+        Preconditions.checkArgument(book.getType() == Material.WRITTEN_BOOK, "ItemStack Material (%s) must be Material.WRITTEN_BOOK", book.getType());
 
         ItemStack hand = getInventory().getItemInMainHand();
         getInventory().setItemInMainHand(book);

@@ -17,11 +17,6 @@ public class CraftAxolotl extends CraftAnimals implements Axolotl {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.AXOLOTL;
-    }
-
-    @Override
     public String toString() {
         return "CraftAxolotl";
     }

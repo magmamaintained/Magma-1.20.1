@@ -21,11 +21,6 @@ public class CraftEndermite extends CraftMonster implements Endermite {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ENDERMITE;
-    }
-
-    @Override
     public boolean isPlayerSpawned() {
         return false;
     }

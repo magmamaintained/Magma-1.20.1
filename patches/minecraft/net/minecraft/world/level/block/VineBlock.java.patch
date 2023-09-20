@@ -20,7 +20,7 @@
              Direction direction = Direction.m_235672_(p_222658_);
              BlockPos blockpos = p_222657_.m_7494_();
              if (direction.m_122434_().m_122479_() && !p_222655_.m_61143_(m_57883_(direction))) {
-@@ -172,19 +_,24 @@
+@@ -172,29 +_,34 @@
                       boolean flag1 = p_222655_.m_61143_(m_57883_(direction4));
                       BlockPos blockpos2 = blockpos4.m_121945_(direction3);
                       BlockPos blockpos3 = blockpos4.m_121945_(direction4);
@@ -49,7 +49,19 @@
 +                        // CraftBukkit end
                       }
                    } else if (m_57853_(p_222656_, blockpos4, direction)) {
-                      p_222656_.m_7731_(p_222657_, p_222655_.m_61124_(m_57883_(direction), Boolean.valueOf(true)), 2);
+-                     p_222656_.m_7731_(p_222657_, p_222655_.m_61124_(m_57883_(direction), Boolean.valueOf(true)), 2);
++                     CraftEventFactory.handleBlockGrowEvent(p_222656_, p_222657_,  p_222655_.m_61124_(m_57883_(direction), true), 2); // CraftBukkit
+                   }
+ 
+                }
+             } else {
+                if (direction == Direction.UP && p_222657_.m_123342_() < p_222656_.m_151558_() - 1) {
+                   if (this.m_57887_(p_222656_, p_222657_, direction)) {
+-                     p_222656_.m_7731_(p_222657_, p_222655_.m_61124_(f_57833_, Boolean.valueOf(true)), 2);
++                     CraftEventFactory.handleBlockGrowEvent(p_222656_, p_222657_, p_222655_.m_61124_(f_57833_, true), 2); // CraftBukkit
+                      return;
+                   }
+ 
 @@ -212,7 +_,7 @@
                       }
  

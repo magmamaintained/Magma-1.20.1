@@ -1,8 +1,13 @@
 package org.bukkit.entity;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Map;
+import org.bukkit.BanEntry;
 import org.bukkit.DyeColor;
 import org.bukkit.Effect;
 import org.bukkit.GameMode;
@@ -19,9 +24,12 @@ import org.bukkit.WeatherType;
 import org.bukkit.WorldBorder;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
+import org.bukkit.ban.IpBanList;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.block.TileState;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.sign.Side;
 import org.bukkit.conversations.Conversable;
@@ -34,6 +42,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.map.MapView;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.PluginMessageRecipient;
+import org.bukkit.profile.PlayerProfile;
 import org.bukkit.scoreboard.Scoreboard;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -167,6 +176,102 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * @param message kick message
      */
     public void kickPlayer(@Nullable String message);
+
+    /**
+     * Adds this user to the {@link ProfileBanList}. If a previous ban exists, this will
+     * update the entry.
+     *
+     * @param reason reason for the ban, null indicates implementation default
+     * @param expires date for the ban's expiration (unban), or null to imply
+     *     forever
+     * @param source source of the ban, null indicates implementation default
+     * @param kickPlayer if the player need to be kick
+     *
+     * @return the entry for the newly created ban, or the entry for the
+     *     (updated) previous ban
+     */
+    @Nullable
+    public BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer);
+
+    /**
+     * Adds this user to the {@link ProfileBanList}. If a previous ban exists, this will
+     * update the entry.
+     *
+     * @param reason reason for the ban, null indicates implementation default
+     * @param expires date for the ban's expiration (unban), or null to imply
+     *     forever
+     * @param source source of the ban, null indicates implementation default
+     * @param kickPlayer if the player need to be kick
+     *
+     * @return the entry for the newly created ban, or the entry for the
+     *     (updated) previous ban
+     */
+    @Nullable
+    public BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Instant expires, @Nullable String source, boolean kickPlayer);
+
+    /**
+     * Adds this user to the {@link ProfileBanList}. If a previous ban exists, this will
+     * update the entry.
+     *
+     * @param reason reason for the ban, null indicates implementation default
+     * @param duration the duration how long the ban lasts, or null to imply
+     *     forever
+     * @param source source of the ban, null indicates implementation default
+     * @param kickPlayer if the player need to be kick
+     *
+     * @return the entry for the newly created ban, or the entry for the
+     *     (updated) previous ban
+     */
+    @Nullable
+    public BanEntry<PlayerProfile> ban(@Nullable String reason, @Nullable Duration duration, @Nullable String source, boolean kickPlayer);
+
+    /**
+     * Adds this user's current IP address to the {@link IpBanList}. If a previous ban exists, this will
+     * update the entry. If {@link #getAddress()} is null this method will throw an exception.
+     *
+     * @param reason reason for the ban, null indicates implementation default
+     * @param expires date for the ban's expiration (unban), or null to imply
+     *     forever
+     * @param source source of the ban, null indicates implementation default
+     * @param kickPlayer if the player need to be kick
+     *
+     * @return the entry for the newly created ban, or the entry for the
+     *     (updated) previous ban
+     */
+    @Nullable
+    public BanEntry<InetAddress> banIp(@Nullable String reason, @Nullable Date expires, @Nullable String source, boolean kickPlayer);
+
+    /**
+     * Adds this user's current IP address to the {@link IpBanList}. If a previous ban exists, this will
+     * update the entry. If {@link #getAddress()} is null this method will throw an exception.
+     *
+     * @param reason reason for the ban, null indicates implementation default
+     * @param expires date for the ban's expiration (unban), or null to imply
+     *     forever
+     * @param source source of the ban, null indicates implementation default
+     * @param kickPlayer if the player need to be kick
+     *
+     * @return the entry for the newly created ban, or the entry for the
+     *     (updated) previous ban
+     */
+    @Nullable
+    public BanEntry<InetAddress> banIp(@Nullable String reason, @Nullable Instant expires, @Nullable String source, boolean kickPlayer);
+
+    /**
+     * Adds this user's current IP address to the {@link IpBanList}. If a previous ban exists, this will
+     * update the entry. If {@link #getAddress()} is null this method will throw an exception.
+     *
+     * @param reason reason for the ban, null indicates implementation default
+     * @param duration the duration how long the ban lasts, or null to imply
+     *     forever
+     * @param source source of the ban, null indicates implementation default
+     * @param kickPlayer if the player need to be kick
+     *
+     * @return the entry for the newly created ban, or the entry for the
+     *     (updated) previous ban
+     */
+    @Nullable
+    public BanEntry<InetAddress> banIp(@Nullable String reason, @Nullable Duration duration, @Nullable String source, boolean kickPlayer);
 
     /**
      * Says a message (or runs a command).
@@ -637,10 +742,13 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * a certain location. This will not actually change the world in any way.
      * This method will use a sign at the location's block or a faked sign
      * sent via
-     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.Material, byte)}.
+     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData)}.
      * <p>
      * If the client does not have a sign at the given location it will
      * display an error message to the user.
+     * <p>
+     * To change all attributes of a sign, including the back Side, use
+     * {@link #sendBlockUpdate(org.bukkit.Location, org.bukkit.block.TileState)}.
      *
      * @param loc the location of the sign
      * @param lines the new text on the sign or null to clear it
@@ -654,10 +762,13 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * a certain location. This will not actually change the world in any way.
      * This method will use a sign at the location's block or a faked sign
      * sent via
-     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.Material, byte)}.
+     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData)}.
      * <p>
      * If the client does not have a sign at the given location it will
      * display an error message to the user.
+     * <p>
+     * To change all attributes of a sign, including the back Side, use
+     * {@link #sendBlockUpdate(org.bukkit.Location, org.bukkit.block.TileState)}.
      *
      * @param loc the location of the sign
      * @param lines the new text on the sign or null to clear it
@@ -673,10 +784,13 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * a certain location. This will not actually change the world in any way.
      * This method will use a sign at the location's block or a faked sign
      * sent via
-     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.Material, byte)}.
+     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData)}.
      * <p>
      * If the client does not have a sign at the given location it will
      * display an error message to the user.
+     * <p>
+     * To change all attributes of a sign, including the back Side, use
+     * {@link #sendBlockUpdate(org.bukkit.Location, org.bukkit.block.TileState)}.
      *
      * @param loc the location of the sign
      * @param lines the new text on the sign or null to clear it
@@ -687,6 +801,26 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * @throws IllegalArgumentException if lines is non-null and has a length less than 4
      */
     public void sendSignChange(@NotNull Location loc, @Nullable String[] lines, @NotNull DyeColor dyeColor, boolean hasGlowingText) throws IllegalArgumentException;
+
+    /**
+     * Send a TileState change. This fakes a TileState change for a user at
+     * the given location. This will not actually change the world in any way.
+     * This method will use a TileState at the location's block or a faked TileState
+     * sent via
+     * {@link #sendBlockChange(org.bukkit.Location, org.bukkit.block.data.BlockData)}.
+     * <p>
+     * If the client does not have an appropriate tile at the given location it
+     * may display an error message to the user.
+     * <p>
+     * {@link BlockData#createBlockState()} can be used to create a {@link BlockState}.
+     *
+     * @param loc the location of the sign
+     * @param tileState the tile state
+     * @throws IllegalArgumentException if location is null
+     * @throws IllegalArgumentException if tileState is null
+     */
+    @ApiStatus.Experimental
+    public void sendBlockUpdate(@NotNull Location loc, @NotNull TileState tileState) throws IllegalArgumentException;
 
     /**
      * Render a map and send it to the player in its entirety. This may be
@@ -740,10 +874,10 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
     /**
      * Forces an update of the player's entire inventory.
      *
-     * @deprecated This method should not be relied upon as it is a temporary
-     *     work-around for a larger, more complicated issue.
+     * @apiNote It should not be necessary for plugins to use this method. If it
+     * is required for some reason, it is probably a bug.
      */
-    @Deprecated
+    @ApiStatus.Internal
     public void updateInventory();
 
     /**
@@ -1371,6 +1505,25 @@ public interface Player extends HumanEntity, Conversable, OfflinePlayer, PluginM
      * @see Server#createWorldBorder()
      */
     public void setWorldBorder(@Nullable WorldBorder border);
+
+    /**
+     * Send a health update to the player. This will adjust the health, food, and
+     * saturation on the client and will not affect the player's actual values on
+     * the server. As soon as any of these values change on the server, changes sent
+     * by this method will no longer be visible.
+     *
+     * @param health the health. If 0.0, the client will believe it is dead
+     * @param foodLevel the food level
+     * @param saturation the saturation
+     */
+    public void sendHealthUpdate(double health, int foodLevel, float saturation);
+
+    /**
+     * Send a health update to the player using its known server values. This will
+     * synchronize the health, food, and saturation on the client and therefore may
+     * be useful when changing a player's maximum health attribute.
+     */
+    public void sendHealthUpdate();
 
     /**
      * Gets if the client is displayed a 'scaled' health, that is, health on a

@@ -211,12 +211,12 @@
 +
 +   // Forge: Fix MC-119811 by instantly completing lerp on board
 +   @Override
-+   protected boolean addPassenger(Entity passenger) {
++   protected void m_20348_(Entity passenger) {
 +      if (this.m_6109_() && this.f_38267_ > 0) {
 +         this.f_38267_ = 0;
 +         this.m_19890_(this.f_38268_, this.f_38269_, this.f_38270_, (float)this.f_38271_, (float)this.f_38272_);
 +      }
-+      return super.addPassenger(passenger);
++      super.m_20348_(passenger);
     }
  
     public ItemStack m_142340_() {

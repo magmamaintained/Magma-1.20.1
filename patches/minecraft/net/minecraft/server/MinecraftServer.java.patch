@@ -111,7 +111,7 @@
     public static final String f_195495_ = "vanilla";
     private static final float f_177884_ = 0.8F;
     private static final int f_177885_ = 100;
-@@ -242,12 +_,36 @@
+@@ -242,12 +_,35 @@
     private String f_129739_;
     public MinecraftServer.ReloadableResources f_129740_;
     private final StructureTemplateManager f_236720_;
@@ -124,7 +124,6 @@
 +   public org.bukkit.craftbukkit.CraftServer server;
 +   public OptionSet options;
 +   public org.bukkit.command.ConsoleCommandSender console;
-+   public org.bukkit.command.RemoteConsoleCommandSender remoteConsole;
 +   public ConsoleReader reader;
 +   public static int currentTick = (int) (System.currentTimeMillis() / 50);
 +   public java.util.Queue<Runnable> processQueue = new java.util.concurrent.ConcurrentLinkedQueue<Runnable>();

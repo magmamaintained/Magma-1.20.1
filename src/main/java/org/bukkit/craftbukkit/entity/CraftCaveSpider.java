@@ -19,8 +19,4 @@ public class CraftCaveSpider extends CraftSpider implements CaveSpider {
         return "CraftCaveSpider";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.CAVE_SPIDER;
-    }
 }

@@ -15,13 +15,4 @@ public class CraftElderGuardian extends CraftGuardian implements ElderGuardian {
         return "CraftElderGuardian";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.ELDER_GUARDIAN;
-    }
-
-    @Override
-    public boolean isElder() {
-        return true;
-    }
 }

@@ -31,11 +31,6 @@ public class CraftChestBoat extends CraftBoat implements org.bukkit.entity.Chest
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.CHEST_BOAT;
-    }
-
-    @Override
     public Inventory getInventory() {
         return inventory;
     }

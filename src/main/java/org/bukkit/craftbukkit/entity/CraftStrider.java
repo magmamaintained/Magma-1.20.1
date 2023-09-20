@@ -76,8 +76,4 @@ public class CraftStrider extends CraftAnimals implements Strider {
         return "CraftStrider";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.STRIDER;
-    }
 }

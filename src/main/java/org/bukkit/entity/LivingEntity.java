@@ -272,6 +272,30 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
     public void setNoDamageTicks(int ticks);
 
     /**
+     * Get the ticks that this entity has performed no action.
+     * <p>
+     * The details of what "no action ticks" entails varies from entity to entity
+     * and cannot be specifically defined. Some examples include squid using this
+     * value to determine when to swim, raiders for when they are to be expelled
+     * from raids, or creatures (such as withers) as a requirement to be despawned.
+     *
+     * @return amount of no action ticks
+     */
+    public int getNoActionTicks();
+
+    /**
+     * Set the ticks that this entity has performed no action.
+     * <p>
+     * The details of what "no action ticks" entails varies from entity to entity
+     * and cannot be specifically defined. Some examples include squid using this
+     * value to determine when to swim, raiders for when they are to be expelled
+     * from raids, or creatures (such as withers) as a requirement to be despawned.
+     *
+     * @param ticks amount of no action ticks
+     */
+    public void setNoActionTicks(int ticks);
+
+    /**
      * Gets the player identified as the killer of the living entity.
      * <p>
      * May be null.
@@ -522,6 +546,15 @@ public interface LivingEntity extends Attributable, Damageable, ProjectileSource
      * swinging their off hand.
      */
     public void swingOffHand();
+
+    /**
+     * Makes this entity flash red as if they were damaged.
+     *
+     * @param yaw The direction the damage is coming from in relation to the
+     * entity, where 0 is in front of the player, 90 is to the right, 180 is
+     * behind, and 270 is to the left
+     */
+    public void playHurtAnimation(float yaw);
 
     /**
      * Set if this entity will be subject to collisions with other entities.

@@ -32,8 +32,4 @@ public class CraftMushroomCow extends CraftCow implements MushroomCow {
         return "CraftMushroomCow";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.MUSHROOM_COW;
-    }
 }

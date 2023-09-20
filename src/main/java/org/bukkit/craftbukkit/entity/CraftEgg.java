@@ -18,9 +18,4 @@ public class CraftEgg extends CraftThrowableProjectile implements Egg {
     public String toString() {
         return "CraftEgg";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.EGG;
-    }
 }

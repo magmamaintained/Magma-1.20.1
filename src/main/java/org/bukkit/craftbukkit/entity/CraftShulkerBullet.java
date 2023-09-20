@@ -46,11 +46,6 @@ public class CraftShulkerBullet extends AbstractProjectile implements ShulkerBul
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.SHULKER_BULLET;
-    }
-
-    @Override
     public net.minecraft.world.entity.projectile.ShulkerBullet getHandle() {
         return (net.minecraft.world.entity.projectile.ShulkerBullet) entity;
     }

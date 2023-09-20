@@ -33,10 +33,6 @@ public class CraftParrot extends CraftTameableAnimal implements Parrot {
         return "CraftParrot";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.PARROT;
-    }
 
     @Override
     public boolean isDancing() {

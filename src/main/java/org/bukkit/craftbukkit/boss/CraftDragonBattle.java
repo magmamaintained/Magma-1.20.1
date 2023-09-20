@@ -2,14 +2,24 @@ package org.bukkit.craftbukkit.boss;
 
 import com.google.common.base.Preconditions;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.state.pattern.BlockPattern;
 import net.minecraft.world.level.dimension.end.DragonRespawnAnimation;
 import net.minecraft.world.level.dimension.end.EndDragonFight;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.boss.BossBar;
 import org.bukkit.boss.DragonBattle;
 import org.bukkit.boss.DragonBattle.RespawnPhase;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftEnderCrystal;
 import org.bukkit.craftbukkit.util.CraftLocation;
+import org.bukkit.entity.EnderCrystal;
 import org.bukkit.entity.EnderDragon;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class CraftDragonBattle implements DragonBattle {
 
@@ -57,6 +67,32 @@ public class CraftDragonBattle implements DragonBattle {
     @Override
     public void initiateRespawn() {
         this.handle.tryRespawn();
+    }
+
+    @Override
+    public boolean initiateRespawn(Collection<EnderCrystal> list) {
+        if (hasBeenPreviouslyKilled() && getRespawnPhase() == RespawnPhase.NONE) {
+            // Copy from EnderDragonBattle#tryRespawn for generate exit portal if not exists
+            if (this.handle.portalLocation == null) {
+                BlockPattern.BlockPatternMatch shapedetector_shapedetectorcollection = this.handle.findExitPortal();
+                if (shapedetector_shapedetectorcollection == null) {
+                    this.handle.spawnExitPortal(true);
+                }
+            }
+
+            list = (list != null) ? new ArrayList<>(list) : Collections.emptyList();
+            list.removeIf(enderCrystal -> {
+                if (enderCrystal == null) {
+                    return true;
+                }
+
+                World world = enderCrystal.getWorld();
+                return !((CraftWorld) world).getHandle().equals(handle.level);
+            });
+
+            return this.handle.respawnDragon(list.stream().map(enderCrystal -> ((CraftEnderCrystal) enderCrystal).getHandle()).collect(Collectors.toList()));
+        }
+        return false;
     }
 
     @Override

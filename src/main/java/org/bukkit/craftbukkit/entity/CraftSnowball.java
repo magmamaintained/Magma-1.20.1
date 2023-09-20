@@ -19,8 +19,4 @@ public class CraftSnowball extends CraftThrowableProjectile implements Snowball 
         return "CraftSnowball";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.SNOWBALL;
-    }
 }

@@ -96,7 +96,7 @@
           int i = p_148929_.m_61143_(SweetBerryBushBlock.f_57244_);
           p_148929_.m_61124_(SweetBerryBushBlock.f_57244_, Integer.valueOf(1));
 +         // CraftBukkit start - call EntityChangeBlockEvent
-+         if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(Fox.this, this.f_25602_, p_148929_.m_61124_(SweetBerryBushBlock.f_57244_, 1)).isCancelled()) {
++         if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(Fox.this, this.f_25602_, p_148929_.m_61124_(SweetBerryBushBlock.f_57244_, 1))) {
 +            return;
 +         }
 +         // CraftBukkit end

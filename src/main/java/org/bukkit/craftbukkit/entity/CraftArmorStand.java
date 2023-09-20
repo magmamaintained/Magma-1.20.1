@@ -21,11 +21,6 @@ public class CraftArmorStand extends CraftLivingEntity implements ArmorStand {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.ARMOR_STAND;
-    }
-
-    @Override
     public net.minecraft.world.entity.decoration.ArmorStand getHandle() {
         return (net.minecraft.world.entity.decoration.ArmorStand) super.getHandle();
     }

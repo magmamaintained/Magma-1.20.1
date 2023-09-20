@@ -23,9 +23,4 @@ public class CraftLightningStrike extends CraftEntity implements LightningStrike
     public String toString() {
         return "CraftLightningStrike";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.LIGHTNING;
-    }
 }

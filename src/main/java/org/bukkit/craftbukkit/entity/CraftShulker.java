@@ -20,11 +20,6 @@ public class CraftShulker extends CraftGolem implements Shulker, CraftEnemy {
     }
 
     @Override
-    public EntityType getType() {
-        return EntityType.SHULKER;
-    }
-
-    @Override
     public net.minecraft.world.entity.monster.Shulker getHandle() {
         return (net.minecraft.world.entity.monster.Shulker) entity;
     }

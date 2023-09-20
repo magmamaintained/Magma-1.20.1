@@ -26,29 +26,24 @@
  import org.slf4j.Logger;
  
  public class AreaEffectCloud extends Entity implements TraceableEntity {
-@@ -116,6 +_,22 @@
+@@ -40,7 +_,7 @@
+    private static final float f_252519_ = 3.0F;
+    public static final float f_252512_ = 6.0F;
+    public static final float f_252504_ = 0.5F;
+-   private Potion f_19701_ = Potions.f_43598_;
++   public Potion f_19701_ = Potions.f_43598_;
+    public final List<MobEffectInstance> f_19685_ = Lists.newArrayList();
+    private final Map<Entity, Integer> f_19686_ = Maps.newHashMap();
+    private int f_19687_ = 600;
+@@ -99,7 +_,7 @@
  
     }
  
-+   // CraftBukkit start accessor methods
-+   public void refreshEffects() {
-+      if (!this.f_19690_) {
-+         this.m_20088_().m_135381_(AreaEffectCloud.f_19698_, PotionUtils.m_43564_((Collection<MobEffectInstance>) PotionUtils.m_43561_(this.f_19701_, this.f_19685_)));
-+      }
-+   }
-+
-+   public String getPotionType() {
-+      return ((ResourceLocation) BuiltInRegistries.f_256980_.m_7981_(this.f_19701_)).toString();
-+   }
-+
-+   public void setPotionType(String string) {
-+      m_19722_(BuiltInRegistries.f_256980_.m_7745_(new ResourceLocation(string)));
-+   }
-+   // CraftBukkit end
-+
-    public int m_19744_() {
-       return this.m_20088_().m_135370_(f_19698_);
-    }
+-   private void m_19750_() {
++   public void m_19750_() {
+       if (this.f_19701_ == Potions.f_43598_ && this.f_19685_.isEmpty()) {
+          this.m_20088_().m_135381_(f_19698_, 0);
+       } else {
 @@ -238,18 +_,31 @@
              } else {
                 List<LivingEntity> list1 = this.m_9236_().m_45976_(LivingEntity.class, this.m_20191_());

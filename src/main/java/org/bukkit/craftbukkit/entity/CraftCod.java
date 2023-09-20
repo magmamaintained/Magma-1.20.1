@@ -19,9 +19,4 @@ public class CraftCod extends CraftFish implements Cod {
     public String toString() {
         return "CraftCod";
     }
-
-    @Override
-    public EntityType getType() {
-        return EntityType.COD;
-    }
 }

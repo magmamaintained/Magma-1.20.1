@@ -1,16 +1,21 @@
 package org.bukkit.craftbukkit.inventory;
 
+import com.google.common.base.Preconditions;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.item.ItemParser;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SpawnEggItem;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.craftbukkit.util.CraftLegacy;
+import org.bukkit.craftbukkit.util.CraftMagicNumbers;
+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -41,9 +46,7 @@ public final class CraftItemFactory implements ItemFactory {
         if (type == null || meta == null) {
             return false;
         }
-        if (!(meta instanceof CraftMetaItem)) {
-            throw new IllegalArgumentException("Meta of " + meta.getClass().toString() + " not created by " + CraftItemFactory.class.getName());
-        }
+        Preconditions.checkArgument(meta instanceof CraftMetaItem, "Meta of %s not created by %s", meta.getClass().toString(), CraftItemFactory.class.getName());
 
         return ((CraftMetaItem) meta).applicableTo(type);
     }
@@ -365,16 +368,14 @@ public final class CraftItemFactory implements ItemFactory {
         if (meta1 == meta2) {
             return true;
         }
-        if (meta1 != null && !(meta1 instanceof CraftMetaItem)) {
-            throw new IllegalArgumentException("First meta of " + meta1.getClass().getName() + " does not belong to " + CraftItemFactory.class.getName());
-        }
-        if (meta2 != null && !(meta2 instanceof CraftMetaItem)) {
-            throw new IllegalArgumentException("Second meta " + meta2.getClass().getName() + " does not belong to " + CraftItemFactory.class.getName());
-        }
-        if (meta1 == null) {
+        if (meta1 != null) {
+            Preconditions.checkArgument(meta1 instanceof CraftMetaItem, "First meta of %s does not belong to %s", meta1.getClass().getName(), CraftItemFactory.class.getName());
+        } else {
             return ((CraftMetaItem) meta2).isEmpty();
         }
-        if (meta2 == null) {
+        if (meta2 != null) {
+            Preconditions.checkArgument(meta2 instanceof CraftMetaItem, "Second meta of %s does not belong to %s", meta2.getClass().getName(), CraftItemFactory.class.getName());
+        } else {
             return ((CraftMetaItem) meta1).isEmpty();
         }
 
@@ -400,16 +401,14 @@ public final class CraftItemFactory implements ItemFactory {
 
     @Override
     public ItemMeta asMetaFor(ItemMeta meta, ItemStack stack) {
-        Validate.notNull(stack, "Stack cannot be null");
+        Preconditions.checkArgument(stack != null, "ItemStack stack cannot be null");
         return asMetaFor(meta, stack.getType());
     }
 
     @Override
     public ItemMeta asMetaFor(ItemMeta meta, Material material) {
-        Validate.notNull(material, "Material cannot be null");
-        if (!(meta instanceof CraftMetaItem)) {
-            throw new IllegalArgumentException("Meta of " + (meta != null ? meta.getClass().toString() : "null") + " not created by " + CraftItemFactory.class.getName());
-        }
+        Preconditions.checkArgument(material != null, "Material cannot be null");
+        Preconditions.checkArgument(meta instanceof CraftMetaItem, "ItemMeta of %s not created by %s", (meta != null ? meta.getClass().toString() : "null"), CraftItemFactory.class.getName());
         return getItemMeta(material, (CraftMetaItem) meta);
     }
 
@@ -440,5 +439,20 @@ public final class CraftItemFactory implements ItemFactory {
     @Override
     public Material updateMaterial(ItemMeta meta, Material material) throws IllegalArgumentException {
         return ((CraftMetaItem) meta).updateMaterial(material);
+    }
+
+    @Override
+    public Material getSpawnEgg(EntityType type) {
+        if (type == EntityType.UNKNOWN) {
+            return null;
+        }
+        net.minecraft.world.entity.EntityType<?> nmsType = BuiltInRegistries.ENTITY_TYPE.get(CraftNamespacedKey.toMinecraft(type.getKey()));
+        Item nmsItem = SpawnEggItem.byId(nmsType);
+
+        if (nmsItem == null) {
+            return null;
+        }
+
+        return CraftMagicNumbers.getMaterial(nmsItem);
     }
 }

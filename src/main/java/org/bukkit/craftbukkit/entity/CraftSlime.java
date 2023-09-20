@@ -30,8 +30,4 @@ public class CraftSlime extends CraftMob implements Slime, CraftEnemy {
         return "CraftSlime";
     }
 
-    @Override
-    public EntityType getType() {
-        return EntityType.SLIME;
-    }
 }
