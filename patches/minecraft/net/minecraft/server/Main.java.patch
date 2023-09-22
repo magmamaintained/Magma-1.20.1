@@ -32,14 +32,17 @@
  import net.minecraft.server.packs.repository.PackRepository;
  import net.minecraft.server.packs.repository.ServerPacksSource;
  import net.minecraft.util.Mth;
-@@ -59,6 +_,7 @@
+@@ -59,7 +_,10 @@
  import net.minecraft.world.level.storage.LevelSummary;
  import net.minecraft.world.level.storage.PrimaryLevelData;
  import net.minecraft.world.level.storage.WorldData;
 +import org.bukkit.configuration.file.YamlConfiguration;
++import org.magmafoundation.magma.protect.InjectProtect;
  import org.slf4j.Logger;
++import org.spongepowered.asm.mixin.throwables.MixinError;
  
  public class Main {
+    private static final Logger f_129670_ = LogUtils.getLogger();
 @@ -84,6 +_,40 @@
        OptionSpec<Void> optionspec13 = optionparser.accepts("jfrProfile");
        OptionSpec<Path> optionspec14 = optionparser.accepts("pidFile").withRequiredArg().withValuesConvertedBy(new PathConverter());
@@ -104,7 +107,21 @@
  
           Path path = optionset.valueOf(optionspec14);
           if (path != null) {
-@@ -106,25 +_,37 @@
+@@ -102,29 +_,51 @@
+             JvmProfiler.f_185340_.m_183425_(Environment.SERVER);
+          }
+ 
++         //Magma start - Boot Inject Protection
++         InjectProtect.init();
++
++         try {
++            Bootstrap.m_135870_();
++         } catch (MixinError e) {
++            InjectProtect.onBootErrorCaught(e);
++         }
++         //Magma end
++
+          Bootstrap.m_135870_();
           Bootstrap.m_135889_();
           Util.m_137584_();
           Path path1 = Paths.get("server.properties");
@@ -191,7 +208,7 @@
                       WorldDimensions.Complete worlddimensions$complete = worlddimensions.m_245300_(registry);
                       Lifecycle lifecycle = worlddimensions$complete.m_245945_().add(p_248079_.f_244104_().m_211816_());
                       return new WorldLoader.DataLoadOutput<>(new PrimaryLevelData(levelsettings, worldoptions, worlddimensions$complete.f_244634_(), lifecycle), worlddimensions$complete.m_245593_());
-@@ -190,22 +_,33 @@
+@@ -190,22 +_,34 @@
  
           WorldData worlddata = worldstem.f_206895_();
           levelstoragesource$levelstorageaccess.m_78287_(registryaccess$frozen, worlddata);
@@ -222,6 +239,7 @@
           });
           Thread thread = new Thread("Server Shutdown Thread") {
              public void run() {
++               InjectProtect.shutdownCalled(); //Magma - Mixin Inject protection
 +               // FORGE: Halting as GameTestServer will cause issues as it always calls System#exit on both crash and normal exit, so skip it
 +               if (!(dedicatedserver instanceof net.minecraft.gametest.framework.GameTestServer))
                 dedicatedserver.m_7570_(true);
