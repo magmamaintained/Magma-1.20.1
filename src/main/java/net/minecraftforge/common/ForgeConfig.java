@@ -5,9 +5,8 @@
 
 package net.minecraftforge.common;
 
-import static net.minecraftforge.fml.Logging.FORGEMOD;
-
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.Logging;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
@@ -15,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 import net.minecraftforge.common.ForgeConfigSpec.DoubleValue;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-
 
 public class ForgeConfig {
     public static class Server {
@@ -29,6 +27,8 @@ public class ForgeConfig {
         public final DoubleValue zombieBabyChance;
 
         public final ConfigValue<String> permissionHandler;
+
+        public final BooleanValue advertiseDedicatedServerToLan;
 
         Server(ForgeConfigSpec.Builder builder) {
             builder.comment("Server configuration settings")
@@ -69,6 +69,11 @@ public class ForgeConfig {
                     .translation("forge.configgui.permissionHandler")
                     .define("permissionHandler", "forge:default_handler");
 
+            advertiseDedicatedServerToLan = builder
+                    .comment("Set this to true to enable advertising the dedicated server to local LAN clients so that it shows up in the Multiplayer screen automatically.")
+                    .translation("forge.configgui.advertiseDedicatedServerToLan")
+                    .define("advertiseDedicatedServerToLan", true);
+
             builder.pop();
         }
     }
@@ -98,7 +103,13 @@ public class ForgeConfig {
 
         public final BooleanValue useCombinedDepthStencilAttachment;
 
+        @Deprecated(since = "1.20.1", forRemoval = true) // Config option ignored.
         public final BooleanValue compressLanIPv6Addresses;
+
+        public final BooleanValue calculateAllNormals;
+
+        public final BooleanValue stabilizeDirectionGetNearest;
+
 
         Client(ForgeConfigSpec.Builder builder) {
             builder.comment("Client only settings, mostly things related to rendering")
@@ -127,9 +138,23 @@ public class ForgeConfig {
                     .define("useCombinedDepthStencilAttachment", false);
 
             compressLanIPv6Addresses = builder
-                    .comment("When enabled, Forge will convert discovered 'Open to LAN' IPv6 addresses to their more compact, compressed representation")
+                    .comment("[DEPRECATED] Does nothing anymore, IPv6 addresses will be compressed always")
                     .translation("forge.configgui.compressLanIPv6Addresses")
                     .define("compressLanIPv6Addresses", true);
+
+            calculateAllNormals = builder
+                    .comment("During block model baking, manually calculates the normal for all faces.",
+                            "This was the default behavior of forge between versions 31.0 and 47.1.",
+                            "May result in differences between vanilla rendering and forge rendering.",
+                            "Will only produce differences for blocks that contain non-axis aligned faces.",
+                            "You will need to reload your resources to see results.")
+                    .translation("forge.configgui.calculateAllNormals")
+                    .define("calculateAllNormals", false);
+
+            stabilizeDirectionGetNearest = builder
+                    .comment("When enabled, a slightly biased Direction#getNearest calculation will be used to prevent normal fighting on 45 degree angle faces.")
+                    .translation("forge.configgui.stabilizeDirectionGetNearest")
+                    .define("stabilizeDirectionGetNearest", true);
 
             builder.pop();
         }
@@ -163,12 +188,12 @@ public class ForgeConfig {
 
     @SubscribeEvent
     public static void onLoad(final ModConfigEvent.Loading configEvent) {
-        LogManager.getLogger().debug(FORGEMOD, "Loaded forge config file {}", configEvent.getConfig().getFileName());
+        LogManager.getLogger().debug(Logging.FORGEMOD, "Loaded forge config file {}", configEvent.getConfig().getFileName());
     }
 
     @SubscribeEvent
     public static void onFileChange(final ModConfigEvent.Reloading configEvent) {
-        LogManager.getLogger().debug(FORGEMOD, "Forge config just got changed on the file system!");
+        LogManager.getLogger().debug(Logging.FORGEMOD, "Forge config just got changed on the file system!");
     }
 
     //General

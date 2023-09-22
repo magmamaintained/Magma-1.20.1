@@ -112,6 +112,16 @@
        this.f_19850_ = true;
        this.f_20928_ = (float)((Math.random() + 1.0D) * (double)0.01F);
        this.m_20090_();
+@@ -239,7 +_,8 @@
+       this.f_20885_ = this.m_146908_();
+       this.m_274367_(0.6F);
+       NbtOps nbtops = NbtOps.f_128958_;
+-      this.f_20939_ = this.m_8075_(new Dynamic<>(nbtops, nbtops.createMap(ImmutableMap.of(nbtops.createString("memories"), nbtops.emptyMap()))));
++      var dyn = new Dynamic<>(nbtops, nbtops.createMap(ImmutableMap.of(nbtops.createString("memories"), nbtops.emptyMap())));
++      this.f_20939_ = net.minecraftforge.common.ForgeHooks.onLivingMakeBrain(this, this.m_8075_(dyn), dyn);
+    }
+ 
+    public Brain<?> m_6274_() {
 @@ -273,7 +_,7 @@
     }
  
@@ -145,31 +155,16 @@
     public boolean m_6040_() {
        return this.m_6336_() == MobType.f_21641_;
     }
-@@ -352,8 +_,8 @@
+@@ -352,6 +_,9 @@
              }
           }
  
--         if (this.m_204029_(FluidTags.f_13131_) && !this.m_9236_().m_8055_(BlockPos.m_274561_(this.m_20185_(), this.m_20188_(), this.m_20189_())).m_60713_(Blocks.f_50628_)) {
--            boolean flag1 = !this.m_6040_() && !MobEffectUtil.m_19588_(this) && (!flag || !((Player)this).m_150110_().f_35934_);
-+         if (!this.getEyeInFluidType().isAir() && !this.m_9236_().m_8055_(BlockPos.m_274561_(this.m_20185_(), this.m_20188_(), this.m_20189_())).m_60713_(Blocks.f_50628_)) {
-+            boolean flag1 = this.canDrownInFluidType(this.getEyeInFluidType()) && !MobEffectUtil.m_19588_(this) && (!flag || !((Player)this).m_150110_().f_35934_);
++         int airSupply = this.m_20146_();
++         net.minecraftforge.common.ForgeHooks.onLivingBreathe(this, airSupply - m_7302_(airSupply), m_7305_(airSupply) - airSupply);
++         if (false) // Forge: Handled in ForgeHooks#onLivingBreathe(LivingEntity, int, int)
+          if (this.m_204029_(FluidTags.f_13131_) && !this.m_9236_().m_8055_(BlockPos.m_274561_(this.m_20185_(), this.m_20188_(), this.m_20189_())).m_60713_(Blocks.f_50628_)) {
+             boolean flag1 = !this.m_6040_() && !MobEffectUtil.m_19588_(this) && (!flag || !((Player)this).m_150110_().f_35934_);
              if (flag1) {
-                this.m_20301_(this.m_7302_(this.m_20146_()));
-                if (this.m_20146_() == -20) {
-@@ -371,10 +_,11 @@
-                }
-             }
- 
--            if (!this.m_9236_().f_46443_ && this.m_20159_() && this.m_20202_() != null && this.m_20202_().m_275843_()) {
-+            if (!this.m_9236_().f_46443_ && this.m_20159_() && this.m_20202_() != null && !this.m_20202_().canBeRiddenUnderFluidType(this.getEyeInFluidType(), this)) {
-                this.m_8127_();
-             }
--         } else if (this.m_20146_() < this.m_6062_()) {
-+         } // Forge: Move to if statement since we need to increase the air supply if in bubble column or can't drown
-+         if (this.m_20146_() < this.m_6062_() && (!this.canDrownInFluidType(this.getEyeInFluidType()) || this.m_9236_().m_8055_(BlockPos.m_274561_(this.m_20185_(), this.m_20188_(), this.m_20189_())).m_60713_(Blocks.f_50628_))) {
-             this.m_20301_(this.m_7305_(this.m_20146_()));
-          }
- 
 @@ -387,7 +_,7 @@
           }
        }
@@ -216,10 +211,20 @@
        if (p_21096_.m_128425_("Health", 99)) {
           this.m_21153_(p_21096_.m_128457_("Health"));
        }
-@@ -739,9 +_,31 @@
+@@ -734,14 +_,37 @@
+       }
  
-    }
- 
+       if (p_21096_.m_128425_("Brain", 10)) {
+-         this.f_20939_ = this.m_8075_(new Dynamic<>(NbtOps.f_128958_, p_21096_.m_128423_("Brain")));
+-      }
+-
+-   }
++         var dyn = new Dynamic<>(NbtOps.f_128958_, p_21096_.m_128423_("Brain"));
++         this.f_20939_ = net.minecraftforge.common.ForgeHooks.onLivingMakeBrain(this, this.m_8075_(dyn), dyn);
++      }
++
++   }
++
 +   // CraftBukkit start
 +   private boolean isTickingEffects = false;
 +   private List<ProcessableEffect> effectsToProcess = Lists.newArrayList();
@@ -240,7 +245,7 @@
 +      }
 +   }
 +   // CraftBukkit end
-+
+ 
     protected void m_21217_() {
        Iterator<MobEffect> iterator = this.f_20945_.keySet().iterator();
  
@@ -543,7 +548,14 @@
              if (!p_21016_.m_269533_(DamageTypeTags.f_268524_)) {
                 Entity entity = p_21016_.m_7640_();
                 if (entity instanceof LivingEntity) {
-@@ -1071,26 +_,47 @@
+@@ -1065,32 +_,53 @@
+                }
+             }
+ 
+-            flag = true;
++            flag = p_21017_ <= 0;
+          }
+ 
           if (p_21016_.m_269533_(DamageTypeTags.f_268419_) && this.m_6095_().m_204039_(EntityTypeTags.f_144295_)) {
              p_21017_ *= 5.0F;
           }
@@ -1146,6 +1158,19 @@
        if (!this.f_20911_ || this.f_20913_ >= this.m_21304_() / 2 || this.f_20913_ < 0) {
           this.f_20913_ = -1;
           this.f_20911_ = true;
+@@ -1761,8 +_,10 @@
+ 
+    private void m_21312_() {
+       ItemStack itemstack = this.m_6844_(EquipmentSlot.OFFHAND);
+-      this.m_8061_(EquipmentSlot.OFFHAND, this.m_6844_(EquipmentSlot.MAINHAND));
+-      this.m_8061_(EquipmentSlot.MAINHAND, itemstack);
++      var event = net.minecraftforge.common.ForgeHooks.onLivingSwapHandItems(this);
++      if (event.isCanceled()) return;
++      this.m_8061_(EquipmentSlot.OFFHAND, event.getItemSwappedToOffHand());
++      this.m_8061_(EquipmentSlot.MAINHAND, event.getItemSwappedToMainHand());
+    }
+ 
+    protected void m_6088_() {
 @@ -1862,6 +_,12 @@
  
     public abstract ItemStack m_6844_(EquipmentSlot p_21127_);

@@ -32,6 +32,7 @@ include 'mclanguage'
 include 'javafmllanguage'
 include 'lowcodelanguage'
 include 'magmalauncher'
+include 'fmlearlydisplay'
 
 include ':mcp'
 include ':clean'

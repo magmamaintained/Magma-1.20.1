@@ -1,6 +1,6 @@
 --- a/net/minecraft/client/KeyMapping.java
 +++ b/net/minecraft/client/KeyMapping.java
-@@ -13,9 +_,9 @@
+@@ -13,13 +_,13 @@
  import net.minecraftforge.api.distmarker.OnlyIn;
  
  @OnlyIn(Dist.CLIENT)
@@ -12,6 +12,20 @@
     private static final Set<String> f_90811_ = Sets.newHashSet();
     public static final String f_167805_ = "key.categories.movement";
     public static final String f_167806_ = "key.categories.misc";
+-   public static final String f_167807_ = "key.categories.multiplayer";
++   public static final String CATEGORY_M1ULTIPLAYER = "key.categories.multiplayer";
+    public static final String f_167808_ = "key.categories.gameplay";
+    public static final String f_167809_ = "key.categories.inventory";
+    public static final String f_167810_ = "key.categories.ui";
+@@ -41,7 +_,7 @@
+    private int f_90818_;
+ 
+    public static void m_90835_(InputConstants.Key p_90836_) {
+-      KeyMapping keymapping = f_90810_.get(p_90836_);
++      for (KeyMapping keymapping : f_90810_.getAll(p_90836_))
+       if (keymapping != null) {
+          ++keymapping.f_90818_;
+       }
 @@ -49,7 +_,7 @@
     }
  

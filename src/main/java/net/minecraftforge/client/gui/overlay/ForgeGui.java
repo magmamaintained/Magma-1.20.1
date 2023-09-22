@@ -15,6 +15,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringUtil;
@@ -376,7 +377,7 @@ public class ForgeGui extends Gui
             }
 
             int color = (int) (220.0F * opacity) << 24 | 1052704;
-            guiGraphics.fill(0, 0, width, height, color);
+            guiGraphics.fill(RenderType.guiOverlay(), 0, 0, width, height, color);
             minecraft.getProfiler().pop();
         }
     }
@@ -473,6 +474,13 @@ public class ForgeGui extends Gui
         }
     }
 
+    @Override
+    public void clearCache()
+    {
+        super.clearCache();
+        this.debugOverlay.clearChunkCache();
+    }
+
     protected void renderRecordOverlay(int width, int height, float partialTick, GuiGraphics guiGraphics)
     {
         if (overlayMessageTime > 0)
@@ -484,8 +492,12 @@ public class ForgeGui extends Gui
 
             if (opacity > 8)
             {
+                //Include a shift based on the bar height plus the difference between the height that renderSelectedItemName
+                // renders at (59) and the height that the overlay/status bar renders at (68) by default
+                int yShift = Math.max(leftHeight, rightHeight) + (68 - 59);
                 guiGraphics.pose().pushPose();
-                guiGraphics.pose().translate(width / 2D, height - 68, 0.0D);
+                //If y shift is smaller less than the default y level, just render it at the base y level
+                guiGraphics.pose().translate(width / 2D, height - Math.max(yShift, 68), 0.0D);
                 RenderSystem.enableBlend();
                 RenderSystem.defaultBlendFunc();
                 int color = (animateOverlayMessageColor ? Mth.hsvToRgb(hue / 50.0F, 0.7F, 0.6F) & WHITE : WHITE);

@@ -47,3 +47,6 @@ changelog.txt
 *.7z
 /logs/
 
+# Mac
+.DS_Store
+

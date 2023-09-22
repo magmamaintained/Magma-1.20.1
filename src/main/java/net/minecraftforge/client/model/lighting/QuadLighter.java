@@ -8,15 +8,17 @@ package net.minecraftforge.client.model.lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.client.model.IQuadTransformer;
+
 import org.joml.Vector3f;
 
 import java.util.Objects;
-
-import static net.minecraftforge.client.model.IQuadTransformer.*;
 
 /**
  * Base class for all quad lighting providers.
@@ -82,15 +84,15 @@ public abstract class QuadLighter
         var vertices = quad.getVertices();
         for (int i = 0; i < 4; i++)
         {
-            int offset = i * STRIDE;
-            positions[i][0] = Float.intBitsToFloat(vertices[offset + POSITION]);
-            positions[i][1] = Float.intBitsToFloat(vertices[offset + POSITION + 1]);
-            positions[i][2] = Float.intBitsToFloat(vertices[offset + POSITION + 2]);
-            int packedNormal = vertices[offset + NORMAL];
+            int offset = i * IQuadTransformer.STRIDE;
+            positions[i][0] = Float.intBitsToFloat(vertices[offset + IQuadTransformer.POSITION]);
+            positions[i][1] = Float.intBitsToFloat(vertices[offset + IQuadTransformer.POSITION + 1]);
+            positions[i][2] = Float.intBitsToFloat(vertices[offset + IQuadTransformer.POSITION + 2]);
+            int packedNormal = vertices[offset + IQuadTransformer.NORMAL];
             normals[i][0] = (byte) (packedNormal & 0xFF);
             normals[i][1] = (byte) ((packedNormal >> 8) & 0xFF);
             normals[i][2] = (byte) ((packedNormal >> 16) & 0xFF);
-            packedLightmaps[i] = vertices[offset + UV2];
+            packedLightmaps[i] = vertices[offset + IQuadTransformer.UV2];
         }
         if (normals[0][0] == 0 && normals[0][1] == 0 && normals[0][2] == 0)
         {
@@ -149,5 +151,22 @@ public abstract class QuadLighter
     {
         float yFactor = constantAmbientLight ? 0.9F : ((3.0F + normalY) / 4.0F);
         return Math.min(normalX * normalX * 0.6F + normalY * normalY * yFactor + normalZ * normalZ * 0.8F, 1.0F);
+    }
+
+    /**
+     * Note: This method is subtly different than {@link net.minecraft.client.renderer.LevelRenderer#getLightColor(BlockAndTintGetter, BlockState, BlockPos)}
+     * as it only uses the state for querying if the state has emissive rendering but instead looks up the state at the given position for checking the
+     * light emission.
+     */
+    @Deprecated(since = "1.20.1")
+    protected static int getLightColor(BlockAndTintGetter level, BlockPos pos, BlockState state)
+    {
+        if (state.emissiveRendering(level, pos))
+        {
+            return LightTexture.FULL_BRIGHT;
+        }
+        int skyLight = level.getBrightness(LightLayer.SKY, pos);
+        int blockLight = Math.max(level.getBrightness(LightLayer.BLOCK, pos), level.getBlockState(pos).getLightEmission(level, pos));
+        return skyLight << 20 | blockLight << 4;
     }
 }

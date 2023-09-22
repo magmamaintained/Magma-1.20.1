@@ -5,12 +5,14 @@
 
 package net.minecraftforge.common;
 
+import com.google.common.collect.Queues;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,6 +35,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.Lifecycle;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -45,6 +48,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.ChatDecorator;
 import net.minecraft.network.chat.ClickEvent;
@@ -68,11 +72,13 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -85,7 +91,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.LevelStorageSource;
@@ -105,6 +113,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerActionPacket;
 import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.stats.Stats;
@@ -122,9 +131,12 @@ import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.common.loot.LootModifierManager;
 import net.minecraftforge.common.loot.LootTableIdCondition;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.common.util.BrainBuilder;
 import net.minecraftforge.common.util.Lazy;
 import net.minecraftforge.common.util.MavenVersionStringHelper;
+import net.minecraftforge.common.util.MutableHashedLinkedMap;
 import net.minecraftforge.event.AnvilUpdateEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.DifficultyChangeEvent;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.GrindstoneEvent;
@@ -141,10 +153,12 @@ import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.EnderManAngerEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.living.LivingDrownEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingJumpEvent;
 import net.minecraftforge.event.entity.living.LivingEvent.LivingTickEvent;
@@ -152,6 +166,8 @@ import net.minecraftforge.event.entity.living.LivingChangeTargetEvent.ILivingTar
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.living.LivingKnockBackEvent;
+import net.minecraftforge.event.entity.living.LivingMakeBrainEvent;
+import net.minecraftforge.event.entity.living.LivingSwapItemsEvent;
 import net.minecraftforge.event.entity.living.LivingUseTotemEvent;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.entity.living.ShieldBlockEvent;
@@ -233,6 +249,14 @@ public class ForgeHooks
         MinecraftForge.EVENT_BUS.post(event);
 
         return event;
+    }
+
+    public static Brain<?> onLivingMakeBrain(LivingEntity entity, Brain<?> originalBrain, Dynamic<?> dynamic)
+    {
+        BrainBuilder<?> brainBuilder = originalBrain.createBuilder();
+        LivingMakeBrainEvent event = new LivingMakeBrainEvent(entity, brainBuilder);
+        MinecraftForge.EVENT_BUS.post(event);
+        return brainBuilder.makeBrain(dynamic);
     }
 
     public static boolean onLivingTick(LivingEntity entity)
@@ -473,6 +497,15 @@ public class ForgeHooks
         else if (end.length() > 0)
             ichat.append(Component.literal(string.substring(lastEnd)));
         return ichat;
+    }
+
+    public static void dropXpForBlock(BlockState state, ServerLevel level, BlockPos pos, ItemStack stack)
+    {
+        int fortuneLevel = stack.getEnchantmentLevel(Enchantments.BLOCK_FORTUNE);
+        int silkTouchLevel = stack.getEnchantmentLevel(Enchantments.SILK_TOUCH);
+        int exp = state.getExpDrop(level, level.random, pos, fortuneLevel, silkTouchLevel);
+        if (exp > 0)
+            state.getBlock().popExperience(level, pos, exp);
     }
 
     public static int onBlockBreakEvent(Level level, GameType gameType, ServerPlayer entityPlayer, BlockPos pos)
@@ -739,9 +772,25 @@ public class ForgeHooks
         return evt.isCanceled() ? evt.getCancellationResult() : null;
     }
 
+    /**
+     * @deprecated Use {@link #onLeftClickBlock(Player, BlockPos, Direction, ServerboundPlayerActionPacket.Action)} instead
+     */
+    @Deprecated(since = "1.20.1", forRemoval = true)
     public static PlayerInteractEvent.LeftClickBlock onLeftClickBlock(Player player, BlockPos pos, Direction face)
     {
-        PlayerInteractEvent.LeftClickBlock evt = new PlayerInteractEvent.LeftClickBlock(player, pos, face);
+        return onLeftClickBlock(player, pos, face, ServerboundPlayerActionPacket.Action.START_DESTROY_BLOCK);
+    }
+
+    public static PlayerInteractEvent.LeftClickBlock onLeftClickBlock(Player player, BlockPos pos, Direction face, ServerboundPlayerActionPacket.Action action)
+    {
+        PlayerInteractEvent.LeftClickBlock evt = new PlayerInteractEvent.LeftClickBlock(player, pos, face, PlayerInteractEvent.LeftClickBlock.Action.convert(action));
+        MinecraftForge.EVENT_BUS.post(evt);
+        return evt;
+    }
+
+    public static PlayerInteractEvent.LeftClickBlock onClientMineHold(Player player, BlockPos pos, Direction face)
+    {
+        PlayerInteractEvent.LeftClickBlock evt = new PlayerInteractEvent.LeftClickBlock(player, pos, face, PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD);
         MinecraftForge.EVENT_BUS.post(evt);
         return evt;
     }
@@ -778,6 +827,17 @@ public class ForgeHooks
         return newGameType;
     }
 
+    private static final ThreadLocal<Deque<LootTableContext>> lootContext = new ThreadLocal<>();
+    private static LootTableContext getLootTableContext()
+    {
+        LootTableContext ctx = lootContext.get().peek();
+
+        if (ctx == null)
+            throw new JsonParseException("Invalid call stack, could not grab json context!"); // Should I throw this? Do we care about custom deserializers outside the manager?
+
+        return ctx;
+    }
+
     public static TriFunction<ResourceLocation, JsonElement, ResourceManager, Optional<LootTable>> getLootTableDeserializer(Gson gson, String directory)
     {
         return (location, data, resourceManager) -> {
@@ -797,15 +857,27 @@ public class ForgeHooks
 
     public static LootTable loadLootTable(Gson gson, ResourceLocation name, JsonElement data, boolean custom)
     {
+        Deque<LootTableContext> que = lootContext.get();
+        if (que == null)
+        {
+            que = Queues.newArrayDeque();
+            lootContext.set(que);
+        }
+
         LootTable ret;
         try
         {
+            que.push(new LootTableContext(name, custom));
             ret = gson.fromJson(data, LootTable.class);
             ret.setLootTableId(name);
         }
         catch (JsonParseException e)
         {
             throw e;
+        }
+        finally
+        {
+            que.pop();
         }
 
         if (!custom)
@@ -815,6 +887,36 @@ public class ForgeHooks
            ret.freeze();
 
         return ret;
+    }
+
+    private static class LootTableContext
+    {
+        public final ResourceLocation name;
+        public final boolean vanilla;
+        public final boolean custom;
+        public int poolCount = 0;
+
+        private LootTableContext(ResourceLocation name, boolean custom)
+        {
+            this.name = name;
+            this.custom = custom;
+            this.vanilla = "minecraft".equals(this.name.getNamespace());
+        }
+    }
+
+    public static String readPoolName(JsonObject json)
+    {
+        LootTableContext ctx = getLootTableContext();
+
+        if (json.has("name"))
+            return GsonHelper.getAsString(json, "name");
+
+        if (ctx.custom)
+            return "custom#" + json.hashCode(); //We don't care about custom ones modders shouldn't be editing them!
+
+        ctx.poolCount++;
+
+        return ctx.poolCount == 1 ? "main" : "pool" + (ctx.poolCount - 1);
     }
 
     /**
@@ -981,22 +1083,8 @@ public class ForgeHooks
         return false;
     }
 
-    public static <T> void deserializeTagAdditions(List<TagEntry> list, JsonObject json, List<TagEntry> allList)
-    {
-        if (json.has("remove"))
-        {
-            for (JsonElement entry : GsonHelper.getAsJsonArray(json, "remove"))
-            {
-                String s = GsonHelper.convertToString(entry, "value");
-                TagEntry dummy;
-                if (!s.startsWith("#"))
-                    dummy = TagEntry.optionalElement(new ResourceLocation(s));
-                else
-                    dummy = TagEntry.tag(new ResourceLocation(s.substring(1)));
-                allList.removeIf(e -> e.equals(dummy));
-            }
-        }
-    }
+    @Deprecated(forRemoval = true, since = "1.20.1") // Tags use a codec now This was never used in 1.20
+    public static <T> void deserializeTagAdditions(List<TagEntry> list, JsonObject json, List<TagEntry> allList) {}
 
     @Nullable
     public static EntityDataSerializer<?> getSerializer(int id, CrudeIncrementalIntIdentityHashBiMap<EntityDataSerializer<?>> vanilla)
@@ -1154,6 +1242,13 @@ public class ForgeHooks
         ShieldBlockEvent e = new ShieldBlockEvent(blocker, source, blocked);
         MinecraftForge.EVENT_BUS.post(e);
         return e;
+    }
+
+    public static LivingSwapItemsEvent.Hands onLivingSwapHandItems(LivingEntity livingEntity)
+    {
+        LivingSwapItemsEvent.Hands event = new LivingSwapItemsEvent.Hands(livingEntity);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event;
     }
 
     public static void writeAdditionalLevelSaveData(WorldData worldData, CompoundTag levelTag)
@@ -1460,5 +1555,84 @@ public class ForgeHooks
             @Override public Stream<HolderSet.Named<T>> listTags() { return Stream.empty(); }
             @Override public Optional<HolderSet.Named<T>> get(TagKey<T> key) { return Optional.of(HolderSet.emptyNamed(lookup, key)); }
         };
+    }
+
+    /**
+     * Handles living entities being under water. This fires the {@link LivingBreatheEvent} and if the entity's air supply
+     * is less than or equal to zero also the {@link LivingDrownEvent}. Additionally when the entity is under water it will
+     * dismount if {@link IForgeEntity#canBeRiddenUnderFluidType(FluidType, Entity)} returns false.
+     *
+     * @param entity           The living entity which is currently updated
+     * @param consumeAirAmount The amount of air to consume when the entity is unable to breathe
+     * @param refillAirAmount  The amount of air to refill when the entity is able to breathe
+     * @implNote This method needs to closely replicate the logic found right after the call site in {@link LivingEntity#baseTick()} as it overrides it.
+     */
+    public static void onLivingBreathe(LivingEntity entity, int consumeAirAmount, int refillAirAmount)
+    {
+    	// Check things that vanilla considers to be air - these will cause the air supply to be increased.
+        boolean isAir = entity.getEyeInFluidType().isAir() || entity.level().getBlockState(BlockPos.containing(entity.getX(), entity.getEyeY(), entity.getZ())).is(Blocks.BUBBLE_COLUMN);
+        // The following effects cause the entity to not drown, but do not cause the air supply to be increased.
+        boolean canBreathe = !entity.canDrownInFluidType(entity.getEyeInFluidType()) || MobEffectUtil.hasWaterBreathing(entity) || (entity instanceof Player && ((Player) entity).getAbilities().invulnerable);
+        LivingBreatheEvent breatheEvent = new LivingBreatheEvent(entity, isAir || canBreathe, consumeAirAmount, refillAirAmount, isAir);
+        MinecraftForge.EVENT_BUS.post(breatheEvent);
+        if (breatheEvent.canBreathe())
+        {
+            if (breatheEvent.canRefillAir())
+            {
+                entity.setAirSupply(Math.min(entity.getAirSupply() + breatheEvent.getRefillAirAmount(), entity.getMaxAirSupply()));
+            }
+        }
+        else
+        {
+            entity.setAirSupply(entity.getAirSupply() - breatheEvent.getConsumeAirAmount());
+        }
+
+        if (entity.getAirSupply() <= 0)
+        {
+            LivingDrownEvent drownEvent = new LivingDrownEvent(entity, entity.getAirSupply() <= -20, 2.0F, 8);
+            if (!MinecraftForge.EVENT_BUS.post(drownEvent) && drownEvent.isDrowning())
+            {
+                entity.setAirSupply(0);
+                Vec3 vec3 = entity.getDeltaMovement();
+
+                for (int i = 0; i < drownEvent.getBubbleCount(); ++i)
+                {
+                    double d2 = entity.getRandom().nextDouble() - entity.getRandom().nextDouble();
+                    double d3 = entity.getRandom().nextDouble() - entity.getRandom().nextDouble();
+                    double d4 = entity.getRandom().nextDouble() - entity.getRandom().nextDouble();
+                    entity.level().addParticle(ParticleTypes.BUBBLE, entity.getX() + d2, entity.getY() + d3, entity.getZ() + d4, vec3.x, vec3.y, vec3.z);
+                }
+
+                if (drownEvent.getDamageAmount() > 0) entity.hurt(entity.damageSources().drown(), drownEvent.getDamageAmount());
+            }
+        }
+
+        if (!isAir && !entity.level().isClientSide && entity.isPassenger() && entity.getVehicle() != null && !entity.getVehicle().canBeRiddenUnderFluidType(entity.getEyeInFluidType(), entity))
+        {
+            entity.stopRiding();
+        }
+    }
+
+    public static void onCreativeModeTabBuildContents(CreativeModeTab tab, ResourceKey<CreativeModeTab> tabKey, CreativeModeTab.DisplayItemsGenerator originalGenerator, CreativeModeTab.ItemDisplayParameters params, CreativeModeTab.Output output)
+    {
+        final var entries = new MutableHashedLinkedMap<ItemStack, CreativeModeTab.TabVisibility>(ItemStackLinkedSet.TYPE_AND_TAG,
+                (key, left, right) -> {
+                    //throw new IllegalStateException("Accidentally adding the same item stack twice " + key.getDisplayName().getString() + " to a Creative Mode Tab: " + tab.getDisplayName().getString());
+                    // Vanilla adds enchanting books twice in both visibilities.
+                    // This is just code cleanliness for them. For us lets just increase the visibility and merge the entries.
+                    return CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS;
+                }
+        );
+
+        originalGenerator.accept(params, (stack, vis) -> {
+            if (stack.getCount() != 1)
+                throw new IllegalArgumentException("The stack count must be 1");
+            entries.put(stack, vis);
+        });
+
+        ModLoader.get().postEvent(new BuildCreativeModeTabContentsEvent(tab, tabKey, params, entries));
+
+        for (var entry : entries)
+            output.accept(entry.getKey(), entry.getValue());
     }
 }

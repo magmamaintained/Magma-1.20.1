@@ -565,7 +565,7 @@
     }
  
     public GameType m_130008_() {
-@@ -537,12 +_,38 @@
+@@ -537,12 +_,36 @@
        this.m_7041_();
     }
  
@@ -589,8 +589,6 @@
 +         hasStopped = true;
 +      }
 +      // CraftBukkit end
-+      if (m_130010_() && m_6982_()) net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.GameShuttingDownEvent());
-+
        if (this.f_177872_.m_142763_()) {
           this.m_236737_();
        }

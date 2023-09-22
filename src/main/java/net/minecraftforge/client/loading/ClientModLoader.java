@@ -5,11 +5,11 @@
 
 package net.minecraftforge.client.loading;
 
-import static net.minecraftforge.fml.Logging.CORE;
-import static net.minecraftforge.fml.Logging.LOADING;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -25,6 +25,7 @@ import net.minecraft.server.packs.repository.PackRepository;
 import net.minecraft.world.level.DataPackConfig;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.fml.*;
+import net.minecraftforge.fml.loading.ImmediateWindowHandler;
 import net.minecraftforge.internal.BrandingControl;
 import net.minecraftforge.logging.CrashReportExtender;
 import net.minecraftforge.common.util.LogicalSidedProvider;
@@ -33,11 +34,8 @@ import net.minecraftforge.resource.PathPackResources;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.ClientPackSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
@@ -59,36 +57,17 @@ public class ClientModLoader
     private static Minecraft mc;
     private static boolean loadingComplete;
     private static LoadingFailedException error;
-    private static EarlyLoaderGUI earlyLoaderGUI;
 
-    private static class SpacedRunnable implements Runnable {
-        static final long NANO_SLEEP_TIME = TimeUnit.MILLISECONDS.toNanos(50);
-        private final Runnable wrapped;
-        private long lastRun;
-
-        private SpacedRunnable(final Runnable wrapped) {
-            this.wrapped = wrapped;
-            this.lastRun = System.nanoTime() - NANO_SLEEP_TIME;
-        }
-
-        @Override
-        public void run() {
-            if (System.nanoTime() - this.lastRun > NANO_SLEEP_TIME) {
-                wrapped.run();
-                this.lastRun = System.nanoTime();
-            }
-        }
-    }
     public static void begin(final Minecraft minecraft, final PackRepository defaultResourcePacks, final ReloadableResourceManager mcResourceManager)
     {
         // force log4j to shutdown logging in a shutdown hook. This is because we disable default shutdown hook so the server properly logs it's shutdown
         Runtime.getRuntime().addShutdownHook(new Thread(LogManager::shutdown));
+        ImmediateWindowHandler.updateProgress("Loading mods");
         loading = true;
         ClientModLoader.mc = minecraft;
         LogicalSidedProvider.setClient(()->minecraft);
         LanguageHook.loadForgeAndMCLangs();
-        earlyLoaderGUI = new EarlyLoaderGUI(minecraft);
-        createRunnableWithCatch(()->ModLoader.get().gatherAndInitializeMods(ModWorkManager.syncExecutor(), ModWorkManager.parallelExecutor(), new SpacedRunnable(earlyLoaderGUI::renderTick))).run();
+        createRunnableWithCatch(()->ModLoader.get().gatherAndInitializeMods(ModWorkManager.syncExecutor(), ModWorkManager.parallelExecutor(), ImmediateWindowHandler::renderTick)).run();
         if (error == null) {
             ResourcePackLoader.loadResourcePacks(defaultResourcePacks, ClientModLoader::buildPackFinder);
             ModLoader.get().postEvent(new AddPackFindersEvent(PackType.CLIENT_RESOURCES, defaultResourcePacks::addPackFinder));
@@ -116,13 +95,12 @@ public class ClientModLoader
     }
 
     private static void startModLoading(ModWorkManager.DrivenExecutor syncExecutor, Executor parallelExecutor) {
-        earlyLoaderGUI.handleElsewhere();
-        createRunnableWithCatch(() -> ModLoader.get().loadMods(syncExecutor, parallelExecutor, new SpacedRunnable(earlyLoaderGUI::renderTick))).run();
+        createRunnableWithCatch(() -> ModLoader.get().loadMods(syncExecutor, parallelExecutor, ImmediateWindowHandler::renderTick)).run();
     }
 
     private static void finishModLoading(ModWorkManager.DrivenExecutor syncExecutor, Executor parallelExecutor)
     {
-        createRunnableWithCatch(() -> ModLoader.get().finishMods(syncExecutor, parallelExecutor, new SpacedRunnable(earlyLoaderGUI::renderTick))).run();
+        createRunnableWithCatch(() -> ModLoader.get().finishMods(syncExecutor, parallelExecutor, ImmediateWindowHandler::renderTick)).run();
         loading = false;
         loadingComplete = true;
         // reload game settings on main thread
@@ -140,7 +118,7 @@ public class ClientModLoader
 
     public static boolean completeModLoading()
     {
-        List<ModLoadingWarning> warnings = ModLoader.get().getWarnings();
+        var warnings = ModLoader.get().getWarnings();
         boolean showWarnings = true;
         try {
             showWarnings = ForgeConfig.CLIENT.showLoadWarnings.get();
@@ -150,8 +128,8 @@ public class ClientModLoader
         if (!showWarnings) {
             //User disabled warning screen, as least log them
             if (!warnings.isEmpty()) {
-                LOGGER.warn(LOADING, "Mods loaded with {} warning(s)", warnings.size());
-                warnings.forEach(warning -> LOGGER.warn(LOADING, warning.formatToString()));
+                LOGGER.warn(Logging.LOADING, "Mods loaded with {} warning(s)", warnings.size());
+                warnings.forEach(warning -> LOGGER.warn(Logging.LOADING, warning.formatToString()));
             }
             warnings = Collections.emptyList(); //Clear warnings, as the user does not want to see them
         }
@@ -172,9 +150,6 @@ public class ClientModLoader
         }
     }
 
-    public static void renderProgressText() {
-        earlyLoaderGUI.renderFromGUI();
-    }
     public static boolean isLoading()
     {
         return loading;
@@ -185,7 +160,7 @@ public class ClientModLoader
     }
 
     private static void clientPackFinder(Map<IModFile, ? extends PathPackResources> modResourcePacks, Consumer<Pack> packAcceptor) {
-        List<PathPackResources> hiddenPacks = new ArrayList<>();
+        var hiddenPacks = new ArrayList<PathPackResources>();
         for (Entry<IModFile, ? extends PathPackResources> e : modResourcePacks.entrySet())
         {
             IModInfo mod = e.getKey().getModInfos().get(0);
@@ -196,7 +171,7 @@ public class ClientModLoader
                 ModLoader.get().addWarning(new ModLoadingWarning(mod, ModLoadingStage.ERROR, "fml.modloading.brokenresources", e.getKey()));
                 continue;
             }
-            LOGGER.debug(CORE, "Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
+            LOGGER.debug(Logging.CORE, "Generating PackInfo named {} for mod file {}", name, e.getKey().getFilePath());
             if (mod.getOwningFile().showAsResourcePack()) {
                 packAcceptor.accept(modPack);
             } else {
