@@ -1813,7 +1813,7 @@ project(':forge') {
                 maven {
                     // gitlab repo
                     name = 'MagmaFoundation'
-                    url = 'https://git.magmafoundation.org/api/v4/projects/103/packages/maven/'
+                    url = 'https://git.magmafoundation.org/api/v4/projects/140/packages/maven/'
                     credentials(HttpHeaderCredentials) {
                         name = "Private-Token"
                         value = System.getenv("CI_JOB_TOKEN")
