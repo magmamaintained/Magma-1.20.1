@@ -1770,32 +1770,31 @@ project(':forge') {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                artifact installerJar
                 artifact magmaJar
 
                 pom {
                     name = 'Magma'
                     groupId = 'org.magmafoundation'
                     artifactId = 'Magma'
-                    description = 'Minecraft Forge Hybrid server implementing the Spigot/Bukkit API (Cauldron for 1.19)'
+                    description = 'Minecraft Forge Hybrid server implementing the Spigot/Bukkit API (Cauldron for 1.20)'
                     url = 'https://git.magmafoundation.org/magmafoundation/Magma-1-19-x'
                     version = MAGMA_VERSION
 
                     scm {
-                        url = 'https://git.magmafoundation.org/magmafoundation/Magma-1-19-x'
-                        connection = 'scm:git:git://git.magmafoundation.org/magmafoundation/Magma-1-19-x.git'
-                        developerConnection = 'scm:git:git@git.magmafoundation.org:2224/magmafoundation/Magma-1-19-x.git'
+                        url = 'https://git.magmafoundation.org/magmafoundation/Magma-1-20-x'
+                        connection = 'scm:git:git://git.magmafoundation.org/magmafoundation/Magma-1-20-x.git'
+                        developerConnection = 'scm:git:git@git.magmafoundation.org:2224/magmafoundation/Magma-1-20-x.git'
                     }
 
                     issueManagement {
                         system = 'gitlab'
-                        url = 'https://git.magmafoundation.org/magmafoundation/Magma-1-19-x/issues'
+                        url = 'https://git.magmafoundation.org/magmafoundation/Magma-1-20-x/issues'
                     }
 
                     licenses {
                         license {
                             name = 'LGPL 3.0'
-                            url = 'https://git.magmafoundation.org/magmafoundation/Magma-1-19-x/-/raw/1.19.x/LICENSE'
+                            url = 'https://git.magmafoundation.org/magmafoundation/magma-1-20-x/-/blob/1.20/LICENSE'
                             distribution = 'repo'
                         }
                     }
@@ -1814,7 +1813,7 @@ project(':forge') {
                 maven {
                     // gitlab repo
                     name = 'MagmaFoundation'
-                    url = 'https://git.magmafoundation.org/api/v4/projects/5/packages/maven/'
+                    url = 'https://git.magmafoundation.org/api/v4/projects/103/packages/maven/'
                     credentials(HttpHeaderCredentials) {
                         name = "Private-Token"
                         value = System.getenv("CI_JOB_TOKEN")

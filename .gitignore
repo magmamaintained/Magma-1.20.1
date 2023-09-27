@@ -22,7 +22,7 @@
 # Projects repo, either ignore it, or ignore patches.
 /projects/mcp/
 /projects/clean/
-/projects/forge/
+/projects/magma/
 /projects/fmlonly/
 #/patches/*
 
