@@ -200,6 +200,7 @@ project(':clean') {
     evaluationDependsOn(':mcp')
     apply plugin: 'net.minecraftforge.gradle.patcher'
     tasks.withType(AbstractPublishToMaven.class).forEach{tsk -> tsk.enabled = false } // We don't want to publish anything
+    tasks.named('compileJava').get().mustRunAfter('extractMapped')
 
     dependencies {
         implementation 'net.minecraftforge:forgespi:' + SPI_VERSION
@@ -1836,6 +1837,8 @@ project(':forge') {
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
     }
+
+    tasks.named('compileJava').get().mustRunAfter('extractMapped')
 }
 
 //evaluationDependsOnChildren()
