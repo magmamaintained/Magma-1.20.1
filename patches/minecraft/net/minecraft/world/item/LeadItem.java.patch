@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/item/LeadItem.java
 +++ b/net/minecraft/world/item/LeadItem.java
+@@ -2,6 +_,7 @@
+ 
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.tags.BlockTags;
++import net.minecraft.world.InteractionHand;
+ import net.minecraft.world.InteractionResult;
+ import net.minecraft.world.entity.Mob;
+ import net.minecraft.world.entity.decoration.LeashFenceKnotEntity;
 @@ -11,6 +_,8 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.gameevent.GameEvent;
@@ -9,25 +17,31 @@
  
  public class LeadItem extends Item {
     public LeadItem(Item.Properties p_42828_) {
-@@ -24,7 +_,7 @@
+@@ -24,6 +_,7 @@
        if (blockstate.m_204336_(BlockTags.f_13039_)) {
           Player player = p_42834_.m_43723_();
           if (!level.f_46443_ && player != null) {
--            m_42829_(player, level, blockpos);
-+            bindPlayerMobs(player, level, blockpos, p_42834_.m_43724_()); // CraftBukkit - Pass hand
++            prepareBindPlayerMobs(p_42834_.m_43724_()); // CraftBukkit - Pass hand
+             m_42829_(player, level, blockpos);
           }
  
-          return InteractionResult.m_19078_(level.f_46443_);
-@@ -33,7 +_,7 @@
+@@ -33,7 +_,14 @@
        }
     }
  
 -   public static InteractionResult m_42829_(Player p_42830_, Level p_42831_, BlockPos p_42832_) {
-+   public static InteractionResult bindPlayerMobs(Player p_42830_, Level p_42831_, BlockPos p_42832_, net.minecraft.world.InteractionHand enumhand) { // CraftBukkit - Add EnumHand
++   // Magma start - Move InteractionHand to different constructor.
++   private static net.minecraft.world.InteractionHand enumhand = null;
++   public static void prepareBindPlayerMobs(net.minecraft.world.InteractionHand enumhan) {
++      LeadItem.enumhand = enumhand;
++   }
++   // Magma end
++
++   public static InteractionResult m_42829_(Player p_42830_, Level p_42831_, BlockPos p_42832_) { // CraftBukkit - Add EnumHand
        LeashFenceKnotEntity leashfenceknotentity = null;
        boolean flag = false;
        double d0 = 7.0D;
-@@ -45,9 +_,26 @@
+@@ -45,12 +_,31 @@
           if (mob.m_21524_() == p_42830_) {
              if (leashfenceknotentity == null) {
                 leashfenceknotentity = LeashFenceKnotEntity.m_31844_(p_42831_, p_42832_);
@@ -54,14 +68,8 @@
              mob.m_21463_(leashfenceknotentity, true);
              flag = true;
           }
-@@ -59,4 +_,10 @@
- 
-       return flag ? InteractionResult.SUCCESS : InteractionResult.PASS;
-    }
 +
-+   // CraftBukkit start
-+   public static InteractionResult m_42829_(Player p_42830_, Level p_42831_, BlockPos p_42832_) {
-+      return bindPlayerMobs(p_42830_, p_42831_, p_42832_, net.minecraft.world.InteractionHand.MAIN_HAND);
-+   }
-+   // CraftBukkit end
- }
++         enumhand = null;
+       }
+ 
+       if (flag) {

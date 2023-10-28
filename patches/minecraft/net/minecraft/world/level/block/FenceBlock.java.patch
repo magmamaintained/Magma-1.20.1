@@ -1,0 +1,10 @@
+--- a/net/minecraft/world/level/block/FenceBlock.java
++++ b/net/minecraft/world/level/block/FenceBlock.java
+@@ -60,6 +_,7 @@
+          ItemStack itemstack = p_53319_.m_21120_(p_53320_);
+          return itemstack.m_150930_(Items.f_42655_) ? InteractionResult.SUCCESS : InteractionResult.PASS;
+       } else {
++         LeadItem.prepareBindPlayerMobs(InteractionHand.MAIN_HAND);
+          return LeadItem.m_42829_(p_53319_, p_53317_, p_53318_);
+       }
+    }
