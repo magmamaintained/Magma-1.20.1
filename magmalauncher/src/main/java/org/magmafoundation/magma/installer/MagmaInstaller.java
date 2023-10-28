@@ -379,9 +379,10 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
             manager.loadFromResource(new URL("jar:file:" + JarTool.getJarPath() + "!/data/magma_libraries.txt"));
 
             List<Repository> standardRepositories = new ArrayList<>();
+            standardRepositories.add(new StandardRepository("https://nexus.c0d3m4513r.com/repository/Magma/"));
             standardRepositories.add(new StandardRepository("https://maven.minecraftforge.net"));
             standardRepositories.add(new StandardRepository("https://repo1.maven.org/maven2"));
-            standardRepositories.add(new StandardRepository("https://raw.github.com/Hexeption/Magma-Repo/master"));
+            standardRepositories.add(new StandardRepository("https://git.magmafoundation.org/magmafoundation/magma-maven-repo/-/raw/repository/"));
             standardRepositories.add(new StandardRepository("https://maven.izzel.io/releases"));
 
             List<Dependency> dependencies = manager.getDependencies();
