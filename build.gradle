@@ -262,6 +262,8 @@ def sharedDeps = {
     installer "net.minecraftforge:JarJarSelector:${JARJAR_VERSION}"
     installer "net.minecraftforge:JarJarMetadata:${JARJAR_VERSION}"
 
+    installer 'org.joml:joml:1.10.5'
+
     // Bukkit
     installer 'org.apache.maven:maven-resolver-provider:3.9.2'
     installer 'org.apache.maven.resolver:maven-resolver-connector-basic:1.9.10'
@@ -284,6 +286,37 @@ def sharedDeps = {
 
     // Spigot
     installer 'net.md-5:bungeecord-chat:1.20-R0.1'
+    installer 'commons-codec:commons-codec:1.16.0'
+
+    installer 'com.google.guava:failureaccess:1.0.1'
+    installer "com.google.guava:guava:${GUAVA_VERSION}"
+    installer 'com.google.code.gson:gson:2.10'
+    installer 'com.mojang:authlib:4.0.43'
+    installer 'com.mojang:logging:1.1.1'
+    installer 'org.slf4j:slf4j-api:2.0.6'
+
+    installer 'org.apache.logging.log4j:log4j-core:2.20.0'
+    installer 'org.apache.logging.log4j:log4j-iostreams:2.20.0'
+    installer 'org.apache.logging.log4j:log4j-api:2.20.0'
+    installer 'org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0'
+    installer 'org.apache.commons:commons-lang3:3.12.0'
+    installer 'net.sf.jopt-simple:jopt-simple:5.0.4'
+    installer 'net.java.dev.jna:jna-platform:5.13.0'
+    installer 'net.java.dev.jna:jna:5.13.0'
+    installer 'it.unimi.dsi:fastutil:8.5.12'
+    installer 'commons-io:commons-io:2.11.0'
+    installer 'com.mojang:javabridge:2.0.25'
+    installer 'com.mojang:datafixerupper:6.0.8'
+    installer 'com.github.oshi:oshi-core:6.4.0'
+
+    installer 'io.netty:netty-buffer:4.1.82.Final'
+    installer 'io.netty:netty-codec:4.1.82.Final'
+    installer 'io.netty:netty-common:4.1.82.Final'
+    installer 'io.netty:netty-handler:4.1.82.Final'
+    installer 'io.netty:netty-resolver:4.1.82.Final'
+    installer 'io.netty:netty-transport:4.1.82.Final'
+    installer 'io.netty:netty-transport-classes-epoll:4.1.82.Final'
+    installer 'io.netty:netty-transport-native-unix-common:4.1.82.Final'
 
     autolibraries BIN_PATCHER
     autolibraries SPECIAL_SOURCE
