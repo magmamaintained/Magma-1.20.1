@@ -1269,7 +1269,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public boolean canGenerateStructures() {
-        return world.serverLevelData.worldGenOptions().generateStructures();
+        return world.serverLevelDataCB.worldGenOptions().generateStructures();
     }
 
     @Override
@@ -1279,7 +1279,7 @@ public class CraftWorld extends CraftRegionAccessor implements World {
 
     @Override
     public void setHardcore(boolean hardcore) {
-        world.serverLevelData.settings.hardcore = hardcore;
+        world.serverLevelDataCB.settings.hardcore = hardcore;
     }
 
     @Override

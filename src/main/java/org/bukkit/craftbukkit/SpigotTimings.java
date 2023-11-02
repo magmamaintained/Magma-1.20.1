@@ -3,6 +3,7 @@ package org.bukkit.craftbukkit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.storage.DerivedLevelData;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import org.bukkit.craftbukkit.scheduler.CraftTask;
 import org.bukkit.plugin.java.JavaPluginLoader;
@@ -139,7 +140,12 @@ public class SpigotTimings {
         public final CustomTimingsHandler syncChunkLoadPostTimer;
 
         public WorldTimingsHandler(Level server) {
-            String name = ((PrimaryLevelData) server.levelData).getLevelName() + " - ";
+            String name;
+            if (server.levelData instanceof PrimaryLevelData pld) {
+                name = pld.getLevelName() + "-";
+            } else {
+                name = ((DerivedLevelData) server.levelData).getLevelName() + "-";
+            }
 
             mobSpawn = new CustomTimingsHandler("** " + name + "mobSpawn");
             doChunkUnload = new CustomTimingsHandler("** " + name + "doChunkUnload");

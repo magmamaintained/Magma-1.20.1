@@ -16,14 +16,49 @@
  import java.util.concurrent.Executor;
  import java.util.function.BooleanSupplier;
  import java.util.function.Function;
-@@ -114,6 +_,7 @@
- import net.minecraft.world.level.StructureManager;
- import net.minecraft.world.level.WorldGenLevel;
+@@ -35,6 +_,7 @@
+ import javax.annotation.Nonnull;
+ import javax.annotation.Nullable;
+ import net.minecraft.CrashReport;
++import net.minecraft.CrashReportCategory;
+ import net.minecraft.Util;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+@@ -76,6 +_,7 @@
+ import net.minecraft.util.profiling.ProfilerFiller;
+ import net.minecraft.util.valueproviders.IntProvider;
+ import net.minecraft.util.valueproviders.UniformInt;
++import net.minecraft.world.Difficulty;
+ import net.minecraft.world.DifficultyInstance;
+ import net.minecraft.world.RandomSequences;
+ import net.minecraft.world.damagesource.DamageSource;
+@@ -102,23 +_,15 @@
+ import net.minecraft.world.entity.raid.Raids;
+ import net.minecraft.world.flag.FeatureFlagSet;
+ import net.minecraft.world.item.crafting.RecipeManager;
+-import net.minecraft.world.level.BlockEventData;
+-import net.minecraft.world.level.ChunkPos;
+-import net.minecraft.world.level.CustomSpawner;
+-import net.minecraft.world.level.Explosion;
+-import net.minecraft.world.level.ExplosionDamageCalculator;
+-import net.minecraft.world.level.ForcedChunksSavedData;
+-import net.minecraft.world.level.GameRules;
+-import net.minecraft.world.level.Level;
+-import net.minecraft.world.level.NaturalSpawner;
+-import net.minecraft.world.level.StructureManager;
+-import net.minecraft.world.level.WorldGenLevel;
++import net.minecraft.world.level.*;
  import net.minecraft.world.level.biome.Biome;
 +import net.minecraft.world.level.biome.BiomeSource;
  import net.minecraft.world.level.block.Block;
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.SnowLayerBlock;
+ import net.minecraft.world.level.block.entity.TickingBlockEntity;
+ import net.minecraft.world.level.block.state.BlockState;
++import net.minecraft.world.level.border.WorldBorder;
+ import net.minecraft.world.level.chunk.ChunkAccess;
+ import net.minecraft.world.level.chunk.ChunkGenerator;
+ import net.minecraft.world.level.chunk.LevelChunk;
 @@ -136,7 +_,9 @@
  import net.minecraft.world.level.gameevent.DynamicGameEventListener;
  import net.minecraft.world.level.gameevent.GameEvent;
@@ -34,15 +69,18 @@
  import net.minecraft.world.level.levelgen.structure.BoundingBox;
  import net.minecraft.world.level.levelgen.structure.Structure;
  import net.minecraft.world.level.levelgen.structure.StructureCheck;
-@@ -148,6 +_,7 @@
+@@ -146,15 +_,19 @@
+ import net.minecraft.world.level.portal.PortalForcer;
+ import net.minecraft.world.level.saveddata.maps.MapIndex;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
- import net.minecraft.world.level.storage.DimensionDataStorage;
- import net.minecraft.world.level.storage.LevelStorageSource;
-+import net.minecraft.world.level.storage.PrimaryLevelData;
- import net.minecraft.world.level.storage.ServerLevelData;
+-import net.minecraft.world.level.storage.DimensionDataStorage;
+-import net.minecraft.world.level.storage.LevelStorageSource;
+-import net.minecraft.world.level.storage.ServerLevelData;
++import net.minecraft.world.level.storage.*;
++import net.minecraft.world.level.timers.TimerQueue;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.Vec3;
-@@ -155,6 +_,11 @@
+ import net.minecraft.world.phys.shapes.BooleanOp;
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
  import net.minecraft.world.ticks.LevelTicks;
@@ -54,16 +92,7 @@
  import org.slf4j.Logger;
  
  public class ServerLevel extends Level implements WorldGenLevel {
-@@ -169,7 +_,7 @@
-    final List<ServerPlayer> f_8546_ = Lists.newArrayList();
-    private final ServerChunkCache f_8547_;
-    private final MinecraftServer f_8548_;
--   public final ServerLevelData f_8549_;
-+   public final PrimaryLevelData f_8549_; // CraftBukkit - type
-    final EntityTickList f_143243_ = new EntityTickList();
-    public final PersistentEntitySectionManager<Entity> f_143244_;
-    private final GameEventDispatcher f_243695_;
-@@ -188,24 +_,59 @@
+@@ -188,24 +_,272 @@
     private final List<CustomSpawner> f_8558_;
     @Nullable
     private EndDragonFight f_8559_;
@@ -73,12 +102,10 @@
     private final StructureCheck f_196556_;
     private final boolean f_8561_;
     private final RandomSequences f_286969_;
--
--   public ServerLevel(MinecraftServer p_214999_, Executor p_215000_, LevelStorageSource.LevelStorageAccess p_215001_, ServerLevelData p_215002_, ResourceKey<Level> p_215003_, LevelStem p_215004_, ChunkProgressListener p_215005_, boolean p_215006_, long p_215007_, List<CustomSpawner> p_215008_, boolean p_215009_, @Nullable RandomSequences p_288977_) {
--      super(p_215002_, p_215003_, p_214999_.m_206579_(), p_215004_.f_63975_(), p_214999_::m_129905_, false, p_215006_, p_215007_, p_214999_.m_213994_());
 +   private net.minecraftforge.common.util.LevelCapabilityData capabilityData;
 +
 +   // CraftBukkit start
++   public PrimaryLevelData serverLevelDataCB;
 +   public final LevelStorageSource.LevelStorageAccess convertable;
 +   public final UUID uuid;
 +
@@ -90,23 +117,234 @@
 +   public ResourceKey<LevelStem> getTypeKey() {
 +      return convertable.dimensionType;
 +   }
-+
-+   // Add env and gen to constructor, ServerLevelData -> PrimaryLevelData
-+   public ServerLevel(MinecraftServer p_214999_, Executor p_215000_, LevelStorageSource.LevelStorageAccess p_215001_, ServerLevelData p_215002_, ResourceKey<Level> p_215003_, LevelStem p_215004_, ChunkProgressListener p_215005_, boolean p_215006_, long p_215007_, List<CustomSpawner> p_215008_, boolean p_215009_, @Nullable RandomSequences p_288977_,org.bukkit.World.Environment env, org.bukkit.generator.ChunkGenerator gen, org.bukkit.generator.BiomeProvider biomeProvider) {
-+      super(p_215002_, p_215003_, p_214999_.m_206579_(), p_215004_.f_63975_(), p_214999_::m_129905_, false, p_215006_, p_215007_, p_214999_.m_213994_(), gen, biomeProvider, env);
+ 
+    public ServerLevel(MinecraftServer p_214999_, Executor p_215000_, LevelStorageSource.LevelStorageAccess p_215001_, ServerLevelData p_215002_, ResourceKey<Level> p_215003_, LevelStem p_215004_, ChunkProgressListener p_215005_, boolean p_215006_, long p_215007_, List<CustomSpawner> p_215008_, boolean p_215009_, @Nullable RandomSequences p_288977_) {
+       super(p_215002_, p_215003_, p_214999_.m_206579_(), p_215004_.f_63975_(), p_214999_::m_129905_, false, p_215006_, p_215007_, p_214999_.m_213994_());
 +      this.pvpMode = p_214999_.m_129799_();
 +      convertable = p_215001_;
 +      uuid = WorldUUID.getUUID(p_215001_.f_230867_.f_230850_().toFile());
++      if (p_215002_ instanceof PrimaryLevelData) {
++         this.serverLevelDataCB = (PrimaryLevelData) p_215002_;
++      } else if (p_215002_ instanceof DerivedLevelData dld) {
++         this.serverLevelDataCB = new PrimaryLevelData(dld.f_78076_.m_5926_(), dld.f_78076_.m_246337_(), null, dld.f_78076_.m_5754_()) {
++            @Override
++            public int m_6789_() {
++               return dld.m_6789_();
++            }
++
++            @Override
++            public void m_6395_(int x) {
++               dld.m_6395_(x);
++            }
++
++            @Override
++            public int m_6527_() {
++               return dld.m_6527_();
++            }
++
++            @Override
++            public void m_6397_(int y) {
++               dld.m_6397_(y);
++            }
++
++            @Override
++            public int m_6526_() {
++               return dld.m_6526_();
++            }
++
++            @Override
++            public void m_6400_(int z) {
++               dld.m_6400_(z);
++            }
++
++            @Override
++            public float m_6790_() {
++               return dld.m_6790_();
++            }
++
++            @Override
++            public void m_7113_(float angle) {
++               dld.m_7113_(angle);
++            }
++
++            @Override
++            public long m_6793_() {
++               return dld.m_6793_();
++            }
++
++            @Override
++            public void m_6253_(long time) {
++               dld.m_6253_(time);
++            }
++
++            @Override
++            public long m_6792_() {
++               return dld.m_6792_();
++            }
++
++            @Override
++            public void m_6247_(long time) {
++               dld.m_6247_(time);
++            }
++
++            @Override
++            public String m_5462_() {
++               return dld.m_5462_();
++            }
++
++            @Override
++            public int m_6537_() {
++               return dld.m_6537_();
++            }
++
++            @Override
++            public void m_6393_(int time) {
++               dld.m_6393_(time);
++            }
++
++            @Override
++            public boolean m_6534_() {
++               return dld.m_6534_();
++            }
++
++            @Override
++            public void m_5557_(boolean thunderingIn) {
++               dld.m_5557_(thunderingIn);
++            }
++
++            @Override
++            public int m_6558_() {
++               return dld.m_6558_();
++            }
++
++            @Override
++            public void m_6398_(int time) {
++               dld.m_6398_(time);
++            }
++
++            @Override
++            public boolean m_6533_() {
++               return dld.m_6533_();
++            }
++
++            @Override
++            public void m_5565_(boolean isRaining) {
++               dld.m_5565_(isRaining);
++            }
++
++            @Override
++            public int m_6531_() {
++               return dld.m_6531_();
++            }
++
++            @Override
++            public void m_6399_(int time) {
++               dld.m_6399_(time);
++            }
++
++            @Override
++            public GameType m_5464_() {
++               return dld.m_5464_();
++            }
++
++            @Override
++            public void m_5458_(GameType type) {
++               dld.m_5458_(type);
++            }
++
++            @Override
++            public void m_7250_(BlockPos spawnPoint, float angle) {
++               dld.m_7250_(spawnPoint, angle);
++            }
++
++            @Override
++            public boolean m_5466_() {
++               return dld.m_5466_();
++            }
++
++            @Override
++            public boolean m_5468_() {
++               return dld.m_5468_();
++            }
++
++            @Override
++            public boolean m_6535_() {
++               return dld.m_6535_();
++            }
++
++            @Override
++            public void m_5555_(boolean initializedIn) {
++               dld.m_5555_(initializedIn);
++            }
++
++            @Override
++            public GameRules m_5470_() {
++               return dld.m_5470_();
++            }
++
++            @Override
++            public WorldBorder.Settings m_5813_() {
++               return dld.m_5813_();
++            }
++
++            @Override
++            public void m_7831_(WorldBorder.Settings serializer) {
++               dld.m_7831_(serializer);
++            }
++
++            @Override
++            public Difficulty m_5472_() {
++               return dld.m_5472_();
++            }
++
++            @Override
++            public boolean m_5474_() {
++               return dld.m_5474_();
++            }
++
++            @Override
++            public TimerQueue<MinecraftServer> m_7540_() {
++               return dld.m_7540_();
++            }
++
++            @Override
++            public int m_6530_() {
++               return dld.m_6530_();
++            }
++
++            @Override
++            public void m_6391_(int delay) {
++               dld.m_6391_(delay);
++            }
++
++            @Override
++            public int m_6528_() {
++               return dld.m_6528_();
++            }
++
++            @Override
++            public void m_6387_(int chance) {
++               dld.m_6387_(chance);
++            }
++
++            @Override
++            public void m_8115_(UUID id) {
++               dld.m_8115_(id);
++            }
++
++            @Override
++            public void m_142471_(CrashReportCategory p_164972_, LevelHeightAccessor p_164973_) {
++               dld.m_142471_(p_164972_, p_164973_);
++            }
++         };
++      }
 +      // CraftBukkit end
        this.f_8561_ = p_215009_;
        this.f_8548_ = p_214999_;
        this.f_8558_ = p_215008_;
--      this.f_8549_ = p_215002_;
-+      this.f_8549_ = (PrimaryLevelData) p_215002_;
+       this.f_8549_ = p_215002_;
        ChunkGenerator chunkgenerator = p_215004_.f_63976_();
 +      // CraftBukkit start
-+      f_8549_.setWorld(this);
-+
 +      if (biomeProvider != null) {
 +         BiomeSource worldChunkManager = new CustomWorldChunkManager(getWorld(), biomeProvider, f_8548_.m_206579_().m_175515_(Registries.f_256952_));
 +         if (chunkgenerator instanceof NoiseBasedChunkGenerator cga) {
@@ -116,8 +354,8 @@
 +         }
 +      }
 +
-+      if (gen != null) {
-+         chunkgenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkgenerator, gen);
++      if (generator != null) {
++         chunkgenerator = new org.bukkit.craftbukkit.generator.CustomChunkGenerator(this, chunkgenerator, generator);
 +      }
 +      // CraftBukkit end
        boolean flag = p_214999_.m_6365_();
@@ -129,13 +367,15 @@
           return p_214999_.m_129783_().m_8895_();
        });
        this.f_8547_.m_255415_().m_254958_();
-@@ -240,6 +_,9 @@
+@@ -240,6 +_,11 @@
              return new RandomSequences(i);
           }, "random_sequences");
        });
 +      this.initCapabilities();
 +
 +      this.getCraftServer().addWorld(this.getWorld()); //Magma - add world to bukkit's world list
++      m_6857_().world = this;
++      serverLevelDataCB.setWorld(this);
     }
  
     /** @deprecated */

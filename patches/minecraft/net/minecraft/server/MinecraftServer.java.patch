@@ -233,7 +233,7 @@
  
     private void m_129841_(DimensionDataStorage p_129842_) {
        p_129842_.m_164861_(this.m_129896_()::m_180013_, this.m_129896_()::m_180015_, "scoreboard");
-@@ -297,17 +_,15 @@
+@@ -297,17 +_,16 @@
  
     protected abstract boolean m_7038_() throws IOException;
  
@@ -245,21 +245,28 @@
        boolean flag = false;
        ProfiledDuration profiledduration = JvmProfiler.f_185340_.m_183494_();
 -      this.f_129749_.m_7955_(this.getServerModName(), this.m_183471_().m_184597_());
--      ChunkProgressListener chunkprogresslistener = this.f_129756_.m_9620_(11);
--      this.m_129815_(chunkprogresslistener);
+       ChunkProgressListener chunkprogresslistener = this.f_129756_.m_9620_(11);
++
++      this.prepareCreateLevels(s); // Magma
+       this.m_129815_(chunkprogresslistener);
 -      this.m_7044_();
 -      this.m_129940_(chunkprogresslistener);
-+
-+      loadWorld0(s); // CraftBukkit
-+
        if (profiledduration != null) {
           profiledduration.m_185413_();
        }
-@@ -325,21 +_,183 @@
+@@ -325,21 +_,189 @@
     protected void m_7044_() {
     }
  
--   protected void m_129815_(ChunkProgressListener p_129816_) {
++   // Magma start - Move String to different constructor.
++   private String s = null;
++   public void prepareCreateLevels(String s) {
++      this.s = s;
++   }
++   // Magma end
++
++   // CraftBukkit start
+    protected void m_129815_(ChunkProgressListener p_129816_) {
 -      ServerLevelData serverleveldata = this.f_129749_.m_5996_();
 -      boolean flag = this.f_129749_.m_7513_();
 -      Registry<LevelStem> registry = this.f_244176_.m_247579_().m_175515_(Registries.f_256862_);
@@ -273,8 +280,6 @@
 -      DimensionDataStorage dimensiondatastorage = serverlevel.m_8895_();
 -      this.m_129841_(dimensiondatastorage);
 -      this.f_129732_ = new CommandStorage(dimensiondatastorage);
-+   // CraftBukkit start
-+   private void loadWorld0(String s) {
 +      LevelStorageSource.LevelStorageAccess worldSession = this.f_129744_;
 +
 +      Registry<LevelStem> dimensions = this.f_244176_.m_247579_().m_175515_(Registries.f_256862_);
@@ -400,16 +405,15 @@
 +            this.f_129749_ = worlddata;
 +            this.f_129749_.m_5458_(((DedicatedServer) this).m_7913_().f_139740_); // From DedicatedServer.init
 +
-+            ChunkProgressListener worldloadlistener = this.f_129756_.m_9620_(11);
-+
-+            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, levelStem, worldloadlistener, flag, j, list, true, (RandomSequences) null, org.bukkit.World.Environment.getEnvironment(dimension), gen, biomeProvider);
++            ServerLevel.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
++            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, levelStem, p_129816_, flag, j, list, true, (RandomSequences) null);
 +            DimensionDataStorage worldpersistentdata = world.m_8895_();
 +            this.m_129841_(worldpersistentdata);
 +            this.server.scoreboardManager = new org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager(this, world.m_6188_());
 +            this.f_129732_ = new CommandStorage(worldpersistentdata);
 +         } else {
-+            ChunkProgressListener worldloadlistener = this.f_129756_.m_9620_(11);
-+            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, lS, worldloadlistener, flag, j, ImmutableList.of(), true, this.m_129783_().m_288231_(), org.bukkit.World.Environment.getEnvironment(dimension), gen, biomeProvider);
++            ServerLevel.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
++            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, lS, p_129816_, flag, j, ImmutableList.of(), true, this.m_129783_().m_288231_());
 +         }
 +
 +
