@@ -12,12 +12,7 @@
  
  public class CraftingMenu extends RecipeBookMenu<CraftingContainer> {
     public static final int f_150539_ = 0;
-@@ -22,10 +_,13 @@
-    private static final int f_150543_ = 37;
-    private static final int f_150544_ = 37;
-    private static final int f_150545_ = 46;
--   public final CraftingContainer f_39348_ = new TransientCraftingContainer(this, 3, 3);
-+   public final TransientCraftingContainer f_39348_ = new TransientCraftingContainer(this, 3, 3);
+@@ -26,6 +_,9 @@
     public final ResultContainer f_39349_ = new ResultContainer();
     public final ContainerLevelAccess f_39350_;
     private final Player f_39351_;
@@ -32,9 +27,9 @@
        this.f_39350_ = p_39358_;
        this.f_39351_ = p_39357_.f_35978_;
 +      // CraftBukkit start - Switched order of IInventory construction and stored player
-+      this.f_39348_.setOwner(this.f_39351_);
-+      this.f_39348_.resultInventory = this.f_39349_;
-+      // CraftBukkit end
++       ((TransientCraftingContainer) this.f_39348_).setOwner(this.f_39351_);
++       ((TransientCraftingContainer) this.f_39348_).resultInventory = this.f_39349_;
++       // CraftBukkit end
        this.m_38897_(new ResultSlot(p_39357_.f_35978_, this.f_39348_, this.f_39349_, 0, 124, 35));
  
        for(int i = 0; i < 3; ++i) {
