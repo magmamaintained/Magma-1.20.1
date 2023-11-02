@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/item/RecordItem.java
 +++ b/net/minecraft/world/item/RecordItem.java
-@@ -22,17 +_,42 @@
+@@ -22,17 +_,44 @@
  import net.minecraft.world.level.gameevent.GameEvent;
  
  public class RecordItem extends Item {
@@ -11,6 +11,7 @@
     private final SoundEvent f_43034_;
     private final int f_238749_;
 +   private final java.util.function.Supplier<SoundEvent> soundSupplier;
++   private boolean craftBukkit; // Magma
  
 +   @Deprecated // Forge: Use the constructor that takes a supplier instead
     public RecordItem(int p_239614_, SoundEvent p_239615_, Item.Properties p_239616_, int p_239617_) {
@@ -18,6 +19,7 @@
        this.f_43033_ = p_239614_;
        this.f_43034_ = p_239615_;
        this.f_238749_ = p_239617_ * 20;
++      this.craftBukkit = true; // Magma
        f_43032_.put(this.f_43034_, this);
 +      this.soundSupplier = net.minecraftforge.registries.ForgeRegistries.SOUND_EVENTS.getDelegateOrThrow(this.f_43034_);
 +   }
@@ -47,7 +49,7 @@
        if (blockstate.m_60713_(Blocks.f_50131_) && !blockstate.m_61143_(JukeboxBlock.f_54254_)) {
           ItemStack itemstack = p_43048_.m_43722_();
           if (!level.f_46443_) {
-+            if (true) return InteractionResult.SUCCESS; // CraftBukkit - handled in ItemStack
++            if (craftBukkit) return InteractionResult.SUCCESS; // CraftBukkit - handled in ItemStack
              Player player = p_43048_.m_43723_();
              BlockEntity blockentity = level.m_7702_(blockpos);
              if (blockentity instanceof JukeboxBlockEntity) {
