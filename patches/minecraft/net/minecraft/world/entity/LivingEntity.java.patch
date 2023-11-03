@@ -740,7 +740,7 @@
                 this.m_9236_().m_7967_(itementity);
              }
           }
-@@ -1333,16 +_,32 @@
+@@ -1333,32 +_,74 @@
        }
     }
  
@@ -774,19 +774,26 @@
 +      this.captureDrops(new java.util.ArrayList<>());
  
        boolean flag = this.f_20889_ > 0;
+-      if (this.m_6125_() && this.m_9236_().m_46469_().m_46207_(GameRules.f_46135_)) {
 +
 +      this.m_5907_(); // CraftBukkit - from below
-       if (this.m_6125_() && this.m_9236_().m_46469_().m_46207_(GameRules.f_46135_)) {
++      if (this.m_6125_() && this.f_19853_.m_46469_().m_46207_(GameRules.f_46135_)) {
           this.m_7625_(p_21192_, flag);
           this.m_7472_(p_21192_, i, flag);
-@@ -1350,15 +_,37 @@
- 
-       this.m_5907_();
-       this.m_21226_();
-+
+       }
 +      Collection<ItemEntity> drops = captureDrops(null);
-+      if (!net.minecraftforge.common.ForgeHooks.onLivingDrops(this, p_21192_, drops, i, f_20889_ > 0))
-+         drops.forEach(e -> m_9236_().m_7967_(e));
++      this.expToDrop = this.getExpReward();
+ 
+-      this.m_5907_();
+-      this.m_21226_();
++      ForgeInventoryHelper.capturePlayerInventory(this);
++      if (!net.minecraftforge.common.ForgeHooks.onLivingDrops(this, p_21192_, drops, i, f_20889_ > 0)) {
++         drops.forEach(drop -> this.drops.add(CraftItemStack.asCraftMirror(drop.m_32055_())));
++         EntityDeathEvent event = CraftEventFactory.callEntityDeathEvent(this, this.drops);
++         if (this instanceof ServerPlayer)
++            tempDrops = event.getDrops(); //Magma - capture drops for players
++      }
++      forgeCaptures = ForgeInventoryHelper.restorePlayerInventory(this);
     }
  
     protected void m_5907_() {
