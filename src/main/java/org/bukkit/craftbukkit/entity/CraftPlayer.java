@@ -127,7 +127,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
 
     @Override
     public boolean isOp() {
-        return server.getHandle().isOp(getProfile());
+        return getProfile() != null && server.getHandle().isOp(getProfile());
     }
 
     @Override
