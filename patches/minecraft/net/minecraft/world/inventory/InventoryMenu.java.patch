@@ -17,12 +17,7 @@
  
  public class InventoryMenu extends RecipeBookMenu<CraftingContainer> {
     public static final int f_150579_ = 0;
-@@ -33,15 +_,25 @@
-    public static final ResourceLocation f_39697_ = new ResourceLocation("item/empty_armor_slot_shield");
-    static final ResourceLocation[] f_39699_ = new ResourceLocation[]{f_39696_, f_39695_, f_39694_, f_39693_};
-    private static final EquipmentSlot[] f_39700_ = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
--   private final CraftingContainer f_39701_ = new TransientCraftingContainer(this, 2, 2);
-+   private final TransientCraftingContainer f_39701_ = new TransientCraftingContainer(this, 2, 2);
+@@ -37,11 +_,21 @@
     private final ResultContainer f_39702_ = new ResultContainer();
     public final boolean f_39698_;
     private final Player f_39703_;
@@ -36,8 +31,8 @@
        this.f_39698_ = p_39707_;
        this.f_39703_ = p_39708_;
 +      // CraftBukkit start
-+      this.f_39701_.setOwner(p_39706_.f_35978_); // CraftBukkit - pass player
-+      this.f_39701_.resultInventory = this.f_39702_; // CraftBukkit - let InventoryCrafting know about its result slot
++      ((TransientCraftingContainer) this.f_39701_).setOwner(p_39706_.f_35978_); // CraftBukkit - pass player
++      ((TransientCraftingContainer) this.f_39701_).resultInventory = this.f_39702_; // CraftBukkit - let InventoryCrafting know about its result slot
 +      this.player = p_39706_; // CraftBukkit - save player
 +      setTitle(Component.m_237115_("container.crafting")); // SPIGOT-4722: Allocate title for player inventory
 +      // CraftBukkit end

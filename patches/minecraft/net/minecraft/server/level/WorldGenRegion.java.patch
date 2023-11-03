@@ -1,5 +1,13 @@
 --- a/net/minecraft/server/level/WorldGenRegion.java
 +++ b/net/minecraft/server/level/WorldGenRegion.java
+@@ -54,6 +_,7 @@
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.ticks.LevelTickAccess;
+ import net.minecraft.world.ticks.WorldGenTickAccess;
++import org.bukkit.event.entity.CreatureSpawnEvent;
+ import org.slf4j.Logger;
+ 
+ public class WorldGenRegion implements WorldGenLevel {
 @@ -190,7 +_,7 @@
        if (blockstate.m_60795_()) {
           return false;
@@ -9,12 +17,20 @@
              BlockEntity blockentity = blockstate.m_155947_() ? this.m_7702_(p_9550_) : null;
              Block.m_49881_(blockstate, this.f_9479_, p_9550_, blockentity, p_9552_, ItemStack.f_41583_);
           }
-@@ -297,6 +_,14 @@
+@@ -296,7 +_,22 @@
+       this.m_46865_(p_9592_).m_8113_(p_9592_);
     }
  
++   // Magma start - Move SpawnReason to different constructor
++   public CreatureSpawnEvent.SpawnReason reason = CreatureSpawnEvent.SpawnReason.DEFAULT;
++   public void prepareAddFreshEntity(CreatureSpawnEvent.SpawnReason reason) {
++      this.reason = reason;
++   }
++   // Magma end
++
     public boolean m_7967_(Entity p_9580_) {
 +      // CraftBukkit start
-+      return addFreshEntity(p_9580_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
++      return addFreshEntity(p_9580_, reason);
 +   }
 +
 +   @Override

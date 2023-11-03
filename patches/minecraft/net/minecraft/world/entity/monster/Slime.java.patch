@@ -30,13 +30,21 @@
           for(int j = 0; j < i * 8; ++j) {
              float f = this.f_19796_.m_188501_() * ((float)Math.PI * 2F);
              float f1 = this.f_19796_.m_188501_() * 0.5F + 0.5F;
+@@ -175,6 +_,7 @@
+       return (EntityType<? extends Slime>)super.m_6095_();
+    }
+ 
++   public SlimeSplitEvent event; // Magma start - Fix mixins
+    public void m_142687_(Entity.RemovalReason p_149847_) {
+       int i = this.m_33632_();
+       if (!this.m_9236_().f_46443_ && i > 1 && this.m_21224_()) {
 @@ -184,6 +_,19 @@
           int j = i / 2;
           int k = 2 + this.f_19796_.m_188503_(3);
  
 +         // CraftBukkit start
-+         SlimeSplitEvent event = new SlimeSplitEvent((org.bukkit.entity.Slime) this.getBukkitEntity(), k);
-+         this.m_9236_().getCraftServer().getPluginManager().callEvent(event);
++         event = new SlimeSplitEvent((org.bukkit.entity.Slime) this.getBukkitEntity(), k);
++         this.f_19853_.getCraftServer().getPluginManager().callEvent(event);
 +
 +         if (!event.isCancelled() && event.getCount() > 0) {
 +            k = event.getCount();
@@ -44,7 +52,7 @@
 +            super.m_142687_(p_149847_);
 +            return;
 +         }
-+         List<LivingEntity> slimes = new ArrayList<>(j);
++
 +         // CraftBukkit end
 +
           for(int l = 0; l < k; ++l) {
@@ -54,19 +62,18 @@
                 slime.m_20331_(this.m_20147_());
                 slime.m_7839_(j, true);
                 slime.m_7678_(this.m_20185_() + (double)f1, this.m_20186_() + 0.5D, this.m_20189_() + (double)f2, this.f_19796_.m_188501_() * 360.0F, 0.0F);
--               this.m_9236_().m_7967_(slime);
-+               slimes.add(slime); // CraftBukkit
++               // CraftBukkit start
++               if (CraftEventFactory.callEntityTransformEvent(this, slime, EntityTransformEvent.TransformReason.SPLIT).isCancelled()) {
++                  super.m_142687_(p_149847_);
++                  return;
++               }
++
++               this.m_9236_().prepareAddFreshEntity(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SLIME_SPLIT); // Magma - SpawnReason
+                this.m_9236_().m_7967_(slime);
++               // CraftBukkit end
              }
           }
-+         // CraftBukkit start
-+         if (CraftEventFactory.callEntityTransformEvent(this, slimes, EntityTransformEvent.TransformReason.SPLIT).isCancelled()) {
-+            super.m_142687_(p_149847_);
-+            return;
-+         }
-+         for (LivingEntity living : slimes) {
-+            this.m_9236_().addFreshEntity(living, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SLIME_SPLIT); // CraftBukkit - SpawnReason
-+         }
-+         // CraftBukkit end
++
        }
  
        super.m_142687_(p_149847_);

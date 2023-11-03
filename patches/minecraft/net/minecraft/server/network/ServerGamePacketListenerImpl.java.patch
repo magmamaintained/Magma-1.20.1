@@ -519,34 +519,41 @@
        int i = p_9862_.m_134013_();
        if (Inventory.m_36045_(i) || i == 40) {
           List<String> list = Lists.newArrayList();
-@@ -756,7 +_,7 @@
+@@ -756,7 +_,8 @@
     private void m_9812_(List<FilteredText> p_9813_, int p_9814_) {
        ItemStack itemstack = this.f_9743_.m_150109_().m_8020_(p_9814_);
        if (itemstack.m_150930_(Items.f_42614_)) {
 -         this.m_143634_(p_9813_, UnaryOperator.identity(), itemstack);
-+         this.updateBookPages(p_9813_, UnaryOperator.identity(), itemstack.m_41777_(), p_9814_, itemstack); // CraftBukkit
++         this.prepareUpdateBookPages(p_9814_, itemstack);
++         this.m_143634_(p_9813_, UnaryOperator.identity(), itemstack.m_41777_()); // CraftBukkit
        }
     }
  
-@@ -777,14 +_,14 @@
+@@ -777,12 +_,22 @@
              itemstack1.m_41700_("title", StringTag.m_129297_(p_215209_.f_215168_()));
           }
  
--         this.m_143634_(p_215210_, (p_238206_) -> {
-+         this.updateBookPages(p_215210_, (p_238206_) -> {
++         this.prepareUpdateBookPages(p_215211_, itemstack);
+          this.m_143634_(p_215210_, (p_238206_) -> {
              return Component.Serializer.m_130703_(Component.m_237113_(p_238206_));
 -         }, itemstack1);
 -         this.f_9743_.m_150109_().m_6836_(p_215211_, itemstack1);
-+         }, itemstack1, p_215211_, itemstack); // CraftBukkit
++         }, itemstack1); // CraftBukkit
 +         this.f_9743_.m_150109_().m_6836_(p_215211_, itemstack); // CraftBukkit - event factory updates the hand book
        }
     }
++
++   // Magma start - Move slot and handItem to different constructor
++   private int slot;
++   private ItemStack handItem;
++   private void prepareUpdateBookPages(int slot, ItemStack handItem) {
++      this.slot = slot;
++      this.handItem = handItem;
++   }
++   // Magma end
  
--   private void m_143634_(List<FilteredText> p_143635_, UnaryOperator<String> p_143636_, ItemStack p_143637_) {
-+   private void updateBookPages(List<FilteredText> p_143635_, UnaryOperator<String> p_143636_, ItemStack p_143637_, int slot, ItemStack handItem) { // CraftBukkit
+    private void m_143634_(List<FilteredText> p_143635_, UnaryOperator<String> p_143636_, ItemStack p_143637_) {
        ListTag listtag = new ListTag();
-       if (this.f_9743_.m_143387_()) {
-          p_143635_.stream().map((p_238209_) -> {
 @@ -809,6 +_,7 @@
        }
  
