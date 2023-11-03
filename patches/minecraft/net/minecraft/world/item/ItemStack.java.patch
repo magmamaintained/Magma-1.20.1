@@ -418,7 +418,7 @@
 +
 +            // CraftBukkit start
 +            if (p_220160_ != null) {
-+               PlayerItemDamageEvent event = new PlayerItemDamageEvent(p_220160_.getBukkitEntity(), CraftItemStack.asCraftMirror(this), i);
++               PlayerItemDamageEvent event = new PlayerItemDamageEvent(p_220160_.getBukkitEntity(), CraftItemStack.asCraftMirror(this), p_220158_);
 +               event.getPlayer().getServer().getPluginManager().callEvent(event);
 +               if (p_220158_ != event.getDamage() || event.isCancelled()) {
 +                  event.getPlayer().updateInventory();
