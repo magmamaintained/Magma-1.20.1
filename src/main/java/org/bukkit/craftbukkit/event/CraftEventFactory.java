@@ -739,6 +739,7 @@ public class CraftEventFactory {
 
             world.dropItem(entity.getLocation(), stack);
         }
+        victim.dropExperience();
 
         return event;
     }
@@ -894,9 +895,22 @@ public class CraftEventFactory {
                 cause = DamageCause.DRAGON_BREATH;
             } else if (source.is(DamageTypes.MAGIC)) {
                 cause = DamageCause.MAGIC;
+            } else if (source.is(DamageTypes.CACTUS)) {
+                cause = DamageCause.CONTACT;
+            } else if (source.is(DamageTypes.IN_FIRE)) {
+                cause = DamageCause.FIRE;
+            } else if (source.is(DamageTypes.ON_FIRE)) {
+                cause = DamageCause.FIRE_TICK;
+            } else if (source.is(DamageTypes.LAVA)) {
+                cause = DamageCause.LAVA;
+            } else if (source.isMelting()) {
+                cause = DamageCause.MELTING;
+            } else if (source.isPoison()) {
+                cause = DamageCause.POISON;
             } else {
-                throw new IllegalStateException(String.format("Unhandled damage of %s by %s from %s", entity, damager.getHandle(), source.getMsgId()));
+                cause = DamageCause.CUSTOM;
             }
+
             EntityDamageEvent event = new EntityDamageByEntityEvent(damager, entity.getBukkitEntity(), cause, modifiers, modifierFunctions);
             event.setCancelled(cancelled);
             callEvent(event);
@@ -941,15 +955,18 @@ public class CraftEventFactory {
             cause = DamageCause.KILL;
         } else if (source.is(DamageTypes.OUTSIDE_BORDER)) {
             cause = DamageCause.WORLD_BORDER;
+        } else if (source.is(DamageTypes.GENERIC)){
+            cause = DamageCause.CUSTOM;
         } else {
             cause = DamageCause.CUSTOM;
         }
 
         if (cause != null) {
             return callEntityDamageEvent(null, entity, cause, modifiers, modifierFunctions, cancelled);
+        } else {
+            return new EntityDamageEvent(entity.getBukkitEntity(), DamageCause.CUSTOM, modifiers, modifierFunctions);
         }
 
-        throw new IllegalStateException(String.format("Unhandled damage of %s from %s", entity, source.getMsgId()));
     }
 
     private static EntityDamageEvent callEntityDamageEvent(Entity damager, Entity damagee, DamageCause cause, Map<DamageModifier, Double> modifiers, Map<DamageModifier, Function<? super Double, Double>> modifierFunctions) {
