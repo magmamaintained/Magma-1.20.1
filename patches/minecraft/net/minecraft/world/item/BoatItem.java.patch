@@ -32,7 +32,7 @@
 +                  if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityPlaceEvent(p_40622_, blockhitresult.m_82425_(), blockhitresult.m_82434_(), p_40623_, boat, p_40624_).isCancelled()) {
 +                     return InteractionResultHolder.m_19100_(itemstack);
 +                  }
-+                  if (!p_40622_.m_7967_(p_40623_)) {
++                  if (!p_40622_.m_7967_(boat)) {
 +                     return InteractionResultHolder.m_19098_(itemstack);
 +                  }
 +                  // CraftBukkit end

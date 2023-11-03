@@ -507,7 +507,7 @@
              this.f_8906_.m_9829_(new ClientboundPlayerAbilitiesPacket(this.m_150110_()));
              playerlist.m_11229_(this, p_9180_);
              playerlist.m_11292_(this);
-@@ -763,54 +_,102 @@
+@@ -763,54 +_,103 @@
                 this.f_8906_.m_9829_(new ClientboundUpdateMobEffectPacket(this.m_19879_(), mobeffectinstance));
              }
  
@@ -580,6 +580,7 @@
 +      this.canCreatePortal = canCreatePortal;
 +      this.createRadius = createRadius;
 +   }
++   // Magma end
 +
 +   protected Optional<BlockUtil.FoundRectangle> m_183318_(ServerLevel p_184131_, BlockPos p_184132_, boolean p_184133_, WorldBorder p_184134_) { // CraftBukkit
 +      Optional<BlockUtil.FoundRectangle> optional = super.getExitPortal(p_184131_, p_184132_, p_184133_, p_184134_, searchRadius, canCreatePortal, createRadius); // CraftBukkit
