@@ -174,7 +174,7 @@
     }
  
     public Holder<Item> m_220173_() {
-@@ -226,17 +_,184 @@
+@@ -226,17 +_,181 @@
     }
  
     public InteractionResult m_41661_(UseOnContext p_41662_) {
@@ -197,7 +197,7 @@
 +         CompoundTag oldData = this.getTagClone();
 +         int oldCount = this.m_41613_();
 +         ServerLevel world = (ServerLevel) p_41662_.m_43725_();
-+         if (!(f_41589_ instanceof BucketItem || f_41589_ instanceof SolidBucketItem)) { // if not bucket
++         if (!(this.m_41720_() instanceof BucketItem || this.m_41720_() instanceof SolidBucketItem)) { // if not bucket
 +            world.captureBlockStates = true;
 +            // special case bonemeal
 +            if (this.m_41720_() == Items.f_42499_) {
@@ -206,30 +206,26 @@
 +         }
           Item item = this.m_41720_();
 -         InteractionResult interactionresult = item.m_6225_(p_41662_);
-+         InteractionResult interactionresult;
-+         try {
-+            interactionresult = item.m_6225_(p_41662_);
-+         } finally {
-+            world.captureBlockStates = false;
-+         }
++         InteractionResult interactionresult = callback.apply(p_41662_);
 +         CompoundTag newData = this.getTagClone();
 +         int newCount = this.m_41613_();
 +         this.m_41764_(oldCount);
 +         this.setTagClone(oldData);
++         world.captureBlockStates = false;
 +         if (interactionresult.m_19077_() && world.captureTreeGeneration && world.capturedBlockStates.size() > 0) {
 +            world.captureTreeGeneration = false;
 +            Location location = CraftLocation.toBukkit(blockpos, world.getWorld());
 +            TreeType treeType = SaplingBlock.treeType;
 +            SaplingBlock.treeType = null;
-+            List<CraftBlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
++            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
 +            world.capturedBlockStates.clear();
 +            StructureGrowEvent structureEvent = null;
 +            if (treeType != null) {
 +               boolean isBonemeal = m_41720_() == Items.f_42499_;
-+               structureEvent = new StructureGrowEvent(location, treeType, isBonemeal, (org.bukkit.entity.Player) player.getBukkitEntity(), (List<org.bukkit.block.BlockState>) (List<? extends org.bukkit.block.BlockState>) blocks);
++               structureEvent = new StructureGrowEvent(location, treeType, isBonemeal, (org.bukkit.entity.Player) player.getBukkitEntity(), blocks);
 +               org.bukkit.Bukkit.getPluginManager().callEvent(structureEvent);
 +            }
-+            BlockFertilizeEvent fertilizeEvent = new BlockFertilizeEvent(CraftBlock.at(world, blockpos), (org.bukkit.entity.Player) player.getBukkitEntity(), (List<org.bukkit.block.BlockState>) (List<? extends org.bukkit.block.BlockState>) blocks);
++            BlockFertilizeEvent fertilizeEvent = new BlockFertilizeEvent(CraftBlock.at(world, blockpos), (org.bukkit.entity.Player) player.getBukkitEntity(), blocks);
 +            fertilizeEvent.setCancelled(structureEvent != null && structureEvent.isCancelled());
 +            org.bukkit.Bukkit.getPluginManager().callEvent(fertilizeEvent);
 +            if (!fertilizeEvent.isCancelled()) {
@@ -238,8 +234,8 @@
 +                  this.m_41751_(newData);
 +                  this.m_41764_(newCount);
 +               }
-+               for (CraftBlockState blockstate : blocks) {
-+                  world.m_7731_(blockstate.getPosition(),blockstate.getHandle(), blockstate.getFlag()); // SPIGOT-7248 - manual update to avoid physics where appropriate
++               for (org.bukkit.block.BlockState blockstate : blocks) {
++                  blockstate.update(true);
 +               }
 +               player.m_36246_(Stats.f_12982_.m_12902_(item)); // SPIGOT-7236 - award stat
 +            }
@@ -248,7 +244,6 @@
 +         }
 +         world.captureTreeGeneration = false;
           if (player != null && interactionresult.m_146666_()) {
--            player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
 +            InteractionHand hand = p_41662_.m_43724_();
 +            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
@@ -349,11 +344,12 @@
 +               }
 +               // SPIGOT-1288 - play sound stripped from ItemBlock
 +               if (this.f_41589_ instanceof BlockItem) {
-+                  SoundType soundeffecttype = ((BlockItem) this.f_41589_).m_40614_().m_49966_().m_60827_(); // TODO: not strictly correct, however currently only affects decorated pots
++                  SoundType soundeffecttype = ((BlockItem) this.f_41589_).m_40614_().m_49962_(null);
 +                  world.m_5594_(player, blockpos, soundeffecttype.m_56777_(), SoundSource.BLOCKS, (soundeffecttype.m_56773_() + 1.0F) / 2.0F, soundeffecttype.m_56774_() * 0.8F);
 +               }
 +               player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            }
+             player.m_36246_(Stats.f_12982_.m_12902_(item));
           }
 +         world.capturedTileEntities.clear();
 +         world.capturedBlockStates.clear();
