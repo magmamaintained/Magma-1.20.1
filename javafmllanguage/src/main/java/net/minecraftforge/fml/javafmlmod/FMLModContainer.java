@@ -21,6 +21,8 @@ import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 import java.util.Optional;
 
 public class FMLModContainer extends ModContainer
@@ -50,6 +52,10 @@ public class FMLModContainer extends ModContainer
         }
         catch (Throwable e)
         {
+            // When a mod constructor throws an exception, it's wrapped in an InvocationTargetException which hides the
+            // actual exception from the mod loading error screen.
+            if (e instanceof InvocationTargetException wrapped)
+                e = Objects.requireNonNullElse(wrapped.getCause(), e); // unwrap the exception
             LOGGER.error(LOADING, "Failed to load class {}", className, e);
             throw new ModLoadingException(info, ModLoadingStage.CONSTRUCT, "fml.modloading.failedtoloadmodclass", e);
         }
