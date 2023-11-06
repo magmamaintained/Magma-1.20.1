@@ -8,15 +8,6 @@
  import org.slf4j.Logger;
  
  public class EntityType<T extends Entity> implements FeatureElement, EntityTypeTest<Entity, T> {
-@@ -166,7 +_,7 @@
-    private static final float f_147038_ = 1.3964844F;
-    private static final int f_268473_ = 10;
-    public static final EntityType<Allay> f_217014_ = m_20634_("allay", EntityType.Builder.m_20704_(Allay::new, MobCategory.CREATURE).m_20699_(0.35F, 0.6F).m_20702_(8).m_20717_(2));
--   public static final EntityType<AreaEffectCloud> f_20476_ = m_20634_("area_effect_cloud", EntityType.Builder.<AreaEffectCloud>m_20704_(AreaEffectCloud::new, MobCategory.MISC).m_20719_().m_20699_(6.0F, 0.5F).m_20702_(10).m_20717_(Integer.MAX_VALUE));
-+   public static final EntityType<AreaEffectCloud> f_20476_ = m_20634_("area_effect_cloud", EntityType.Builder.<AreaEffectCloud>m_20704_(AreaEffectCloud::new, MobCategory.MISC).m_20719_().m_20699_(6.0F, 0.5F).m_20702_(10).m_20717_(0)); // CraftBukkit - SPIGOT-3729: track area effect clouds
-    public static final EntityType<ArmorStand> f_20529_ = m_20634_("armor_stand", EntityType.Builder.<ArmorStand>m_20704_(ArmorStand::new, MobCategory.MISC).m_20699_(0.5F, 1.975F).m_20702_(10));
-    public static final EntityType<Arrow> f_20548_ = m_20634_("arrow", EntityType.Builder.<Arrow>m_20704_(Arrow::new, MobCategory.MISC).m_20699_(0.5F, 0.5F).m_20702_(4).m_20717_(20));
-    public static final EntityType<Axolotl> f_147039_ = m_20634_("axolotl", EntityType.Builder.m_20704_(Axolotl::new, MobCategory.AXOLOTLS).m_20699_(0.75F, 0.42F).m_20702_(10));
 @@ -307,6 +_,11 @@
     private final EntityDimensions f_20547_;
     private final FeatureFlagSet f_244139_;

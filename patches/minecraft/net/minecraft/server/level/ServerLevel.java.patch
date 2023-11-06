@@ -583,7 +583,7 @@
        }
     }
  
-@@ -799,16 +_,44 @@
+@@ -799,16 +_,46 @@
        return list.isEmpty() ? null : list.get(this.f_46441_.m_188503_(list.size()));
     }
  
@@ -596,8 +596,10 @@
 +
     public boolean m_7967_(Entity p_8837_) {
 -      return this.m_8872_(p_8837_);
++      CreatureSpawnEvent.SpawnReason spawnReason = reason;
++      reason = CreatureSpawnEvent.SpawnReason.DEFAULT; // Reset SpawnReason
 +      // CraftBukkit start
-+      return this.addFreshEntity(p_8837_, reason);
++      return this.addFreshEntity(p_8837_, spawnReason);
 +   }
 +
 +   public boolean addFreshEntity(Entity entity, CreatureSpawnEvent.SpawnReason reason) {
