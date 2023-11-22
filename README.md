@@ -25,7 +25,9 @@ Magma 1.20.1 is **not** compatible with **vanilla** [Velocity](https://velocityp
 ## 🧪 Other versions
 
 - For 1.20.2 use [Ketting](https://github.com/kettingpowered)
-- For >1.20.1 use [Mohist](https://github.com/MohistMC)
+- For 1.19.3 [here](https://github.com/magmamaintained/Magma-1.19.3)
+- For 1.18.2 [here](https://github.com/magmamaintained/Magma-1.18.2)
+- For 1.12.2 [here](https://github.com/magmamaintained/Magma-1.12.2)
 
 ## 🪣 Deployment
 
