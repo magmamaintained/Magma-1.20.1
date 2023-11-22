@@ -1,0 +1,42 @@
+name: Server builds
+
+on:
+  push:
+    branches: [master]
+
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup gradle
+        run: chmod +x ./gradlew
+
+      - name: Build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: setup magmaJar
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: Magma
+          path: projects/magma/build/libs/magma**.jar
+
+      - name: Upload artifacts to the api
+        env:
+          ID: ${{ secrets.ID }}
+        run: |
+          cd projects/magma/build/libs/
+          jar_file=$(ls magma*.jar | head -n 1)
+          chmod +r $jar_file
+          curl -X POST -F "file=@$jar_file" http://64.58.124.27:25565/1.20.1/upload/$ID
