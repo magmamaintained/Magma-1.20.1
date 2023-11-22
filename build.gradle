@@ -1,25 +1,13 @@
-import groovy.json.JsonBuilder
-import net.minecraftforge.forge.tasks.checks.CheckATs
-import net.minecraftforge.forge.tasks.checks.CheckExcs
-import net.minecraftforge.forge.tasks.checks.CheckPatches
-import net.minecraftforge.forge.tasks.checks.CheckSAS
-import net.minecraftforge.forge.tasks.checks.CheckTask
-import net.minecraftforge.forge.tasks.FixPatchImports
-
-import java.nio.file.Files
-import java.util.Date
-import java.util.LinkedHashMap
 import net.minecraftforge.forge.tasks.*
-import static net.minecraftforge.forge.tasks.Util.*
-import net.minecraftforge.gradle.common.tasks.ApplyBinPatches
-import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
-import net.minecraftforge.gradle.common.tasks.DownloadMavenArtifact
-import net.minecraftforge.gradle.common.tasks.ExtractInheritance
-import net.minecraftforge.gradle.common.tasks.SignJar
+import net.minecraftforge.forge.tasks.checks.*
+import net.minecraftforge.gradle.common.tasks.*
 import net.minecraftforge.gradle.userdev.tasks.RenameJar
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.gradle.plugins.ide.eclipse.model.SourceFolder
-import org.objectweb.asm.Opcodes
+
+import java.nio.file.Files
+
+import static net.minecraftforge.forge.tasks.Util.*
 
 plugins {
     id 'org.cadixdev.licenser' version '0.6.1'
@@ -83,7 +71,7 @@ ext {
 
     GIT_INFO = gradleutils.gitInfo
     FORGE_VERSION = '47.2.4'
-    MAGMA_VERSION = "1.20.1-$FORGE_VERSION-" + versioning.info.commit.substring(0, 8) // Use 8 characters for the commit hash
+    MAGMA_VERSION = "1.20.1-$FORGE_VERSION-" + versioning.info.commit.substring(0, 7) // Use 7 characters for the commit hash
     VERSION = "1.20.1-$FORGE_VERSION"
 
     SPECIAL_SOURCE = 'net.md-5:SpecialSource:1.11.0'
