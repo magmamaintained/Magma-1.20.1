@@ -3,7 +3,11 @@ name: Server builds
 on:
   push:
     branches: [master]
-
+  pull_request:
+    branches:
+     - '*'
+permissions:
+  contents: write #nessesary for tag creation and release creation
 
 jobs:
   build:
@@ -32,11 +36,13 @@ jobs:
           name: Magma
           path: projects/magma/build/libs/magma**.jar
 
-      - name: Upload artifacts to the api
-        env:
-          ID: ${{ secrets.ID }}
+      - name: Create Release
+        if: ${{ format('refs/heads/{0}', github.event.repository.default_branch) == github.ref }}
         run: |
-          cd projects/magma/build/libs/
-          jar_file=$(ls magma*.jar | head -n 1)
-          chmod +r $jar_file
-          curl -X POST -F "file=@$jar_file" http://64.58.124.27:25565/1.20.1/upload/$ID
+          tag=$(git rev-parse --short ${{ github.sha }})
+          gh release create "$tag" projects/magma/build/libs/magma**.jar \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+              --generate-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

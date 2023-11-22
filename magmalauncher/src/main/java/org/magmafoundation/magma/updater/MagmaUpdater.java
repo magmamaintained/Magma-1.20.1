@@ -47,11 +47,12 @@ public class MagmaUpdater {
     private String newSha;
     private String currentSha;
 
-    private String versionURL = "http://64.58.124.27:25565/1.20.1";
+    private String versionURL = "https://api.github.com/repos/magmamaintained/Magma-1.20.1/releases/latest";
+    private String assetURL;
 
     public boolean versionChecker() {
         try {
-            URL url = new URL(versionURL + "/latest");
+            URL url = new URL(versionURL);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.addRequestProperty("User-Agent", "Magma");
@@ -59,7 +60,8 @@ public class MagmaUpdater {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             JsonObject root = gson.fromJson(reader, JsonObject.class);
 
-            newSha = root.get("version").getAsString();
+            newSha = root.get("tag_name").getAsString();
+            assetURL = root.get("assets").getAsJsonArray().get(0).getAsJsonObject().get("browser_download_url").getAsString();
             currentSha = MagmaConstants.VERSION.split("-")[1];
 
             if(currentSha.equals(newSha)) {
@@ -76,12 +78,11 @@ public class MagmaUpdater {
     }
 
     public void downloadJar() {
-        String url = versionURL + "/download";
         try {
             Path path = Paths.get(MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             System.out.println("[Magma] Updating Magma Jar ...");
-            System.out.println("[Magma] Downloading " + url + " ...");
-            URL website = new URL(url);
+            System.out.println("[Magma] Downloading " + assetURL + " ...");
+            URL website = new URL(assetURL);
             HttpURLConnection connection = (HttpURLConnection) website.openConnection();
             connection.setRequestMethod("GET");
             connection.addRequestProperty("User-Agent", "Magma");
