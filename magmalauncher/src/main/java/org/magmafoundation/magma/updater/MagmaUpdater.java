@@ -33,9 +33,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -50,11 +47,11 @@ public class MagmaUpdater {
     private String newSha;
     private String currentSha;
 
-    private String latestVersionURL = "https://api.magmafoundation.org/api/v2/1.20/latest/";
+    private String versionURL = "http://64.58.124.27:25565/1.20.1";
 
     public boolean versionChecker() {
         try {
-            URL url = new URL(latestVersionURL);
+            URL url = new URL(versionURL + "/latest");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.addRequestProperty("User-Agent", "Magma");
@@ -62,18 +59,14 @@ public class MagmaUpdater {
             BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             JsonObject root = gson.fromJson(reader, JsonObject.class);
 
-            Date created_at = Date.from(Instant.parse(root.get("created_at").getAsString()));
-            String date = new SimpleDateFormat("dd-MM-yyyy").format(created_at);
-            String time = new SimpleDateFormat("H:mm a").format(created_at);
-
-            newSha = root.get("tag_name").getAsString();
+            newSha = root.get("version").getAsString();
             currentSha = MagmaConstants.VERSION.split("-")[1];
 
             if(currentSha.equals(newSha)) {
                 System.out.printf("[Magma] No update found, latest version: (%s) current version: (%s)%n", currentSha, newSha);
                 return false;
             } else {
-                System.out.printf("[Magma] The latest Magma version is (%s) but you have (%s). The latest version was built on %s at %s.%n", newSha, currentSha, date, time);
+                System.out.printf("[Magma] The latest Magma version is (%s) but you have (%s).%n", newSha, currentSha, newSha);
                 return true;
             }
         } catch (IOException e) {
@@ -83,7 +76,7 @@ public class MagmaUpdater {
     }
 
     public void downloadJar() {
-        String url = latestVersionURL + newSha + "/download";
+        String url = versionURL + "/download";
         try {
             Path path = Paths.get(MagmaUpdater.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             System.out.println("[Magma] Updating Magma Jar ...");
@@ -104,21 +97,20 @@ public class MagmaUpdater {
     }
 
     public static void checkForUpdates() throws IOException {
-//        Path path = Paths.get("magma.yml");
-//        if(Files.exists(path)) {
-//            try (InputStream stream = Files.newInputStream(path)) {
-//                Yaml yaml = new Yaml();
-//                Map<String, Object> data = yaml.load(stream);
-//                Map<String, Object> forge = (Map<String, Object>) data.get("magma");
-//                if (!forge.get("auto-update").equals(true) || MagmaConstants.VERSION.equals("dev-env"))
-//                    return;
-//
-//                MagmaUpdater updater = new MagmaUpdater();
-//                System.out.println("Checking for updates...");
-//                if(updater.versionChecker())
-//                    updater.downloadJar();
-//            }
-//        }
-        System.out.println("[Magma] Auto Updater is currently disabled!");
+        Path path = Paths.get("magma.yml");
+        if(Files.exists(path)) {
+            try (InputStream stream = Files.newInputStream(path)) {
+                Yaml yaml = new Yaml();
+                Map<String, Object> data = yaml.load(stream);
+                Map<String, Object> forge = (Map<String, Object>) data.get("magma");
+                if (!forge.get("auto-update").equals(true) || MagmaConstants.VERSION.equals("dev-env"))
+                    return;
+
+                MagmaUpdater updater = new MagmaUpdater();
+                System.out.println("Checking for updates...");
+                if(updater.versionChecker())
+                    updater.downloadJar();
+            }
+        }
     }
 }
