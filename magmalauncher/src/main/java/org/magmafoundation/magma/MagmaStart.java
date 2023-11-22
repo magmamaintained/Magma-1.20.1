@@ -98,7 +98,7 @@ public class MagmaStart {
         ServerInitHelper.init(launchArgs);
 
         ServerInitHelper.addToPath(new File("libraries/com/google/code/gson/gson/2.10/gson-2.10.jar").toPath());
-        ServerInitHelper.addToPath(new File("libraries/org/yaml/snakeyaml/1.33/snakeyaml-1.33.jar").toPath());
+        ServerInitHelper.addToPath(new File("libraries/org/yaml/snakeyaml/2.0/snakeyaml-2.0.jar").toPath());
         if (enableUpdate)
             MagmaUpdater.checkForUpdates();
 
