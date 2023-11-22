@@ -5,34 +5,27 @@
 [![](https://img.shields.io/badge/Bukkit-1.20%203635fe1-blue)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/bukkit/browse)
 [![](https://img.shields.io/badge/CraftBukkit-Build%2078796c9de6c-orange)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/craftbukkit/browse?at=refs%2Fheads%2Fversion%2F1.20)
 [![](https://img.shields.io/badge/Spigot-Build%20d2eba2c820b-yellow)](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/browse)
-<!-- ![TeamCity build status](https://teamcity.magmafoundation.org/app/rest/builds/buildType:id:MagmaFoundation_Magma120x_Build/statusIcon.svg) -->
-[![](https://img.shields.io/discord/612695539729039411.svg?logo=discord&logoWidth=18&colorB=7289DA)](https://discord.gg/magma)
 
-<a href="https://bstats.org/plugin/server-implementation/Magma/17219"> <img src="https://bstats.org/signatures/server-implementation/Magma.svg" alt="Stats" width="800"></a>
+[![](https://img.shields.io/discord/1175785262475923556.svg?logo=discord&logoWidth=18&colorB=7289DA)](https://discord.gg/STZjCzRZn9)
 </div> 
 
 ## ❓ About
 
 Magma is the next generation of hybrid minecraft server softwares.
 
-Magma is based on **Forge and Paper**, meaning it can run both **Craftbukkit/Spigot/Paper plugins and Forge mods**.
-
-We hope to eliminate all issues with craftbukkit forge servers. In the end, we envision a seamless, low lag Magma experience with support for newer 1.12+ versions of Minecraft.
+Magma is based on **Forge and Spigot**, meaning it can run both **CraftBukkit/Spigot plugins and Forge mods**.
 
 ## 🌐 BungeeCord/Velocity
 
-Magma 1.20 is **not** compatible with **vanilla** BungeeCord or any of its forks. This is **caused by Forge** and not a fault of Magma. We cannot fix this ourselves without modifying the client.
+Magma 1.20.1 is **not** compatible with **vanilla** BungeeCord or any of its forks. This is **caused by Forge** and not a fault of Magma. We cannot fix this ourselves without modifying the client.
 You might be able to use the Waterfall fork called [Lightfall](https://github.com/ArclightPowered/lightfall), but it also requires a clientside-mod in order to work and is not officially supported.
 
-Magma 1.20 is **not** compatible with **vanilla** [Velocity](https://velocitypowered.com/downloads/). This is **caused by Forge** and not a fault of Magma. We cannot fix this ourselves without modifying the client and the proxy.
+Magma 1.20.1 is **not** compatible with **vanilla** [Velocity](https://velocitypowered.com/downloads/). This is **caused by Forge** and not a fault of Magma. We cannot fix this ourselves without modifying the client and the proxy.
 
-## 🧪 Magma for 1.12+/1.16+/1.18+
+## 🧪 Other versions
 
-Magma for Minecraft 1.12 and above can be found in their own repositories.
-
-- Click [here](https://git.magmafoundation.org/magmafoundation/Magma) to visit the 1.12 repository.
-- Click [here](https://git.magmafoundation.org/magmafoundation/Magma-1-16-x) to visit the 1.16 repository. (1.16 is End Of Life and not actively maintained anymore)
-- Click [here](https://git.magmafoundation.org/magmafoundation/Magma-1-18-x) to visit the 1.18 repository.
+- For 1.20.2 use [Ketting](https://github.com/kettingpowered)
+- For >1.20.1 use [Mohist](https://github.com/MohistMC)
 
 ## 🪣 Deployment
 
@@ -48,7 +41,7 @@ Magma for Minecraft 1.12 and above can be found in their own repositories.
 
 - Clone the Project
     - You can use Git GUI (like GitHub Desktop/GitKraken) or clone using the terminal using:
-        - `git clone http://git.magmafoundation.org/magmafoundation/Magma-1-20-x.git`
+        - `git clone https://github.com/TonimatasDEV/Magma-1.20.1.git`
 - Building
     - First you want to run the build command
         - `./gradlew setup magmaJar`
