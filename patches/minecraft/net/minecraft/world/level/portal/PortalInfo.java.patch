@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/portal/PortalInfo.java
 +++ b/net/minecraft/world/level/portal/PortalInfo.java
-@@ -1,14 +_,27 @@
+@@ -1,17 +_,46 @@
  package net.minecraft.world.level.portal;
  
 +import net.minecraft.server.level.ServerLevel;
@@ -13,8 +13,8 @@
     public final float f_77678_;
     public final float f_77679_;
 +   // CraftBukkit start
-+   public final ServerLevel world;
-+   public final CraftPortalEvent portalEventInfo;
++   public ServerLevel world;
++   public CraftPortalEvent portalEventInfo;
  
 +   @Deprecated(forRemoval = false, since = "old Method")
     public PortalInfo(Vec3 p_77681_, Vec3 p_77682_, float p_77683_, float p_77684_) {
@@ -28,3 +28,22 @@
        this.f_77676_ = p_77681_;
        this.f_77677_ = p_77682_;
        this.f_77678_ = p_77683_;
+       this.f_77679_ = p_77684_;
++   }
++
++   public void setPortalEventInfo(CraftPortalEvent event) {
++      this.portalEventInfo = event;
++   }
++
++   public CraftPortalEvent getPortalEventInfo() {
++      return this.portalEventInfo;
++   }
++
++   public void setWorld(ServerLevel world) {
++      this.world = world;
++   }
++
++   public ServerLevel getWorld() {
++      return this.world;
+    }
+ }

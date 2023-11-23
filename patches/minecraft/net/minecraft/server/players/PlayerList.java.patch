@@ -1,6 +1,11 @@
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -12,14 +_,10 @@
+@@ -8,18 +_,15 @@
+ import com.mojang.serialization.Dynamic;
+ import io.netty.buffer.Unpooled;
+ import java.io.File;
++import java.net.ServerSocket;
+ import java.net.SocketAddress;
  import java.nio.file.Path;
  import java.text.SimpleDateFormat;
  import java.time.Instant;
@@ -280,7 +285,7 @@
        } else {
           compoundtag1 = this.f_11204_.m_78435_(p_11225_);
        }
-@@ -323,22 +_,37 @@
+@@ -323,22 +_,38 @@
     }
  
     protected void m_6765_(ServerPlayer p_11277_) {
@@ -301,8 +306,8 @@
  
     }
  
--   public void m_11286_(ServerPlayer p_11287_) {
-+   public String remove(ServerPlayer p_11287_) { // CraftBukkit - return string
++   public String removeReturn; // CraftBukkit - return string
+    public void m_11286_(ServerPlayer p_11287_) {
 +      net.minecraftforge.event.ForgeEventFactory.firePlayerLoggedOut(p_11287_);
        ServerLevel serverlevel = p_11287_.m_284548_();
        p_11287_.m_36220_(Stats.f_12989_);
@@ -321,7 +326,7 @@
        this.m_6765_(p_11287_);
        if (p_11287_.m_20159_()) {
           Entity entity = p_11287_.m_20201_();
-@@ -355,82 +_,151 @@
+@@ -355,82 +_,162 @@
        serverlevel.m_143261_(p_11287_, Entity.RemovalReason.UNLOADED_WITH_PLAYER);
        p_11287_.m_8960_().m_135978_();
        this.f_11196_.remove(p_11287_);
@@ -333,13 +338,18 @@
           this.f_11197_.remove(uuid);
 -         this.f_11202_.remove(uuid);
 -         this.f_11203_.remove(uuid);
+-      }
+-
+-      this.m_11268_(new ClientboundPlayerInfoRemovePacket(List.of(p_11287_.m_20148_())));
+-   }
+-
+-   @Nullable
 +         // CraftBukkit start
 +         // this.stats.remove(uuid);
 +         // this.advancements.remove(uuid);
 +         // CraftBukkit end
-       }
- 
--      this.m_11268_(new ClientboundPlayerInfoRemovePacket(List.of(p_11287_.m_20148_())));
++      }
++
 +      // CraftBukkit start
 +      ClientboundPlayerInfoRemovePacket packet = new ClientboundPlayerInfoRemovePacket(List.of(p_11287_.m_20148_()));
 +      for (int i = 0; i < f_11196_.size(); i++) {
@@ -353,14 +363,20 @@
 +      // This removes the scoreboard (and player reference) for the specific player in the manager
 +      cserver.getScoreboardManager().removePlayer(p_11287_.getBukkitEntity());
 +      // CraftBukkit end
-+      return playerQuitEvent.getQuitMessage(); // CraftBukkit
-    }
- 
--   @Nullable
--   public Component m_6418_(SocketAddress p_11257_, GameProfile p_11258_) {
++      removeReturn = playerQuitEvent.getQuitMessage(); // CraftBukkit
++   }
++
++   // Magma start - Move loginlistener to different constructor.
++   public ServerLoginPacketListenerImpl loginlistener;
++   public void preparePlayerLogin(ServerLoginPacketListenerImpl loginlistener) {
++      this.loginlistener = loginlistener;
++   }
++   // Magma end
++
++   // CraftBukkit start
++   public ServerPlayer playerLoginReturn; // Magma - Return ServerPlayer
+    public Component m_6418_(SocketAddress p_11257_, GameProfile p_11258_) {
 -      if (this.f_11198_.m_11406_(p_11258_)) {
-+   // CraftBukkit start - Whole method, SocketAddress to ServerLoginPacketListenerImpl, added hostname to signature, return ServerPlayer
-+   public ServerPlayer canPlayerLogin(ServerLoginPacketListenerImpl loginlistener, GameProfile p_11258_) {
 +
 +      // Moved from processLogin
 +      UUID uuid = UUIDUtil.m_235875_(p_11258_);
@@ -385,9 +401,11 @@
 +      ServerPlayer entity = new ServerPlayer(this.f_11195_, this.f_11195_.m_129880_(Level.f_46428_), p_11258_);
 +      org.bukkit.entity.Player player = entity.getBukkitEntity();
 +      PlayerLoginEvent event = new PlayerLoginEvent(player, loginlistener.f_10013_.hostname, ((java.net.InetSocketAddress) socketaddress).getAddress(), ((java.net.InetSocketAddress) loginlistener.f_10013_.f_129468_.remoteAddress()).getAddress());
++      MutableComponent mutablecomponent1 = null;
 +      if (m_11295_().m_11406_(p_11258_) && !m_11295_().m_11388_(p_11258_).m_7524_()) {
           UserBanListEntry userbanlistentry = this.f_11198_.m_11388_(p_11258_);
-          MutableComponent mutablecomponent1 = Component.m_237110_("multiplayer.disconnect.banned.reason", userbanlistentry.m_10962_());
+-         MutableComponent mutablecomponent1 = Component.m_237110_("multiplayer.disconnect.banned.reason", userbanlistentry.m_10962_());
++         mutablecomponent1 = Component.m_237110_("multiplayer.disconnect.banned.reason", userbanlistentry.m_10962_());
           if (userbanlistentry.m_10961_() != null) {
              mutablecomponent1.m_7220_(Component.m_237110_("multiplayer.disconnect.banned.expiration", f_11194_.format(userbanlistentry.m_10961_())));
           }
@@ -422,9 +440,11 @@
 +      cserver.getPluginManager().callEvent(event);
 +      if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) {
 +         loginlistener.disconnect(event.getKickMessage());
-+         return null;
++         playerLoginReturn = null;
++         return mutablecomponent1;
 +      }
-+      return entity;
++      playerLoginReturn = entity;
++      return mutablecomponent1;
     }
  
 -   public ServerPlayer m_215624_(GameProfile p_215625_) {

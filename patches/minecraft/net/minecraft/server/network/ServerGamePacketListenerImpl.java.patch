@@ -153,7 +153,7 @@
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.CommandBlock;
  import net.minecraft.world.level.block.entity.BlockEntity;
-@@ -176,15 +_,36 @@
+@@ -176,15 +_,37 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
@@ -176,6 +176,7 @@
 +import org.bukkit.inventory.CraftingInventory;
 +import org.bukkit.inventory.InventoryView;
 +import org.bukkit.inventory.SmithingInventory;
++import org.magmafoundation.magma.helpers.InventoryViewHelper;
  import org.slf4j.Logger;
  
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
@@ -984,7 +985,7 @@
  
     }
  
-@@ -1118,12 +_,26 @@
+@@ -1118,12 +_,27 @@
     }
  
     public void m_7026_(Component p_9825_) {
@@ -1005,8 +1006,8 @@
 +      this.server.getPlayerList().broadcastSystemMessage(Component.translatable("multiplayer.player.left", this.player.getDisplayName()).withStyle(ChatFormatting.YELLOW), false);
 +       */
        this.f_9743_.m_9231_();
--      this.f_9745_.m_6846_().m_11286_(this.f_9743_);
-+      String quitMessage = this.f_9745_.m_6846_().remove(this.f_9743_);
+       this.f_9745_.m_6846_().m_11286_(this.f_9743_);
++      String quitMessage = this.f_9745_.m_6846_().removeReturn; // Magma - Get return string
 +      if ((quitMessage != null) && (quitMessage.length() > 0)) {
 +         this.f_9745_.m_6846_().broadcastMessage(CraftChatMessage.fromString(quitMessage));
 +      }
@@ -1501,7 +1502,7 @@
              if (this.f_9743_.f_8944_) {
                 this.f_9743_.f_8944_ = false;
 -               this.f_9743_ = this.f_9745_.m_6846_().m_11236_(this.f_9743_, true);
-+               this.f_9743_ = this.f_9745_.m_6846_().respawn(this.f_9743_, true, PlayerRespawnEvent.RespawnReason.END_PORTAL);
++               this.f_9743_ = this.f_9745_.m_6846_().respawn(this.f_9743_, true, PlayerRespawnEvent.RespawnReason.PLUGIN);
                 CriteriaTriggers.f_10588_.m_19757_(this.f_9743_, Level.f_46430_, Level.f_46428_);
              } else {
                 if (this.f_9743_.m_21223_() > 0.0F) {
@@ -1536,7 +1537,7 @@
              this.f_9743_.f_36096_.m_150429_();
           } else if (!this.f_9743_.f_36096_.m_6875_(this.f_9743_)) {
              f_9744_.debug("Player {} interacted with invalid menu {}", this.f_9743_, this.f_9743_.f_36096_);
-@@ -1532,7 +_,278 @@
+@@ -1532,7 +_,283 @@
              } else {
                 boolean flag = p_9856_.m_182741_() != this.f_9743_.f_36096_.m_182424_();
                 this.f_9743_.f_36096_.m_150443_();
@@ -1547,7 +1548,12 @@
 +                  return;
 +               }
 +
++               //Magma start - capture container owner
++               InventoryViewHelper.captureContainerOwner(this.f_9743_);
 +               InventoryView inventory = this.f_9743_.f_36096_.getBukkitView();
++               InventoryViewHelper.resetContainerOwner();
++               //Magma end
++
 +               InventoryType.SlotType type = inventory.getSlotType(p_9856_.m_133962_());
 +
 +               InventoryClickEvent event;

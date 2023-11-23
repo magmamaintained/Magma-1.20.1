@@ -43,7 +43,7 @@
  import org.slf4j.Logger;
  
  public abstract class AbstractContainerMenu {
-@@ -60,6 +_,34 @@
+@@ -60,6 +_,43 @@
     private ContainerSynchronizer f_150397_;
     private boolean f_150398_;
  
@@ -51,18 +51,27 @@
 +   private InventoryView bukkitView = null;
 +   public boolean checkReachable = true;
 +
++   //Magma - this should not be abstract
 +   public InventoryView getBukkitView(){
 +      if (bukkitView == null) {
 +         bukkitView = InventoryViewHelper.createInvView((AbstractContainerMenu) (Object) this);
 +      }
 +      return bukkitView;
 +   }
++
++   //Magma - catch npe if source or destination is null
 +   public void transferTo(AbstractContainerMenu other, org.bukkit.craftbukkit.entity.CraftHumanEntity player) {
 +      InventoryView source = this.getBukkitView(), destination = other.getBukkitView();
-+      ((CraftInventory) source.getTopInventory()).getInventory().onClose(player);
-+      ((CraftInventory) source.getBottomInventory()).getInventory().onClose(player);
-+      ((CraftInventory) destination.getTopInventory()).getInventory().onOpen(player);
-+      ((CraftInventory) destination.getBottomInventory()).getInventory().onOpen(player);
++      try {
++         if (source != null) {
++            ((CraftInventory) source.getTopInventory()).getInventory().onClose(player);
++            ((CraftInventory) source.getBottomInventory()).getInventory().onClose(player);
++         }
++         if (destination != null) {
++            ((CraftInventory) destination.getTopInventory()).getInventory().onOpen(player);
++            ((CraftInventory) destination.getBottomInventory()).getInventory().onOpen(player);
++         }
++      } catch (AbstractMethodError ignored) {}
 +   }
 +   private Component title;
 +   public final Component getTitle() {

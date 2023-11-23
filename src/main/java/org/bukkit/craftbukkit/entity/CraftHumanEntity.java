@@ -45,13 +45,14 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
+import org.magmafoundation.magma.helpers.InventoryViewHelper;
 
 import java.util.*;
 
 public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
     private CraftInventoryPlayer inventory;
     private final CraftInventory enderChest;
-    protected final PermissibleBase perm = new PermissibleBase(this);
+    protected PermissibleBase perm = new PermissibleBase(this); //Magma - remove final modifier
     private boolean op;
     private GameMode mode;
 
@@ -215,6 +216,20 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
         perm.recalculatePermissions();
     }
 
+    //Magma start - permissions
+    public PermissibleBase getPerm() {
+        return perm;
+    }
+
+    public void setPerm(PermissibleBase perm) {
+        this.perm = perm;
+    }
+
+    public boolean isPermissibleInjected() {
+        return !perm.getClass().getSimpleName().equals("PermissibleBase");
+    }
+    //Magma end
+
     @Override
     public Set<PermissionAttachmentInfo> getEffectivePermissions() {
         return perm.getEffectivePermissions();
@@ -249,7 +264,14 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
 
     @Override
     public InventoryView getOpenInventory() {
-        return getHandle().containerMenu.getBukkitView();
+        //Magma start - capture container owner
+        try {
+            InventoryViewHelper.captureContainerOwner(this.getHandle());
+            return getHandle().containerMenu.getBukkitView();
+        } finally {
+            InventoryViewHelper.resetContainerOwner();
+        }
+        //Magma end
     }
 
     @Override

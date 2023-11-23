@@ -24,7 +24,7 @@
  import net.minecraft.world.level.entity.EntityAccess;
  import net.minecraft.world.level.entity.EntityInLevelCallback;
  import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-@@ -118,9 +_,57 @@
+@@ -118,9 +_,77 @@
  import net.minecraft.world.phys.shapes.VoxelShape;
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Team;
@@ -35,6 +35,7 @@
 +import org.bukkit.command.CommandSender;
 +import org.bukkit.craftbukkit.CraftWorld;
 +import org.bukkit.craftbukkit.entity.CraftEntity;
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 +import org.bukkit.craftbukkit.entity.CraftPlayer;
 +import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.event.CraftPortalEvent;
@@ -69,6 +70,25 @@
 +      }
 +      return bukkitEntity;
 +   }
++
++   //Magma start - make it possible to reset the entity
++   public void resetBukkitEntity() {
++      CraftEntity temp = getBukkitEntity();
++
++      this.bukkitEntity = null;
++      getBukkitEntity();
++
++      if (bukkitEntity instanceof CraftPlayer player)
++         player.setFirstPlayed(((CraftPlayer) temp).getFirstPlayed());
++
++      if (bukkitEntity instanceof CraftHumanEntity human) //Keep perms on reset
++         human.setPerm(((CraftHumanEntity) temp).getPerm());
++   }
++
++   public void setBukkitEntity(CraftEntity bukkitEntity) {
++      this.bukkitEntity = bukkitEntity;
++   }
++   //Magma end
 +
 +   @Override
 +   public CommandSender getBukkitSender(CommandSourceStack wrapper) {
@@ -1011,7 +1031,7 @@
     }
  
     public boolean m_7306_(Entity p_20356_) {
-@@ -2410,14 +_,39 @@
+@@ -2410,37 +_,119 @@
  
     @Nullable
     public Entity m_5489_(ServerLevel p_20118_) {
@@ -1023,14 +1043,8 @@
 +   @Nullable
 +   public Entity changeDimension(ServerLevel p_20118_, net.minecraftforge.common.util.ITeleporter teleporter) {
 +      if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, p_20118_.m_46472_())) return null;
-+      AtomicReference<ServerLevel> serverLevel = new AtomicReference<>( p_20118_ );
        if (this.m_9236_() instanceof ServerLevel && !this.m_213877_()) {
           this.m_9236_().m_46473_().m_6180_("changeDimension");
-+         // CraftBukkit start
-+         if (serverLevel.get() == null) {
-+            return null;
-+         }
-+         // CraftBukkit end
           this.m_19877_();
           this.m_9236_().m_46473_().m_6180_("reposition");
 -         PortalInfo portalinfo = this.m_7937_(p_20118_);
@@ -1038,39 +1052,29 @@
           if (portalinfo == null) {
              return null;
           } else {
-+            // CraftBukkit start
-+            serverLevel.set(portalinfo.world);
-+            if (serverLevel.get() == m_9236_()) {
-+               // SPIGOT-6782: Just move the entity if a plugin changed the world to the one the entity is already in
-+               m_7678_(portalinfo.f_77676_.f_82479_, portalinfo.f_77676_.f_82480_, portalinfo.f_77676_.f_82481_, portalinfo.f_77678_, portalinfo.f_77679_);
-+               m_20256_(portalinfo.f_77677_);
-+               return this;
-+            }
-+            this.m_19877_();
-+            // CraftBukkit end
-+            Entity transportedEntity = teleporter.placeEntity(this, (ServerLevel) this.m_9236_(), p_20118_, this.f_19857_, spawnPortal -> { //Forge: Start vanilla logic
-             this.m_9236_().m_46473_().m_6182_("reloading");
-             Entity entity = this.m_6095_().m_20615_(p_20118_);
-             if (entity != null) {
-@@ -2425,22 +_,45 @@
-                entity.m_7678_(portalinfo.f_77676_.f_82479_, portalinfo.f_77676_.f_82480_, portalinfo.f_77676_.f_82481_, portalinfo.f_77678_, entity.m_146909_());
-                entity.m_20256_(portalinfo.f_77677_);
-                p_20118_.m_143334_(entity);
+-            this.m_9236_().m_46473_().m_6182_("reloading");
+-            Entity entity = this.m_6095_().m_20615_(p_20118_);
+-            if (entity != null) {
+-               entity.m_20361_(this);
+-               entity.m_7678_(portalinfo.f_77676_.f_82479_, portalinfo.f_77676_.f_82480_, portalinfo.f_77676_.f_82481_, portalinfo.f_77678_, entity.m_146909_());
+-               entity.m_20256_(portalinfo.f_77677_);
+-               p_20118_.m_143334_(entity);
 -               if (p_20118_.m_46472_() == Level.f_46430_) {
 -                  ServerLevel.m_8617_(p_20118_);
--               }
-+               if (spawnPortal && serverLevel.get().getTypeKey() == LevelStem.f_63973_) { // CraftBukkit
-+                  ServerLevel.makeObsidianPlatform(serverLevel.get(), this); // CraftBukkit
-+               }
-+               // CraftBukkit start - Forward the CraftEntity to the new entity
-+               this.getBukkitEntity().setHandle(entity);
-+               entity.bukkitEntity = this.getBukkitEntity();
-+               if (this instanceof Mob) {
-+                  ((Mob) this).m_21455_(true, false); // Unleash to prevent duping of leads.
-+               }
-+               // CraftBukkit end
-             }
-+            return entity;
++            Entity transportedEntity = teleporter.placeEntity(this, (ServerLevel) this.f_19853_, p_20118_, this.f_19857_, spawnPortal -> { //Forge: Start vanilla logic
++               this.m_9236_().m_46473_().m_6182_("reloading");
++               Entity entity = this.m_6095_().m_20615_(p_20118_);
++               if (entity != null) {
++                  entity.m_20361_(this);
++                  entity.m_7678_(portalinfo.f_77676_.f_82479_, portalinfo.f_77676_.f_82480_, portalinfo.f_77676_.f_82481_, portalinfo.f_77678_, entity.m_146909_());
++                  entity.m_20256_(portalinfo.f_77677_);
++                  p_20118_.m_143334_(entity);
++                  if (spawnPortal && p_20118_.m_46472_() == Level.f_46430_) {
++                     ServerLevel.m_8617_(p_20118_);
++                  }
+                }
+-            }
++               return entity;
 +            }); //Forge: End vanilla logic
  
              this.m_6089_();
@@ -1084,7 +1088,65 @@
        } else {
           return null;
        }
-    }
+-   }
++      //if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, p_20118_.dimension())) return null;
++      //AtomicReference<ServerLevel> serverLevel = new AtomicReference<>( p_20118_ );
++      //if (this.level() instanceof ServerLevel && !this.isRemoved()) {
++      //   this.level().getProfiler().push("changeDimension");
++      //   // CraftBukkit start
++      //   if (serverLevel.get() == null) {
++      //      return null;
++      //   }
++      //   // CraftBukkit end
++      //   this.unRide();
++      //   this.level().getProfiler().push("reposition");
++      //   PortalInfo portalinfo = teleporter.getPortalInfo(this, p_20118_, this::findDimensionEntryPoint);
++      //   if (portalinfo == null) {
++      //      return null;
++      //   } else {
++      //      // CraftBukkit start
++      //      serverLevel.set(portalinfo.world);
++      //      if (serverLevel.get() == level()) {
++      //         // SPIGOT-6782: Just move the entity if a plugin changed the world to the one the entity is already in
++      //         moveTo(portalinfo.pos.x, portalinfo.pos.y, portalinfo.pos.z, portalinfo.yRot, portalinfo.xRot);
++      //         setDeltaMovement(portalinfo.speed);
++      //         return this;
++      //      }
++      //      this.unRide();
++      //      // CraftBukkit end
++      //      Entity transportedEntity = teleporter.placeEntity(this, (ServerLevel) this.level(), p_20118_, this.yRot, spawnPortal -> { //Forge: Start vanilla logic
++      //      this.level().getProfiler().popPush("reloading");
++      //      Entity entity = this.getType().create(p_20118_);
++      //      if (entity != null) {
++      //         entity.restoreFrom(this);
++      //         entity.moveTo(portalinfo.pos.x, portalinfo.pos.y, portalinfo.pos.z, portalinfo.yRot, entity.getXRot());
++      //         entity.setDeltaMovement(portalinfo.speed);
++      //         p_20118_.addDuringTeleport(entity);
++      //         if (spawnPortal && serverLevel.get().getTypeKey() == LevelStem.END) { // CraftBukkit
++      //            ServerLevel.makeObsidianPlatform(serverLevel.get(), this); // CraftBukkit
++      //         }
++      //         // CraftBukkit start - Forward the CraftEntity to the new entity
++      //         this.getBukkitEntity().setHandle(entity);
++      //         entity.bukkitEntity = this.getBukkitEntity();
++      //         if (this instanceof Mob) {
++      //            ((Mob) this).dropLeash(true, false); // Unleash to prevent duping of leads.
++      //         }
++      //         // CraftBukkit end
++      //      }
++      //      return entity;
++      //      }); //Forge: End vanilla logic
++//
++      //      this.removeAfterChangingDimensions();
++      //      this.level().getProfiler().pop();
++      //      ((ServerLevel)this.level()).resetEmptyTime();
++      //      p_20118_.resetEmptyTime();
++      //      this.level().getProfiler().pop();
++      //      return transportedEntity;
++      //   }
++      //} else {
++      //   return null;
++      //}
++   }
 +   //Magma end
 +
 +   @Nullable
@@ -1118,11 +1180,10 @@
        if (!flag && !flag1) {
           boolean flag2 = p_19923_.m_46472_() == Level.f_46429_;
           if (this.m_9236_().m_46472_() != Level.f_46429_ && !flag2) {
-@@ -2458,7 +_,18 @@
+@@ -2458,6 +_,18 @@
              WorldBorder worldborder = p_19923_.m_6857_();
              double d0 = DimensionType.m_63908_(this.m_9236_().m_6042_(), p_19923_.m_6042_());
              BlockPos blockpos1 = worldborder.m_187569_(this.m_20185_() * d0, this.m_20186_(), this.m_20189_() * d0);
--            return this.m_183318_(p_19923_, blockpos1, flag2, worldborder).map((p_258249_) -> {
 +
 +            // CraftBukkit start
 +            CraftPortalEvent event = callPortalEvent(this, p_19923_, new PositionImpl(blockpos1.m_123341_(), blockpos1.m_123342_(), blockpos1.m_123343_()), PlayerTeleportEvent.TeleportCause.NETHER_PORTAL, flag2 ? 16 : 128, 16);
@@ -1134,10 +1195,10 @@
 +            blockpos1 = worldborder.m_187569_(event.getTo().getX(), event.getTo().getY(), event.getTo().getZ());
 +
 +
-+            return this.getExitPortal(p_19923_, blockpos1, flag2, worldborder, event.getSearchRadius(), event.getCanCreatePortal(), event.getCreationRadius()).map((p_258249_) -> {
++            this.prepareGetExitPortal(event.getSearchRadius(), event.getCanCreatePortal(), event.getCreationRadius());
+             return this.m_183318_(p_19923_, blockpos1, flag2, worldborder).map((p_258249_) -> {
                 BlockState blockstate = this.m_9236_().m_8055_(this.f_19819_);
                 Direction.Axis direction$axis;
-                Vec3 vec3;
 @@ -2473,7 +_,7 @@
                    vec3 = new Vec3(0.5D, 0.0D, 0.0D);
                 }
@@ -1160,7 +1221,7 @@
           return new PortalInfo(new Vec3((double)blockpos.m_123341_() + 0.5D, (double)blockpos.m_123342_(), (double)blockpos.m_123343_() + 0.5D), this.m_20184_(), this.m_146908_(), this.m_146909_());
        }
     }
-@@ -2492,6 +_,24 @@
+@@ -2492,8 +_,42 @@
        return PortalShape.m_77738_(p_20046_, p_20045_, this.m_20182_(), this.m_6972_(this.m_20089_()));
     }
  
@@ -1177,14 +1238,33 @@
 +      }
 +      return new CraftPortalEvent( event );
 +   }
-+   protected Optional<BlockUtil.FoundRectangle> getExitPortal(ServerLevel worldserver, BlockPos blockposition, boolean flag, WorldBorder worldborder, int searchRadius, boolean canCreatePortal, int createRadius) {
-+      return worldserver.m_8871_().findPortalAround( blockposition, worldborder, searchRadius );
-+      // CraftBukkit end
-+   }
 +
++   // Magma start - Move searchRadius, canCreatePortal and createRadius to a different constructor.
++   public int searchRadius;
++   public boolean canCreatePortal;
++   public int createRadius;
++
++   public void prepareGetExitPortal(int searchRadius, boolean canCreatePortal, int createRadius) {
++      this.searchRadius = searchRadius;
++      this.canCreatePortal = canCreatePortal;
++      this.createRadius = createRadius;
++      this.vanilla = false;
++   }
++   // Magma end
++
++   private boolean vanilla = true;
     protected Optional<BlockUtil.FoundRectangle> m_183318_(ServerLevel p_185935_, BlockPos p_185936_, boolean p_185937_, WorldBorder p_185938_) {
-       return p_185935_.m_8871_().m_192985_(p_185936_, p_185937_, p_185938_);
+-      return p_185935_.m_8871_().m_192985_(p_185936_, p_185937_, p_185938_);
++      if (vanilla) {
++         return p_185935_.m_8871_().m_192985_(p_185936_, p_185937_, p_185938_);
++      } else {
++         vanilla = true;
++         return p_185935_.m_8871_().findPortalAround(p_185936_, p_185938_, searchRadius);
++      }
++
     }
+ 
+    public boolean m_6072_() {
 @@ -2557,6 +_,7 @@
        return this.f_19821_;
     }

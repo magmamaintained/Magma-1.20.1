@@ -53,7 +53,7 @@ public class CraftSpawnCategory {
             case WATER_AMBIENT -> SpawnCategory.WATER_AMBIENT;
             case UNDERGROUND_WATER_CREATURE -> SpawnCategory.WATER_UNDERGROUND_CREATURE;
             case MISC -> SpawnCategory.MISC;
-            default -> throw new UnsupportedOperationException("Unknown MobCategory " + enumCreatureType + " for SpawnCategory");
+            default -> null; // Magma - return null instead of throwing an exception
         };
     }
 
@@ -67,7 +67,7 @@ public class CraftSpawnCategory {
             case WATER_AMBIENT -> MobCategory.WATER_AMBIENT;
             case WATER_UNDERGROUND_CREATURE -> MobCategory.UNDERGROUND_WATER_CREATURE;
             case MISC -> MobCategory.MISC;
-            default -> throw new UnsupportedOperationException("Unknown SpawnCategory " + spawnCategory + " for MobCategory");
+            default -> null; // Magma - return null instead of throwing an exception
         };
     }
 
