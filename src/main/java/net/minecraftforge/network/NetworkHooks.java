@@ -17,6 +17,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.world.Container;
 import net.minecraftforge.client.ConfigScreenHandler;
 import net.minecraftforge.fml.util.thread.EffectiveSide;
 import net.minecraftforge.network.ConnectionData.ModMismatchData;
@@ -41,7 +42,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.config.ConfigTracker;
+import org.bukkit.craftbukkit.event.CraftEventFactory;
 import org.jetbrains.annotations.Nullable;
+import org.magmafoundation.magma.helpers.InventoryViewHelper;
 
 public class NetworkHooks
 {
@@ -202,8 +205,17 @@ public class NetworkHooks
             throw new IllegalArgumentException("Invalid PacketBuffer for openGui, found "+ output.readableBytes()+ " bytes");
         }
         var c = containerSupplier.createMenu(openContainerId, player.getInventory(), player);
-        if (c == null)
+        // Magma start
+        InventoryViewHelper.captureContainerOwner(player);
+        c = CraftEventFactory.callInventoryOpenEvent(player, c);
+        InventoryViewHelper.resetContainerOwner();
+        if (c == null) {
+            if (containerSupplier instanceof Container container) {
+                container.stopOpen(player);
+            }
             return;
+        }
+        // Magma end
         MenuType<?> type = c.getType();
         PlayMessages.OpenContainer msg = new PlayMessages.OpenContainer(type, openContainerId, containerSupplier.getDisplayName(), output);
         NetworkConstants.playChannel.sendTo(msg, player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);

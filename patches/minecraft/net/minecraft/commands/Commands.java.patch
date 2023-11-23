@@ -148,12 +148,13 @@
  
     public static <S> ParseResults<S> m_242611_(ParseResults<S> p_242928_, UnaryOperator<S> p_242890_) {
        CommandContextBuilder<S> commandcontextbuilder = p_242928_.getContext();
-@@ -231,11 +_,21 @@
+@@ -231,9 +_,27 @@
     }
  
     public int m_230957_(CommandSourceStack p_230958_, String p_230959_) {
 -      p_230959_ = p_230959_.startsWith("/") ? p_230959_.substring(1) : p_230959_;
 -      return this.m_242674_(this.f_82090_.parse(p_230959_, p_230958_), p_230959_);
+-   }
 +      // CraftBukkit start
 +      return this.performPrefixedCommand(p_230958_, p_230959_, p_230959_);
 +   }
@@ -162,16 +163,22 @@
 +      s = s.startsWith("/") ? s.substring(1) : s;
 +      return this.performCommand(this.getCurrentDispatcher(s).parse(s, commandlistenerwrapper), s, label);
 +      // CraftBukkit end
-    }
- 
-    public int m_242674_(ParseResults<CommandSourceStack> p_242844_, String p_242841_) {
-+      return this.performCommand(p_242844_, p_242841_, p_242841_);
 +   }
 +
 +   public int performCommand(ParseResults<CommandSourceStack> p_242844_, String p_242841_, String label) { // CraftBukkit
++      preparePerformCommand(label);
++      return m_242674_(p_242844_, p_242841_);
++   }
++
++   // Magma start - Move label to different constructor.
++   public String label;
++   public void preparePerformCommand(String label) {
++      this.label = label;
++   }
++   // Magma end
+ 
+    public int m_242674_(ParseResults<CommandSourceStack> p_242844_, String p_242841_) {
        CommandSourceStack commandsourcestack = p_242844_.getContext().getSource();
-       commandsourcestack.m_81377_().m_129905_().m_6521_(() -> {
-          return "/" + p_242841_;
 @@ -243,7 +_,16 @@
  
        try {

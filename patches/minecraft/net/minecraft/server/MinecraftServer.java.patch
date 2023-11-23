@@ -254,7 +254,7 @@
        if (profiledduration != null) {
           profiledduration.m_185413_();
        }
-@@ -325,21 +_,189 @@
+@@ -325,21 +_,195 @@
     protected void m_7044_() {
     }
  
@@ -284,7 +284,8 @@
 +
 +      Registry<LevelStem> dimensions = this.f_244176_.m_247579_().m_175515_(Registries.f_256862_);
 +      for (LevelStem lS : dimensions) {
-+         ResourceKey<LevelStem> dimensionKey = dimensions.m_7854_(lS).orElse(net.minecraft.world.level.dimension.LevelStem.f_63971_);
++         ResourceKey<LevelStem> dimensionKey = dimensions.m_7854_(lS).orElse(
++                 net.minecraft.world.level.dimension.LevelStem.f_63971_);
 +
 +         ServerLevel world;
 +         int dimension = 0;
@@ -305,7 +306,9 @@
 +            dimension = -999;
 +         }
 +
-+         String worldType = (dimension == -999) ? dimensionKey.m_135782_().m_135827_() + "_" + dimensionKey.m_135782_().m_135815_() : org.bukkit.World.Environment.getEnvironment(dimension).toString().toLowerCase();
++         String worldType =
++                 (dimension == -999) ? dimensionKey.m_135782_().m_135827_() + "_" + dimensionKey.m_135782_().m_135815_() :
++                         org.bukkit.World.Environment.getEnvironment(dimension).toString().toLowerCase();
 +         String name = (dimensionKey == LevelStem.f_63971_) ? s : s + "_" + worldType;
 +         if (dimension != 0) {
 +            File newWorld = DimensionType.getStorageFolder(new File(name).toPath(), dimensionKey).toFile();
@@ -314,7 +317,8 @@
 +
 +            if (!newWorld.isDirectory() && oldWorld.isDirectory() && oldLevelDat.isFile()) {
 +               MinecraftServer.f_129750_.info("---- Migration of old " + worldType + " folder required ----");
-+               MinecraftServer.f_129750_.info("Unfortunately due to the way that Minecraft implemented multiworld support in 1.6, Bukkit requires that you move your " + worldType + " folder to a new location in order to operate correctly.");
++               MinecraftServer.f_129750_.info("Unfortunately due to the way that Minecraft implemented multiworld support in 1.6, Bukkit requires that you move your " +
++                               worldType + " folder to a new location in order to operate correctly.");
 +               MinecraftServer.f_129750_.info("We will move this folder for you, but it will mean that you need to move it back should you wish to stop using Bukkit in the future.");
 +               MinecraftServer.f_129750_.info("Attempting to move " + oldWorld + " to " + newWorld + "...");
 +
@@ -391,7 +395,9 @@
 +         WorldOptions worldoptions = worlddata.m_246337_();
 +         long i = worldoptions.m_245499_();
 +         long j = BiomeManager.m_47877_(i);
-+         List<CustomSpawner> list = ImmutableList.of(new PhantomSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(), new WanderingTraderSpawner(iworlddataserver));
++         List<CustomSpawner> list =
++                 ImmutableList.of(new PhantomSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(),
++                         new WanderingTraderSpawner(iworlddataserver));
 +         LevelStem levelStem = (LevelStem) dimensions.m_6246_(dimensionKey);
 +
 +         org.bukkit.generator.WorldInfo worldInfo = new org.bukkit.craftbukkit.generator.CraftWorldInfo(iworlddataserver, worldSession, org.bukkit.World.Environment.getEnvironment(dimension), lS.f_63975_().m_203334_());
@@ -404,15 +410,14 @@
 +         if (dimensionKey == net.minecraft.world.level.dimension.LevelStem.f_63971_) {
 +            this.f_129749_ = worlddata;
 +            this.f_129749_.m_5458_(((DedicatedServer) this).m_7913_().f_139740_); // From DedicatedServer.init
-+
-+            ServerLevel.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
-+            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, levelStem, p_129816_, flag, j, list, true, (RandomSequences) null);
++            Level.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
++            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, levelStem, p_129816_, flag, j, list, true, null);
 +            DimensionDataStorage worldpersistentdata = world.m_8895_();
 +            this.m_129841_(worldpersistentdata);
 +            this.server.scoreboardManager = new org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager(this, world.m_6188_());
 +            this.f_129732_ = new CommandStorage(worldpersistentdata);
 +         } else {
-+            ServerLevel.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
++            Level.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
 +            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, lS, p_129816_, flag, j, ImmutableList.of(), true, this.m_129783_().m_288231_());
 +         }
 +
@@ -422,7 +427,8 @@
 +
 +         this.f_129762_.put(world.m_46472_(), world);
 +
-+         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.LevelEvent.Load(f_129762_.get(worldKey)));
++         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(
++                 new net.minecraftforge.event.level.LevelEvent.Load(f_129762_.get(worldKey)));
 +
 +         this.m_6846_().m_184209_(world);
 +
