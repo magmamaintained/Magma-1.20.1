@@ -1,5 +1,21 @@
 --- a/net/minecraft/server/level/ChunkMap.java
 +++ b/net/minecraft/server/level/ChunkMap.java
+@@ -5,6 +_,7 @@
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Queues;
+ import com.google.common.collect.Sets;
++import com.google.common.util.concurrent.AtomicDouble;
+ import com.google.gson.JsonElement;
+ import com.mojang.datafixers.DataFixer;
+ import com.mojang.datafixers.util.Either;
+@@ -40,6 +_,7 @@
+ import java.util.concurrent.CompletableFuture;
+ import java.util.concurrent.CompletionException;
+ import java.util.concurrent.Executor;
++import java.util.concurrent.atomic.AtomicBoolean;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.function.BooleanSupplier;
+ import java.util.function.Consumer;
 @@ -75,7 +_,10 @@
  import net.minecraft.world.entity.EntityType;
  import net.minecraft.world.entity.Mob;
@@ -140,7 +156,7 @@
           }
  
        }
-@@ -946,21 +_,35 @@
+@@ -946,21 +_,40 @@
  
     private CompletableFuture<Optional<CompoundTag>> m_214963_(ChunkPos p_214964_) {
        return this.m_223454_(p_214964_).thenApplyAsync((p_214907_) -> {
@@ -151,31 +167,38 @@
  
 -   private CompoundTag m_214947_(CompoundTag p_214948_) {
 -      return this.m_188288_(this.f_140133_.m_46472_(), this.f_140137_, p_214948_, this.f_140136_.m_187743_());
+-   }
 +   // CraftBukkit start
 +   private CompoundTag upgradeChunkTag(CompoundTag p_214948_, ChunkPos chunkcoordintpair) {
 +//      return this.upgradeChunkTag(this.level.dimension(), this.overworldDataStorage, p_214948_, this.generator.getTypeNameForDataFixer(), chunkcoordintpair, level);
 +      // Magma comeback to this but we probs don't need it
 +      return null;
 +      // CraftBukkit end
-    }
++   }
++
++   // Magma start - Fix mixin issues
++   AtomicBoolean reducedRange0 = new AtomicBoolean(false);
++   public boolean anyPlayerCloseEnoughForSpawning(ChunkPos pChunkPos, boolean reducedRange) {
++      reducedRange0.set(reducedRange);
++      return m_183879_(pChunkPos);
++   }
++   // Magma end
  
     boolean m_183879_(ChunkPos p_183880_) {
 +      // Spigot start
-+      return anyPlayerCloseEnoughForSpawning(p_183880_, false);
-+   }
-+
-+   boolean anyPlayerCloseEnoughForSpawning(ChunkPos p_183880_, boolean reducedRange) {
 +      int chunkRange = f_140133_.spigotConfig.mobSpawnRange;
 +      chunkRange = (chunkRange > f_140133_.spigotConfig.viewDistance) ? (byte) f_140133_.spigotConfig.viewDistance : chunkRange;
-+      chunkRange = (chunkRange > 8) ? 8 : chunkRange;
-+      double blockRange = (reducedRange) ? Math.pow(chunkRange << 4, 2) : 16384.0D;
++      chunkRange = Math.min(chunkRange, 8);
++
++      double blockRange = (reducedRange0.getAndSet(false)) ? Math.pow(chunkRange << 4, 2) : 16384.0D;
 +      // Spigot end
        long i = p_183880_.m_45588_();
        if (!this.f_140145_.m_140847_(i)) {
           return false;
        } else {
-          for(ServerPlayer serverplayer : this.f_140149_.m_183926_(i)) {
+-         for(ServerPlayer serverplayer : this.f_140149_.m_183926_(i)) {
 -            if (this.m_183751_(serverplayer, p_183880_)) {
++         for (ServerPlayer serverplayer : this.f_140149_.m_183926_(i)) {
 +            if (this.playerIsCloseEnoughForSpawning(serverplayer, p_183880_, blockRange)) { // Spigot
                 return true;
              }
@@ -189,21 +212,32 @@
                 builder.add(serverplayer);
              }
           }
-@@ -986,12 +_,12 @@
+@@ -986,14 +_,24 @@
        }
     }
  
--   private boolean m_183751_(ServerPlayer p_183752_, ChunkPos p_183753_) {
-+   private boolean playerIsCloseEnoughForSpawning(ServerPlayer p_183752_, ChunkPos p_183753_, double range) { // Spigot
++   // Magma start - Fix mixin issues
++   public AtomicDouble mobSpawnRange = new AtomicDouble(16384.0D);
++   private boolean playerIsCloseEnoughForSpawning(ServerPlayer pPlayer, ChunkPos pChunkPos, double range) { // Spigot
++      mobSpawnRange.set(range);
++      return m_183751_(pPlayer, pChunkPos);
++   }
++   // Magma end
++
+    private boolean m_183751_(ServerPlayer p_183752_, ChunkPos p_183753_) {
        if (p_183752_.m_5833_()) {
           return false;
        } else {
           double d0 = m_140226_(p_183753_, p_183752_);
 -         return d0 < 16384.0D;
-+         return d0 < range; // Spigot
++         return d0 < mobSpawnRange.getAndSet(16384.0D); // Magma // Spigot
        }
     }
++
++
  
+    private boolean m_140329_(ServerPlayer p_140330_) {
+       return p_140330_.m_5833_() && !this.f_140133_.m_46469_().m_46207_(GameRules.f_46146_);
 @@ -1132,9 +_,11 @@
     }
  
