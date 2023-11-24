@@ -55,12 +55,17 @@
           }
  
           this.m_130079_(compoundtag);
-@@ -647,7 +_,7 @@
+@@ -647,7 +_,12 @@
           Item item = this.m_236816_(BuiltInRegistries.f_257033_);
           int i = this.readByte();
           ItemStack itemstack = new ItemStack(item, i);
 -         itemstack.m_41751_(this.m_130260_());
 +         itemstack.readShareTag(this.m_130260_());
++         // CraftBukkit start
++         if (itemstack.m_41783_() != null) {
++            CraftItemStack.setItemMeta(itemstack, CraftItemStack.getItemMeta(itemstack));
++         }
++         // CraftBukkit end
           return itemstack;
        }
     }
