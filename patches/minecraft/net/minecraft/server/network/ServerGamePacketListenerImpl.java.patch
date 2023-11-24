@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-@@ -5,6 +_,7 @@
+@@ -5,22 +_,20 @@
  import com.mojang.brigadier.CommandDispatcher;
  import com.mojang.brigadier.ParseResults;
  import com.mojang.brigadier.StringReader;
@@ -8,8 +8,9 @@
  import com.mojang.logging.LogUtils;
  import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
  import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
-@@ -12,15 +_,11 @@
+ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
  import java.net.SocketAddress;
++import java.nio.charset.StandardCharsets;
  import java.time.Duration;
  import java.time.Instant;
 -import java.util.Collections;
@@ -153,7 +154,7 @@
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.CommandBlock;
  import net.minecraft.world.level.block.entity.BlockEntity;
-@@ -176,15 +_,37 @@
+@@ -176,15 +_,38 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
@@ -162,6 +163,7 @@
  import net.minecraft.world.phys.shapes.BooleanOp;
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
++import net.minecraftforge.server.ServerLifecycleHooks;
 +import org.bukkit.Location;
 +import org.bukkit.craftbukkit.entity.CraftEntity;
 +import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -1548,11 +1550,11 @@
 +                  return;
 +               }
 +
-+               //Magma start - capture container owner
++               // Magma start - capture container owner
 +               InventoryViewHelper.captureContainerOwner(this.f_9743_);
 +               InventoryView inventory = this.f_9743_.f_36096_.getBukkitView();
 +               InventoryViewHelper.resetContainerOwner();
-+               //Magma end
++               // Magma end
 +
 +               InventoryType.SlotType type = inventory.getSlotType(p_9856_.m_133962_());
 +
@@ -1935,7 +1937,7 @@
     }
  
     public void m_5617_(ServerboundClientInformationPacket p_9845_) {
-@@ -1658,8 +_,49 @@
+@@ -1658,8 +_,60 @@
        this.f_9743_.m_9156_(p_9845_);
     }
  
@@ -1946,36 +1948,47 @@
     public void m_7423_(ServerboundCustomPayloadPacket p_9860_) {
 -   }
 +      PacketUtils.m_131359_(p_9860_, this, this.f_9743_.m_284548_());
-+      if (p_9860_.m_179589_().equals(CUSTOM_REGISTER)) {
-+         try {
-+            String channels = p_9860_.m_179590_().toString(com.google.common.base.Charsets.UTF_8);
-+            for (String channel : channels.split("\0")) {
-+               getCraftPlayer().addChannel(channel);
++      var readerIndex = p_9860_.m_179590_().readerIndex();
++      var buf = new byte[p_9860_.m_179590_().readableBytes()];
++      p_9860_.m_179590_().readBytes(buf);
++      p_9860_.m_179590_().readerIndex(readerIndex);
++      ServerLifecycleHooks.getCurrentServer().m_201446_(() -> {
++         if (ServerLifecycleHooks.getCurrentServer().hasStopped() || processedDisconnect)
++            return;
++
++         if (this.f_9742_.m_129536_()) {
++            if (p_9860_.m_179589_().equals(CUSTOM_REGISTER)) {
++               try {
++                  String channels = new String(buf, StandardCharsets.UTF_8);
++                  for (String channel : channels.split("\0")) {
++                     if (!StringUtil.m_14408_(channel))
++                        this.getCraftPlayer().addChannel(channel);
++                  }
++               } catch (Exception ex) {
++                  f_9744_.error("Couldn't register custom payload", ex);
++                  this.disconnect("Invalid payload REGISTER!");
++               }
++            } else if (p_9860_.m_179589_().equals(CUSTOM_UNREGISTER)) {
++               try {
++                  final String channels = new String(buf, StandardCharsets.UTF_8);
++                  for (String channel : channels.split("\0")) {
++                     if (!StringUtil.m_14408_(channel))
++                        this.getCraftPlayer().removeChannel(channel);
++                  }
++               } catch (Exception ex) {
++                  f_9744_.error("Couldn't unregister custom payload", ex);
++                  this.disconnect("Invalid payload UNREGISTER!");
++               }
++            } else {
++               try {
++                  this.cserver.getMessenger().dispatchIncomingMessage(this.f_9743_.getBukkitEntity(), p_9860_.m_179589_().toString(), buf);
++               } catch (Exception ex) {
++                  f_9744_.error("Couldn't dispatch custom payload", ex);
++                  this.disconnect("Invalid custom payload!");
++               }
 +            }
-+         } catch (Exception ex) {
-+            f_9744_.error("Couldn\'t register custom payload", ex);
-+            this.disconnect("Invalid payload REGISTER!");
 +         }
-+      } else if (p_9860_.m_179589_().equals(CUSTOM_UNREGISTER)) {
-+         try {
-+            String channels = p_9860_.m_179590_().toString(com.google.common.base.Charsets.UTF_8);
-+            for (String channel : channels.split("\0")) {
-+               getCraftPlayer().removeChannel(channel);
-+            }
-+         } catch (Exception ex) {
-+            f_9744_.error("Couldn\'t unregister custom payload", ex);
-+            this.disconnect("Invalid payload UNREGISTER!");
-+         }
-+      } else {
-+         try {
-+            byte[] data = new byte[p_9860_.m_179590_().readableBytes()];
-+            p_9860_.m_179590_().readBytes(data);
-+            cserver.getMessenger().dispatchIncomingMessage(f_9743_.getBukkitEntity(), p_9860_.m_179589_().toString(), data);
-+         } catch (Exception ex) {
-+            f_9744_.error("Couldn\'t dispatch custom payload", ex);
-+            this.disconnect("Invalid custom payload!");
-+         }
-+      }
++      });
 +      net.minecraftforge.network.NetworkHooks.onCustomPayload(p_9860_, this.f_9742_);
 +
 +   }
