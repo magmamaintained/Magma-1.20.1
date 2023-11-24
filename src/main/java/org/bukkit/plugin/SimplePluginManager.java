@@ -33,6 +33,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.world.AsyncStructureSpawnEvent;
 import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -564,13 +565,13 @@ public final class SimplePluginManager implements PluginManager {
             if (Thread.holdsLock(this)) {
                 throw new IllegalStateException(event.getEventName() + " cannot be triggered asynchronously from inside synchronized code.");
             }
-            if (server.isPrimaryThread()) {
+            /*if (server.isPrimaryThread()) { // Magma - removed as mods will throw errors
                 throw new IllegalStateException(event.getEventName() + " cannot be triggered asynchronously from primary server thread.");
             }
         } else {
             if (!server.isPrimaryThread()) {
                 throw new IllegalStateException(event.getEventName() + " cannot be triggered asynchronously from another thread.");
-            }
+            }*/
         }
 
         fireEvent(event);
