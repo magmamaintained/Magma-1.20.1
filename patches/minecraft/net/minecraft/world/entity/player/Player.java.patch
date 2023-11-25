@@ -844,19 +844,19 @@
        }
  
     }
-@@ -1747,26 +_,31 @@
+@@ -1747,26 +_,35 @@
  
     protected void m_36328_() {
        if (this.f_36109_ + 20L < this.m_9236_().m_46467_()) {
--         this.m_36370_(this.m_36331_());
--         this.m_36362_(new CompoundTag());
--         this.m_36370_(this.m_36332_());
--         this.m_36364_(new CompoundTag());
 +         // CraftBukkit start
-+         if (this.respawnEntityOnShoulder(this.m_36331_())) {
+          this.m_36370_(this.m_36331_());
+-         this.m_36362_(new CompoundTag());
++         if (respawnEntityOnShoulderReturn) {
 +            this.m_36362_(new CompoundTag());
 +         }
-+         if (this.respawnEntityOnShoulder(this.m_36332_())) {
+          this.m_36370_(this.m_36332_());
+-         this.m_36364_(new CompoundTag());
++         if (respawnEntityOnShoulderReturn) {
 +            this.m_36364_(new CompoundTag());
 +         }
 +         // CraftBukkit end
@@ -864,11 +864,11 @@
  
     }
  
--   private void m_36370_(CompoundTag p_36371_) {
-+   private boolean respawnEntityOnShoulder(CompoundTag p_36371_) { // CraftBukkit void->boolean
++   private boolean respawnEntityOnShoulderReturn; // Magma respawnEntityOnShoulder return
+    private void m_36370_(CompoundTag p_36371_) {
        if (!this.m_9236_().f_46443_ && !p_36371_.m_128456_()) {
 -         EntityType.m_20642_(p_36371_, this.m_9236_()).ifPresent((p_289491_) -> {
-+         return EntityType.m_20642_(p_36371_, this.m_9236_()).map((p_289491_) -> {
++         respawnEntityOnShoulderReturn = EntityType.m_20642_(p_36371_, this.m_9236_()).map((p_289491_) -> {
              if (p_289491_ instanceof TamableAnimal) {
 -               ((TamableAnimal)p_289491_).m_21816_(this.f_19820_);
 +               ((TamableAnimal) p_289491_).m_21816_(this.f_19820_);
@@ -880,9 +880,10 @@
 +            p_289491_.m_6034_(this.m_20185_(), this.m_20186_() + (double) 0.7F, this.m_20189_());
 +            return ((ServerLevel) this.m_9236_()).addWithUUID(p_289491_, CreatureSpawnEvent.SpawnReason.SHOULDER_ENTITY); // CraftBukkit
 +         }).orElse(true); // CraftBukkit
++         return;
        }
  
-+      return true;
++      respawnEntityOnShoulderReturn = true;
     }
  
     public abstract boolean m_5833_();
