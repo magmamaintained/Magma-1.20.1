@@ -233,12 +233,19 @@
  
     private void m_129841_(DimensionDataStorage p_129842_) {
        p_129842_.m_164861_(this.m_129896_()::m_180013_, this.m_129896_()::m_180015_, "scoreboard");
-@@ -297,17 +_,16 @@
+@@ -297,17 +_,24 @@
  
     protected abstract boolean m_7038_() throws IOException;
  
--   protected void m_130006_() {
-+   protected void loadLevel(String s) { // CraftBukkit
++   // Magma start - Move string to different constructor
++   public String loadLevelString;
++   public void prepareLoadLevel(String s) {
++      this.loadLevelString = s;
++   }
++
++   // Magma end
++
+    protected void m_130006_() {
        if (!JvmProfiler.f_185340_.m_183608_()) {
        }
  
@@ -247,7 +254,7 @@
 -      this.f_129749_.m_7955_(this.getServerModName(), this.m_183471_().m_184597_());
        ChunkProgressListener chunkprogresslistener = this.f_129756_.m_9620_(11);
 +
-+      this.prepareCreateLevels(s); // Magma
++      this.prepareCreateLevels(loadLevelString); // Magma
        this.m_129815_(chunkprogresslistener);
 -      this.m_7044_();
 -      this.m_129940_(chunkprogresslistener);
