@@ -11,7 +11,7 @@
  
  public class ChunkGeneratorStructureState {
     private static final Logger f_254706_ = LogUtils.getLogger();
-@@ -42,19 +_,77 @@
+@@ -42,19 +_,84 @@
     private boolean f_254710_;
     private final List<Holder<StructureSet>> f_254708_;
  
@@ -21,11 +21,18 @@
           return m_255180_(p_255616_.m_203334_(), p_256274_);
        }).toList();
 -      return new ChunkGeneratorStructureState(p_256240_, p_256274_, p_256404_, 0L, list);
+-   }
 +      return new ChunkGeneratorStructureState(p_256240_, p_256274_, p_256404_, 0L, injectSpigot(list, conf)); // Spigot
-    }
++   }
++
++   // Magma start - Move SpigotWorldConfig to different constructor
++   public static SpigotWorldConfig conf;
++   public static void prepareCreateForNormal(SpigotWorldConfig conf) {
++      ChunkGeneratorStructureState.conf = conf;
++   }
++   // Magma end
  
--   public static ChunkGeneratorStructureState m_255081_(RandomState p_256197_, long p_255806_, BiomeSource p_256653_, HolderLookup<StructureSet> p_256659_) {
-+   public static ChunkGeneratorStructureState createForNormal(RandomState p_256197_, long p_255806_, BiomeSource p_256653_, HolderLookup<StructureSet> p_256659_, SpigotWorldConfig conf) { // Spigot
+    public static ChunkGeneratorStructureState m_255081_(RandomState p_256197_, long p_255806_, BiomeSource p_256653_, HolderLookup<StructureSet> p_256659_) {
        List<Holder<StructureSet>> list = p_256659_.m_214062_().filter((p_256144_) -> {
           return m_255180_(p_256144_.m_203334_(), p_256653_);
        }).collect(Collectors.toUnmodifiableList());
