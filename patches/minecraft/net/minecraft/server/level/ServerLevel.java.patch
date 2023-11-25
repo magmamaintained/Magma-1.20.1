@@ -69,7 +69,7 @@
  import net.minecraft.world.level.levelgen.structure.BoundingBox;
  import net.minecraft.world.level.levelgen.structure.Structure;
  import net.minecraft.world.level.levelgen.structure.StructureCheck;
-@@ -146,15 +_,19 @@
+@@ -146,16 +_,22 @@
  import net.minecraft.world.level.portal.PortalForcer;
  import net.minecraft.world.level.saveddata.maps.MapIndex;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -84,14 +84,17 @@
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
  import net.minecraft.world.ticks.LevelTicks;
++import org.bukkit.craftbukkit.CraftWorld;
 +import org.bukkit.craftbukkit.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.generator.CustomWorldChunkManager;
 +import org.bukkit.craftbukkit.util.WorldUUID;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
 +import org.bukkit.event.weather.LightningStrikeEvent;
  import org.slf4j.Logger;
++import org.spigotmc.SpigotWorldConfig;
  
  public class ServerLevel extends Level implements WorldGenLevel {
+    public static final BlockPos f_8562_ = new BlockPos(100, 50, 0);
 @@ -188,24 +_,272 @@
     private final List<CustomSpawner> f_8558_;
     @Nullable
@@ -367,12 +370,14 @@
           return p_214999_.m_129783_().m_8895_();
        });
        this.f_8547_.m_255415_().m_254958_();
-@@ -240,6 +_,11 @@
+@@ -240,6 +_,13 @@
              return new RandomSequences(i);
           }, "random_sequences");
        });
 +      this.initCapabilities();
 +
++      this.spigotConfig = new SpigotWorldConfig(f_8549_.m_5462_()); // Spigot
++      this.world = new CraftWorld((ServerLevel) this, generator, biomeProvider, environment);
 +      this.getCraftServer().addWorld(this.getWorld()); //Magma - add world to bukkit's world list
 +      m_6857_().world = this;
 +      serverLevelDataCB.setWorld(this);
