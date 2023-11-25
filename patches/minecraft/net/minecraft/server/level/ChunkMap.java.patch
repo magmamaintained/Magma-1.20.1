@@ -77,15 +77,14 @@
        RegistryAccess registryaccess = p_214836_.m_9598_();
        long i = p_214836_.m_7328_();
        if (p_214843_ instanceof NoiseBasedChunkGenerator noisebasedchunkgenerator) {
-@@ -159,7 +_,7 @@
+@@ -159,6 +_,7 @@
           this.f_214834_ = RandomState.m_255302_(NoiseGeneratorSettings.m_238396_(), registryaccess.m_255025_(Registries.f_256865_), i);
        }
  
--      this.f_254626_ = p_214843_.m_255169_(registryaccess.m_255025_(Registries.f_256998_), this.f_214834_, i);
-+      this.f_254626_ = p_214843_.createState(registryaccess.m_255025_(Registries.f_256998_), this.f_214834_, i, p_214836_.spigotConfig); // Spigot
++      p_214843_.prepareCreateState(p_214836_.spigotConfig); // Magma // Spigot
+       this.f_254626_ = p_214843_.m_255169_(registryaccess.m_255025_(Registries.f_256998_), this.f_214834_, i);
        this.f_140135_ = p_214841_;
        ProcessorMailbox<Runnable> processormailbox1 = ProcessorMailbox.m_18751_(p_214840_, "worldgen");
-       ProcessorHandle<Runnable> processorhandle = ProcessorHandle.m_18714_("main", p_214841_::m_6937_);
 @@ -398,6 +_,7 @@
              this.f_140140_ = true;
           }
