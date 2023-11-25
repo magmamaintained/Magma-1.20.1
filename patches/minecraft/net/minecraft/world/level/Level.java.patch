@@ -151,12 +151,11 @@
              }
           };
        } else {
-@@ -141,6 +_,45 @@
+@@ -141,6 +_,44 @@
        this.f_220350_ = new CollectingNeighborUpdater(this, p_270466_);
        this.f_268710_ = p_270200_;
        this.f_268497_ = new DamageSources(p_270200_);
 +      // CraftBukkit start
-+      m_6857_().world = (ServerLevel) this;
 +      // From PlayerList.setPlayerFileData
 +      m_6857_().m_61929_(new BorderChangeListener() {
 +         @Override
