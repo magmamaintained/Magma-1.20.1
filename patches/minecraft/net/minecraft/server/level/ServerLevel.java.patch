@@ -370,16 +370,19 @@
           return p_214999_.m_129783_().m_8895_();
        });
        this.f_8547_.m_255415_().m_254958_();
-@@ -240,6 +_,13 @@
+@@ -240,6 +_,16 @@
              return new RandomSequences(i);
           }, "random_sequences");
        });
 +      this.initCapabilities();
 +
 +      this.spigotConfig = new SpigotWorldConfig(f_8549_.m_5462_()); // Spigot
++      // CraftBukkit start
 +      this.world = new CraftWorld((ServerLevel) this, generator, biomeProvider, environment);
-+      this.getCraftServer().addWorld(this.getWorld()); //Magma - add world to bukkit's world list
 +      m_6857_().world = this;
++      // CraftBukkit end
++
++      this.getCraftServer().addWorld(this.getWorld()); //Magma - add world to bukkit's world list
 +      serverLevelDataCB.setWorld(this);
     }
  

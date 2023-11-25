@@ -53,7 +53,12 @@
  import net.minecraft.world.level.entity.EntityTypeTest;
  import net.minecraft.world.level.entity.LevelEntityGetter;
  import net.minecraft.world.level.gameevent.GameEvent;
-@@ -69,8 +_,18 @@
+@@ -65,12 +_,23 @@
+ import net.minecraft.world.level.redstone.NeighborUpdater;
+ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+ import net.minecraft.world.level.storage.LevelData;
++import net.minecraft.world.level.storage.ServerLevelData;
+ import net.minecraft.world.level.storage.WritableLevelData;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.Vec3;
  import net.minecraft.world.scores.Scoreboard;
@@ -73,7 +78,7 @@
     public static final Codec<ResourceKey<Level>> f_46427_ = ResourceKey.m_195966_(Registries.f_256858_);
     public static final ResourceKey<Level> f_46428_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> f_46429_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("the_nether"));
-@@ -110,8 +_,63 @@
+@@ -110,8 +_,64 @@
     private final RegistryAccess f_268710_;
     private final DamageSources f_268497_;
     private long f_186455_;
@@ -127,6 +132,7 @@
     protected Level(WritableLevelData p_270739_, ResourceKey<Level> p_270683_, RegistryAccess p_270200_, Holder<DimensionType> p_270240_, Supplier<ProfilerFiller> p_270692_, boolean p_270904_, boolean p_270470_, long p_270248_, int p_270466_) {
 +      super(Level.class);
 +      this.spigotConfig = new org.spigotmc.SpigotWorldConfig(MinecraftServer.getServer().f_129744_.m_197394_(p_270683_).getFileName().toFile().getName()); // Spigot
++      //Magma end
 +      // CraftBukkit Ticks things
 +      for (SpawnCategory spawnCategory : SpawnCategory.values()) {
 +         if (CraftSpawnCategory.isValidForLimits(spawnCategory)) {
@@ -151,11 +157,12 @@
              }
           };
        } else {
-@@ -141,6 +_,44 @@
+@@ -141,6 +_,45 @@
        this.f_220350_ = new CollectingNeighborUpdater(this, p_270466_);
        this.f_268710_ = p_270200_;
        this.f_268497_ = new DamageSources(p_270200_);
 +      // CraftBukkit start
++      m_6857_().world = this; //Magma - fix ClassCastException
 +      // From PlayerList.setPlayerFileData
 +      m_6857_().m_61929_(new BorderChangeListener() {
 +         @Override
@@ -214,10 +221,11 @@
        if (this.m_151570_(p_46605_)) {
           return false;
        } else if (!this.f_46443_ && this.m_46659_()) {
-@@ -198,38 +_,93 @@
+@@ -198,38 +_,94 @@
        } else {
           LevelChunk levelchunk = this.m_46745_(p_46605_);
-          Block block = p_46606_.m_60734_();
+          Block block = p_46606_.m_60734_levelchunk();
+-         BlockState blockstate = .m_6978_(p_46605_, p_46606_, (p_46607_ & 64) != 0);
 +
 +         p_46605_ = p_46605_.m_7949_(); // Forge - prevent mutable BlockPos leaks
 +         net.minecraftforge.common.util.BlockSnapshot blockSnapshot = null;
@@ -239,7 +247,8 @@
 +         }
 +         // CraftBukkit end
 +
-          BlockState blockstate = levelchunk.m_6978_(p_46605_, p_46606_, (p_46607_ & 64) != 0);
++         levelchunk.prepareSetBlockState((p_46607_ & 1024) == 0);
++         BlockState blockstate = levelchunk.m_6978_(p_46605_, p_46606_, (p_46607_ & 64) != 0); // CraftBukkit custom NO_PLACE flag
           if (blockstate == null) {
 +            // CraftBukkit start - remove blockstate if failed (or the same)
 +            if (this.captureBlockStates && captured) {
