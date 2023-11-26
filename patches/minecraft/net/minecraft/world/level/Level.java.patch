@@ -78,7 +78,7 @@
     public static final Codec<ResourceKey<Level>> f_46427_ = ResourceKey.m_195966_(Registries.f_256858_);
     public static final ResourceKey<Level> f_46428_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> f_46429_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("the_nether"));
-@@ -110,8 +_,64 @@
+@@ -110,8 +_,68 @@
     private final RegistryAccess f_268710_;
     private final DamageSources f_268497_;
     private long f_186455_;
@@ -112,6 +112,10 @@
 +   private int tileTickPosition;
 +
 +   public CraftWorld getWorld() {
++      if (this.world == null) {
++         this.world = new CraftWorld((ServerLevel) this, generator, biomeProvider, environment);
++      }
++
 +      return this.world;
 +   }
 +
@@ -224,8 +228,8 @@
 @@ -198,38 +_,94 @@
        } else {
           LevelChunk levelchunk = this.m_46745_(p_46605_);
-          Block block = p_46606_.m_60734_levelchunk();
--         BlockState blockstate = .m_6978_(p_46605_, p_46606_, (p_46607_ & 64) != 0);
+          Block block = p_46606_.m_60734_();
+-         BlockState blockstate = levelchunk.m_6978_(p_46605_, p_46606_, (p_46607_ & 64) != 0);
 +
 +         p_46605_ = p_46605_.m_7949_(); // Forge - prevent mutable BlockPos leaks
 +         net.minecraftforge.common.util.BlockSnapshot blockSnapshot = null;
