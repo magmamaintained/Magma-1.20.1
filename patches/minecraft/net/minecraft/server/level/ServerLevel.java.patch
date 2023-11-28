@@ -96,16 +96,7 @@
  
  public class ServerLevel extends Level implements WorldGenLevel {
     public static final BlockPos f_8562_ = new BlockPos(100, 50, 0);
-@@ -169,7 +_,7 @@
-    final List<ServerPlayer> f_8546_ = Lists.newArrayList();
-    private final ServerChunkCache f_8547_;
-    private final MinecraftServer f_8548_;
--   public final ServerLevelData f_8549_;
-+   public final PrimaryLevelData f_8549_; // CraftBukkit - type
-    final EntityTickList f_143243_ = new EntityTickList();
-    public final PersistentEntitySectionManager<Entity> f_143244_;
-    private final GameEventDispatcher f_243695_;
-@@ -188,24 +_,61 @@
+@@ -188,24 +_,63 @@
     private final List<CustomSpawner> f_8558_;
     @Nullable
     private EndDragonFight f_8559_;
@@ -120,6 +111,7 @@
 +   // CraftBukkit start
 +   public final LevelStorageSource.LevelStorageAccess convertable;
 +   public final UUID uuid;
++   public PrimaryLevelData serverLevelDataCB;
 +
 +   public LevelChunk getChunkIfLoaded(int x, int z) {
 +      return this.f_8547_.m_62227_(x, z, false);
@@ -141,12 +133,13 @@
        this.f_8558_ = p_215008_;
 -      this.f_8549_ = p_215002_;
 +      if (p_215002_ instanceof PrimaryLevelData pld) {
-+         this.f_8549_ = pld;
++         serverLevelDataCB = pld;
 +      } else {
-+         this.f_8549_ = DelegateWorldInfo.wrap((DerivedLevelData) p_215002_);
++         serverLevelDataCB = DelegateWorldInfo.wrap((DerivedLevelData) p_215002_);
 +      }
        ChunkGenerator chunkgenerator = p_215004_.f_63976_();
-+      f_8549_.setWorld(this);
++      f_8549_ = p_215002_;
++      serverLevelDataCB.setWorld(this);
 +      // CraftBukkit start
 +      if (biomeProvider != null) {
 +         BiomeSource worldChunkManager = new CustomWorldChunkManager(getWorld(), biomeProvider, f_8548_.m_206579_().m_175515_(Registries.f_256952_));
