@@ -69,7 +69,7 @@
  import net.minecraft.world.level.levelgen.structure.BoundingBox;
  import net.minecraft.world.level.levelgen.structure.Structure;
  import net.minecraft.world.level.levelgen.structure.StructureCheck;
-@@ -146,16 +_,22 @@
+@@ -146,16 +_,23 @@
  import net.minecraft.world.level.portal.PortalForcer;
  import net.minecraft.world.level.saveddata.maps.MapIndex;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -90,6 +90,7 @@
 +import org.bukkit.craftbukkit.util.WorldUUID;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
 +import org.bukkit.event.weather.LightningStrikeEvent;
++import org.magmafoundation.magma.helpers.DelegateWorldInfo;
  import org.slf4j.Logger;
 +import org.spigotmc.SpigotWorldConfig;
  
@@ -104,7 +105,7 @@
     final EntityTickList f_143243_ = new EntityTickList();
     public final PersistentEntitySectionManager<Entity> f_143244_;
     private final GameEventDispatcher f_243695_;
-@@ -188,24 +_,272 @@
+@@ -188,24 +_,61 @@
     private final List<CustomSpawner> f_8558_;
     @Nullable
     private EndDragonFight f_8559_;
@@ -142,218 +143,7 @@
 +      if (p_215002_ instanceof PrimaryLevelData pld) {
 +         this.f_8549_ = pld;
 +      } else {
-+         DerivedLevelData dld = (DerivedLevelData) p_215002_;
-+         this.f_8549_ = new PrimaryLevelData(dld.f_78076_.m_5926_(), dld.f_78076_.m_246337_(), null, dld.f_78076_.m_5754_()) {
-+            @Override
-+            public int m_6789_() {
-+               return dld.m_6789_();
-+            }
-+
-+            @Override
-+            public void m_6395_(int x) {
-+               dld.m_6395_(x);
-+            }
-+
-+            @Override
-+            public int m_6527_() {
-+               return dld.m_6527_();
-+            }
-+
-+            @Override
-+            public void m_6397_(int y) {
-+               dld.m_6397_(y);
-+            }
-+
-+            @Override
-+            public int m_6526_() {
-+               return dld.m_6526_();
-+            }
-+
-+            @Override
-+            public void m_6400_(int z) {
-+               dld.m_6400_(z);
-+            }
-+
-+            @Override
-+            public float m_6790_() {
-+               return dld.m_6790_();
-+            }
-+
-+            @Override
-+            public void m_7113_(float angle) {
-+               dld.m_7113_(angle);
-+            }
-+
-+            @Override
-+            public long m_6793_() {
-+               return dld.m_6793_();
-+            }
-+
-+            @Override
-+            public void m_6253_(long time) {
-+               dld.m_6253_(time);
-+            }
-+
-+            @Override
-+            public long m_6792_() {
-+               return dld.m_6792_();
-+            }
-+
-+            @Override
-+            public void m_6247_(long time) {
-+               dld.m_6247_(time);
-+            }
-+
-+            @Override
-+            public String m_5462_() {
-+               return dld.m_5462_();
-+            }
-+
-+            @Override
-+            public int m_6537_() {
-+               return dld.m_6537_();
-+            }
-+
-+            @Override
-+            public void m_6393_(int time) {
-+               dld.m_6393_(time);
-+            }
-+
-+            @Override
-+            public boolean m_6534_() {
-+               return dld.m_6534_();
-+            }
-+
-+            @Override
-+            public void m_5557_(boolean thunderingIn) {
-+               dld.m_5557_(thunderingIn);
-+            }
-+
-+            @Override
-+            public int m_6558_() {
-+               return dld.m_6558_();
-+            }
-+
-+            @Override
-+            public void m_6398_(int time) {
-+               dld.m_6398_(time);
-+            }
-+
-+            @Override
-+            public boolean m_6533_() {
-+               return dld.m_6533_();
-+            }
-+
-+            @Override
-+            public void m_5565_(boolean isRaining) {
-+               dld.m_5565_(isRaining);
-+            }
-+
-+            @Override
-+            public int m_6531_() {
-+               return dld.m_6531_();
-+            }
-+
-+            @Override
-+            public void m_6399_(int time) {
-+               dld.m_6399_(time);
-+            }
-+
-+            @Override
-+            public GameType m_5464_() {
-+               return dld.m_5464_();
-+            }
-+
-+            @Override
-+            public void m_5458_(GameType type) {
-+               dld.m_5458_(type);
-+            }
-+
-+            @Override
-+            public void m_7250_(BlockPos spawnPoint, float angle) {
-+               dld.m_7250_(spawnPoint, angle);
-+            }
-+
-+            @Override
-+            public boolean m_5466_() {
-+               return dld.m_5466_();
-+            }
-+
-+            @Override
-+            public boolean m_5468_() {
-+               return dld.m_5468_();
-+            }
-+
-+            @Override
-+            public boolean m_6535_() {
-+               return dld.m_6535_();
-+            }
-+
-+            @Override
-+            public void m_5555_(boolean initializedIn) {
-+               dld.m_5555_(initializedIn);
-+            }
-+
-+            @Override
-+            public GameRules m_5470_() {
-+               return dld.m_5470_();
-+            }
-+
-+            @Override
-+            public WorldBorder.Settings m_5813_() {
-+               return dld.m_5813_();
-+            }
-+
-+            @Override
-+            public void m_7831_(WorldBorder.Settings serializer) {
-+               dld.m_7831_(serializer);
-+            }
-+
-+            @Override
-+            public Difficulty m_5472_() {
-+               return dld.m_5472_();
-+            }
-+
-+            @Override
-+            public boolean m_5474_() {
-+               return dld.m_5474_();
-+            }
-+
-+            @Override
-+            public TimerQueue<MinecraftServer> m_7540_() {
-+               return dld.m_7540_();
-+            }
-+
-+            @Override
-+            public int m_6530_() {
-+               return dld.m_6530_();
-+            }
-+
-+            @Override
-+            public void m_6391_(int delay) {
-+               dld.m_6391_(delay);
-+            }
-+
-+            @Override
-+            public int m_6528_() {
-+               return dld.m_6528_();
-+            }
-+
-+            @Override
-+            public void m_6387_(int chance) {
-+               dld.m_6387_(chance);
-+            }
-+
-+            @Override
-+            public void m_8115_(UUID id) {
-+               dld.m_8115_(id);
-+            }
-+
-+            @Override
-+            public void m_142471_(CrashReportCategory p_164972_, LevelHeightAccessor p_164973_) {
-+               dld.m_142471_(p_164972_, p_164973_);
-+            }
-+         };
++         this.f_8549_ = DelegateWorldInfo.wrap((DerivedLevelData) p_215002_);
 +      }
        ChunkGenerator chunkgenerator = p_215004_.f_63976_();
 +      f_8549_.setWorld(this);
