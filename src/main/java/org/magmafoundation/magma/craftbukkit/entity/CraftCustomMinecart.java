@@ -19,10 +19,8 @@
 package org.magmafoundation.magma.craftbukkit.entity;
 
 import net.minecraft.world.entity.vehicle.AbstractMinecart;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftMinecart;
-import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.NotNull;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftMinecart;
 
 public class CraftCustomMinecart extends CraftMinecart {
 

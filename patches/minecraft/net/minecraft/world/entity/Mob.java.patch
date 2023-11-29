@@ -8,12 +8,20 @@
  import net.minecraft.sounds.SoundEvent;
  import net.minecraft.tags.TagKey;
  import net.minecraft.util.Mth;
+@@ -62,7 +_,6 @@
+ import net.minecraft.world.item.SpawnEggItem;
+ import net.minecraft.world.item.SwordItem;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
+-import net.minecraft.world.level.GameRules;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.LevelAccessor;
+ import net.minecraft.world.level.LevelReader;
 @@ -70,6 +_,9 @@
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.level.material.Fluid;
  import net.minecraft.world.level.pathfinder.BlockPathTypes;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.*;
  
  public abstract class Mob extends LivingEntity implements Targeting {
@@ -202,7 +210,7 @@
 +      // CraftBukkit start
 +      boolean canPickup = flag && this.m_7252_(itemstack);
 +      if (entityitem != null) {
-+         canPickup = !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityPickupItemEvent(this, entityitem, 0, !canPickup).isCancelled();
++         canPickup = !org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callEntityPickupItemEvent(this, entityitem, 0, !canPickup).isCancelled();
 +      }
 +      if (canPickup) {
 +         // CraftBukkit end

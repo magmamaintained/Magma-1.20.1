@@ -1,12 +1,11 @@
 --- a/net/minecraft/world/entity/monster/Shulker.java
 +++ b/net/minecraft/world/entity/monster/Shulker.java
-@@ -55,6 +_,10 @@
+@@ -55,6 +_,9 @@
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.Vec3;
-+import org.bukkit.Location;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
-+import org.bukkit.craftbukkit.util.CraftLocation;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftLocation;
 +import org.bukkit.event.entity.EntityTeleportEvent;
  import org.joml.Vector3f;
  import org.joml.Vector3fc;

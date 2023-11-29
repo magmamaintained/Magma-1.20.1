@@ -70,9 +70,19 @@
  import net.minecraft.util.profiling.EmptyProfileResults;
  import net.minecraft.util.profiling.ProfileResults;
  import net.minecraft.util.profiling.ProfilerFiller;
-@@ -138,28 +_,30 @@
+@@ -116,7 +_,6 @@
+ import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
+ import net.minecraft.util.thread.ReentrantBlockableEventLoop;
+ import net.minecraft.world.Difficulty;
+-import net.minecraft.world.RandomSequences;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.ai.village.VillageSiege;
+ import net.minecraft.world.entity.npc.CatSpawner;
+@@ -136,30 +_,31 @@
+ import net.minecraft.world.level.WorldDataConfiguration;
+ import net.minecraft.world.level.biome.BiomeManager;
  import net.minecraft.world.level.block.Block;
- import net.minecraft.world.level.border.BorderChangeListener;
+-import net.minecraft.world.level.border.BorderChangeListener;
  import net.minecraft.world.level.border.WorldBorder;
 +import net.minecraft.world.level.dimension.DimensionType;
  import net.minecraft.world.level.dimension.LevelStem;
@@ -96,10 +106,10 @@
  import net.minecraft.world.phys.Vec2;
  import net.minecraft.world.phys.Vec3;
 +import org.bukkit.Bukkit;
-+import org.bukkit.craftbukkit.CraftServer;
++import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 +import org.bukkit.craftbukkit.SpigotTimings;
-+import org.bukkit.craftbukkit.util.CraftChatMessage;
-+import org.bukkit.craftbukkit.util.LazyPlayerSet;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage;
++import org.bukkit.craftbukkit.v1_20_R1.util.LazyPlayerSet;
 +import org.bukkit.event.player.AsyncPlayerChatPreviewEvent;
 +import org.bukkit.event.server.ServerLoadEvent;
 +import org.magmafoundation.magma.Magma;
@@ -134,7 +144,7 @@
  
 +   // CraftBukkit start
 +   public final WorldLoader.DataLoadContext worldLoader;
-+   public org.bukkit.craftbukkit.CraftServer server;
++   public CraftServer server;
 +   public OptionSet options;
 +   public org.bukkit.command.ConsoleCommandSender console;
 +   public ConsoleReader reader;
@@ -227,7 +237,7 @@
 +            f_129750_.warn((String) null, ex);
 +         }
 +      }
-+      Runtime.getRuntime().addShutdownHook(new org.bukkit.craftbukkit.util.ServerShutdownThread(this));
++      Runtime.getRuntime().addShutdownHook(new org.bukkit.craftbukkit.v1_20_R1.util.ServerShutdownThread(this));
     }
 +   // CraftBukkit end
  
@@ -407,7 +417,7 @@
 +                         new WanderingTraderSpawner(iworlddataserver));
 +         LevelStem levelStem = (LevelStem) dimensions.m_6246_(dimensionKey);
 +
-+         org.bukkit.generator.WorldInfo worldInfo = new org.bukkit.craftbukkit.generator.CraftWorldInfo(iworlddataserver, worldSession, org.bukkit.World.Environment.getEnvironment(dimension), lS.f_63975_().m_203334_());
++         org.bukkit.generator.WorldInfo worldInfo = new org.bukkit.craftbukkit.v1_20_R1.generator.CraftWorldInfo(iworlddataserver, worldSession, org.bukkit.World.Environment.getEnvironment(dimension), lS.f_63975_().m_203334_());
 +         if (biomeProvider == null && gen != null) {
 +            biomeProvider = gen.getDefaultBiomeProvider(worldInfo);
 +         }
@@ -421,7 +431,7 @@
 +            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, levelStem, p_129816_, flag, j, list, true, null);
 +            DimensionDataStorage worldpersistentdata = world.m_8895_();
 +            this.m_129841_(worldpersistentdata);
-+            this.server.scoreboardManager = new org.bukkit.craftbukkit.scoreboard.CraftScoreboardManager(this, world.m_6188_());
++            this.server.scoreboardManager = new org.bukkit.craftbukkit.v1_20_R1.scoreboard.CraftScoreboardManager(this, world.m_6188_());
 +            this.f_129732_ = new CommandStorage(worldpersistentdata);
 +         } else {
 +            Level.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
@@ -651,6 +661,17 @@
  
     }
  
+@@ -612,6 +_,10 @@
+       return this.f_129764_;
+    }
+ 
++   public boolean v() {
++      return this.f_129764_;
++   }
++
+    public void m_7570_(boolean p_129884_) {
+       this.f_129764_ = false;
+       if (p_129884_) {
 @@ -624,30 +_,55 @@
  
     }

@@ -1,13 +1,5 @@
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -13,6 +_,7 @@
- import java.util.Optional;
- import java.util.OptionalInt;
- import java.util.Set;
-+import java.util.concurrent.atomic.AtomicReference;
- import javax.annotation.Nullable;
- import net.minecraft.BlockUtil;
- import net.minecraft.ChatFormatting;
 @@ -22,11 +_,7 @@
  import net.minecraft.Util;
  import net.minecraft.advancements.CriteriaTriggers;
@@ -71,14 +63,14 @@
 +import org.bukkit.Bukkit;
 +import org.bukkit.Location;
 +import org.bukkit.WeatherType;
-+import org.bukkit.craftbukkit.CraftWorld;
-+import org.bukkit.craftbukkit.CraftWorldBorder;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
-+import org.bukkit.craftbukkit.event.CraftPortalEvent;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
-+import org.bukkit.craftbukkit.util.CraftDimensionUtil;
-+import org.bukkit.craftbukkit.util.CraftLocation;
++import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
++import org.bukkit.craftbukkit.v1_20_R1.CraftWorldBorder;
++import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftPortalEvent;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftDimensionUtil;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftLocation;
 +import org.bukkit.event.player.*;
 +import org.bukkit.inventory.MainHand;
 +import org.magmafoundation.magma.helpers.InventoryViewHelper;
@@ -352,7 +344,7 @@
 +         if (deathMessage.equals(deathmessage)) {
 +            component = this.m_21231_().m_19293_();
 +         } else {
-+            component = org.bukkit.craftbukkit.util.CraftChatMessage.fromStringOrNull(deathMessage);
++            component = org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage.fromStringOrNull(deathMessage);
 +         }
           this.f_8906_.m_243119_(new ClientboundPlayerCombatKillPacket(this.m_19879_(), component), PacketSendListener.m_243073_(() -> {
              int i = 256;
@@ -556,7 +548,7 @@
  
     private void m_9006_(ServerLevel p_9007_, BlockPos p_9008_) {
        BlockPos.MutableBlockPos blockpos$mutableblockpos = p_9008_.m_122032_();
-+      org.bukkit.craftbukkit.util.BlockStateListPopulator blockList = new org.bukkit.craftbukkit.util.BlockStateListPopulator(p_9007_); // CraftBukkit
++      org.bukkit.craftbukkit.v1_20_R1.util.BlockStateListPopulator blockList = new org.bukkit.craftbukkit.v1_20_R1.util.BlockStateListPopulator(p_9007_); // CraftBukkit
  
        for(int i = -2; i <= 2; ++i) {
           for(int j = -2; j <= 2; ++j) {
@@ -673,7 +665,7 @@
 +      if (force) {
 +         bedResult = Either.right(Unit.INSTANCE);
 +      }
-+      bedResult = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerBedEnterEvent(this, blockposition, bedResult);
++      bedResult = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPlayerBedEnterEvent(this, blockposition, bedResult);
 +      if (bedResult.left().isPresent()) {
 +         return bedResult;
 +      }

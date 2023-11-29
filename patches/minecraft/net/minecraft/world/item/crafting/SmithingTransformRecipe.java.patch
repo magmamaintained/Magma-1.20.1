@@ -4,10 +4,10 @@
  import net.minecraft.world.Container;
  import net.minecraft.world.item.ItemStack;
  import net.minecraft.world.level.Level;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
-+import org.bukkit.craftbukkit.inventory.CraftRecipe;
-+import org.bukkit.craftbukkit.inventory.CraftSmithingTransformRecipe;
-+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftRecipe;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftSmithingTransformRecipe;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftNamespacedKey;
 +import org.bukkit.inventory.Recipe;
  
  public class SmithingTransformRecipe implements SmithingRecipe {

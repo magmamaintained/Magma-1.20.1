@@ -1,19 +1,11 @@
 --- a/net/minecraft/world/level/block/LayeredCauldronBlock.java
 +++ b/net/minecraft/world/level/block/LayeredCauldronBlock.java
-@@ -5,6 +_,7 @@
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.cauldron.CauldronInteraction;
- import net.minecraft.world.entity.Entity;
-+import net.minecraft.world.entity.player.Player;
- import net.minecraft.world.item.Item;
- import net.minecraft.world.level.Level;
- import net.minecraft.world.level.biome.Biome;
 @@ -16,6 +_,9 @@
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.level.material.Fluid;
  import net.minecraft.world.level.material.Fluids;
-+import org.bukkit.craftbukkit.block.CraftBlockState;
-+import org.bukkit.craftbukkit.block.CraftBlockStates;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockState;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockStates;
 +import org.bukkit.event.block.CauldronLevelChangeEvent;
  
  public class LayeredCauldronBlock extends AbstractCauldronBlock {

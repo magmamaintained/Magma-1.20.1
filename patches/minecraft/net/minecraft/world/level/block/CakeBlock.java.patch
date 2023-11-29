@@ -1,10 +1,9 @@
 --- a/net/minecraft/world/level/block/CakeBlock.java
 +++ b/net/minecraft/world/level/block/CakeBlock.java
-@@ -2,6 +_,8 @@
+@@ -2,6 +_,7 @@
  
  import net.minecraft.core.BlockPos;
  import net.minecraft.core.Direction;
-+import net.minecraft.server.level.ServerLevel;
 +import net.minecraft.server.level.ServerPlayer;
  import net.minecraft.sounds.SoundEvents;
  import net.minecraft.sounds.SoundSource;
@@ -16,7 +15,7 @@
 +         // CraftBukkit start
 +         int oldFoodLevel = p_51189_.m_36324_().f_38696_;
 +
-+         org.bukkit.event.entity.FoodLevelChangeEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callFoodLevelChangeEvent(p_51189_, 2 + oldFoodLevel);
++         org.bukkit.event.entity.FoodLevelChangeEvent event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callFoodLevelChangeEvent(p_51189_, 2 + oldFoodLevel);
 +
 +         if (!event.isCancelled()) {
 +            p_51189_.m_36324_().m_38707_(event.getFoodLevel() - oldFoodLevel, 0.1F);

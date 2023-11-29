@@ -1,11 +1,6 @@
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -8,18 +_,15 @@
- import com.mojang.serialization.Dynamic;
- import io.netty.buffer.Unpooled;
- import java.io.File;
-+import java.net.ServerSocket;
- import java.net.SocketAddress;
+@@ -12,17 +_,12 @@
  import java.nio.file.Path;
  import java.text.SimpleDateFormat;
  import java.time.Instant;
@@ -21,7 +16,10 @@
 +import java.util.stream.Collectors;
  import javax.annotation.Nullable;
  import net.minecraft.ChatFormatting;
- import net.minecraft.FileUtil;
+-import net.minecraft.FileUtil;
+ import net.minecraft.commands.CommandSourceStack;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.LayeredRegistryAccess;
 @@ -72,9 +_,11 @@
  import net.minecraft.server.PlayerAdvancements;
  import net.minecraft.server.RegistryLayer;
@@ -34,17 +32,16 @@
  import net.minecraft.sounds.SoundEvents;
  import net.minecraft.sounds.SoundSource;
  import net.minecraft.stats.ServerStatsCounter;
-@@ -102,6 +_,15 @@
+@@ -102,6 +_,14 @@
  import net.minecraft.world.scores.Objective;
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Team;
 +import org.bukkit.Location;
-+import org.bukkit.Server;
-+import org.bukkit.craftbukkit.CraftServer;
-+import org.bukkit.craftbukkit.CraftWorld;
-+import org.bukkit.craftbukkit.entity.CraftPlayer;
-+import org.bukkit.craftbukkit.util.CraftChatMessage;
-+import org.bukkit.craftbukkit.util.CraftLocation;
++import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
++import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
++import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftLocation;
 +import org.bukkit.event.player.*;
 +import org.magmafoundation.magma.forge.ForgeInject;
  import org.slf4j.Logger;
@@ -85,8 +82,8 @@
  
     public PlayerList(MinecraftServer p_203842_, LayeredRegistryAccess<RegistryLayer> p_251844_, PlayerDataStorage p_203844_, int p_203845_) {
 +      this.cserver = p_203842_.server = new CraftServer((DedicatedServer) p_203842_, this);
-+      p_203842_.console = org.bukkit.craftbukkit.command.ColouredConsoleSender.getInstance();
-+      p_203842_.reader.addCompleter(new org.bukkit.craftbukkit.command.ConsoleCommandCompleter(p_203842_.server));
++      p_203842_.console = org.bukkit.craftbukkit.v1_20_R1.command.ColouredConsoleSender.getInstance();
++      p_203842_.reader.addCompleter(new org.bukkit.craftbukkit.v1_20_R1.command.ConsoleCommandCompleter(p_203842_.server));
 +      // CraftBukkit end
 +
 +      ForgeInject.init(); //Magma - Forge Inject - Initialize
@@ -185,7 +182,7 @@
 +      }
 +      joinMessage = playerJoinEvent.getJoinMessage();
 +      if (joinMessage != null && joinMessage.length() > 0) {
-+         for (Component line : org.bukkit.craftbukkit.util.CraftChatMessage.fromString(joinMessage)) {
++         for (Component line : org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage.fromString(joinMessage)) {
 +            f_11195_.m_6846_().m_240416_(line, false);
 +         }
 +      }

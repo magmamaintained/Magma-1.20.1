@@ -16,13 +16,13 @@
  import java.util.concurrent.atomic.AtomicInteger;
  import java.util.function.BooleanSupplier;
  import java.util.function.Consumer;
-@@ -75,7 +_,10 @@
+@@ -75,7 +_,9 @@
  import net.minecraft.world.entity.EntityType;
  import net.minecraft.world.entity.Mob;
  import net.minecraft.world.entity.ai.village.poi.PoiManager;
+-import net.minecraft.world.entity.boss.EnderDragonPart;
 +import net.minecraft.world.entity.animal.Animal;
 +import net.minecraft.world.entity.animal.WaterAnimal;
- import net.minecraft.world.entity.boss.EnderDragonPart;
 +import net.minecraft.world.entity.npc.Npc;
  import net.minecraft.world.level.ChunkPos;
  import net.minecraft.world.level.GameRules;
@@ -31,7 +31,7 @@
  import net.minecraft.world.phys.Vec3;
  import org.apache.commons.lang3.mutable.MutableBoolean;
  import org.apache.commons.lang3.mutable.MutableObject;
-+import org.bukkit.craftbukkit.generator.CustomChunkGenerator;
++import org.bukkit.craftbukkit.v1_20_R1.generator.CustomChunkGenerator;
  import org.slf4j.Logger;
  
  public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider {

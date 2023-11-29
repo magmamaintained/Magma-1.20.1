@@ -4,8 +4,8 @@
  import net.minecraft.world.level.LevelAccessor;
  import net.minecraft.world.level.block.state.BlockBehaviour;
  import net.minecraft.world.level.block.state.BlockState;
-+import org.bukkit.craftbukkit.block.CraftBlockState;
-+import org.bukkit.craftbukkit.block.CraftBlockStates;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockState;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockStates;
 +import org.bukkit.event.block.BlockFormEvent;
  
  public class ConcretePowderBlock extends FallingBlock {
@@ -17,7 +17,7 @@
 -      if (m_52080_(p_52068_, p_52069_, p_52071_)) {
 -         p_52068_.m_7731_(p_52069_, this.f_52058_, 3);
 +      if (shouldSolidify(p_52068_, p_52069_, p_52070_, p_52071_.m_60819_())) { // Forge: Use block of falling entity instead of block at replaced position, and check if shouldSolidify with the FluidState of the replaced block
-+         org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(p_52068_, p_52069_, this.f_52058_, 3); // CraftBukkit
++         org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.handleBlockFormEvent(p_52068_, p_52069_, this.f_52058_, 3); // CraftBukkit
        }
  
     }
