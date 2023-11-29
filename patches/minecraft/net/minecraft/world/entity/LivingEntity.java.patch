@@ -53,7 +53,7 @@
 +import net.minecraftforge.common.ForgeHooks;
 +import org.bukkit.Location;
 +import org.bukkit.craftbukkit.v1_20_R1.CraftEquipmentSlot;
-+import org.bukkit.craftbukkit.SpigotTimings;
++import org.bukkit.craftbukkit.v1_20_R1.SpigotTimings;
 +import org.bukkit.craftbukkit.v1_20_R1.attribute.CraftAttributeMap;
 +import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
