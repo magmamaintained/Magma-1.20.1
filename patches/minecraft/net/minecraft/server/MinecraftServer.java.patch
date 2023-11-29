@@ -107,7 +107,7 @@
  import net.minecraft.world.phys.Vec3;
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
-+import org.bukkit.craftbukkit.SpigotTimings;
++import org.bukkit.craftbukkit.v1_20_R1.SpigotTimings;
 +import org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage;
 +import org.bukkit.craftbukkit.v1_20_R1.util.LazyPlayerSet;
 +import org.bukkit.event.player.AsyncPlayerChatPreviewEvent;
