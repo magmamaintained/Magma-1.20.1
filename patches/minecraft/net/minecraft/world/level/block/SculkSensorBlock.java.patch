@@ -1,10 +1,18 @@
 --- a/net/minecraft/world/level/block/SculkSensorBlock.java
 +++ b/net/minecraft/world/level/block/SculkSensorBlock.java
+@@ -11,7 +_,6 @@
+ import net.minecraft.sounds.SoundSource;
+ import net.minecraft.tags.BlockTags;
+ import net.minecraft.util.RandomSource;
+-import net.minecraft.util.valueproviders.ConstantInt;
+ import net.minecraft.world.entity.Entity;
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraft.world.entity.player.Player;
 @@ -39,6 +_,8 @@
  import net.minecraft.world.level.pathfinder.PathComputationType;
  import net.minecraft.world.phys.shapes.CollisionContext;
  import net.minecraft.world.phys.shapes.VoxelShape;
-+import org.bukkit.craftbukkit.block.CraftBlock;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlock;
 +import org.bukkit.event.block.BlockRedstoneEvent;
  
  public class SculkSensorBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
@@ -16,7 +24,7 @@
 +         // CraftBukkit start
 +         org.bukkit.event.Cancellable cancellable;
 +         if (p_222135_ instanceof Player) {
-+            cancellable = org.bukkit.craftbukkit.event.CraftEventFactory.callPlayerInteractEvent((Player) p_222135_, org.bukkit.event.block.Action.PHYSICAL, p_222133_, null, null, null);
++            cancellable = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPlayerInteractEvent((Player) p_222135_, org.bukkit.event.block.Action.PHYSICAL, p_222133_, null, null, null);
 +         } else {
 +            cancellable = new org.bukkit.event.entity.EntityInteractEvent(p_222135_.getBukkitEntity(), p_222132_.getWorld().getBlockAt(p_222133_.m_123341_(), p_222133_.m_123342_(), p_222133_.m_123343_()));
 +            p_222132_.getCraftServer().getPluginManager().callEvent((org.bukkit.event.entity.EntityInteractEvent) cancellable);

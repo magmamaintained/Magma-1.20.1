@@ -26,8 +26,8 @@
  import net.minecraft.world.phys.BlockHitResult;
  import net.minecraft.world.phys.EntityHitResult;
  import net.minecraft.world.phys.HitResult;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityPotionEffectEvent;
  
  public class ThrownPotion extends ThrowableItemProjectile implements ItemSupplier {
@@ -133,7 +133,7 @@
  
 -      this.m_9236_().m_7967_(areaeffectcloud);
 +      // CraftBukkit start
-+      org.bukkit.event.entity.LingeringPotionSplashEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callLingeringPotionSplashEvent(this, areaeffectcloud);
++      org.bukkit.event.entity.LingeringPotionSplashEvent event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callLingeringPotionSplashEvent(this, areaeffectcloud);
 +      if (!(event.isCancelled() || areaeffectcloud.m_213877_())) {
 +         this.m_9236_().m_7967_(areaeffectcloud);
 +      } else {

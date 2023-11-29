@@ -4,8 +4,8 @@
  import net.minecraft.world.level.block.state.BlockBehaviour;
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.material.FluidState;
-+import org.bukkit.craftbukkit.block.CraftBlockState;
-+import org.bukkit.craftbukkit.util.BlockStateListPopulator;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockState;
++import org.bukkit.craftbukkit.v1_20_R1.util.BlockStateListPopulator;
 +import org.bukkit.event.block.SpongeAbsorbEvent;
 +
 +import java.util.List;

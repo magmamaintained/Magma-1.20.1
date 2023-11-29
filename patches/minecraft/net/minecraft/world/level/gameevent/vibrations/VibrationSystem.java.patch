@@ -1,20 +1,11 @@
 --- a/net/minecraft/world/level/gameevent/vibrations/VibrationSystem.java
 +++ b/net/minecraft/world/level/gameevent/vibrations/VibrationSystem.java
-@@ -11,6 +_,7 @@
- import net.minecraft.core.BlockPos;
- import net.minecraft.core.Direction;
- import net.minecraft.core.particles.VibrationParticleOption;
-+import net.minecraft.core.registries.BuiltInRegistries;
- import net.minecraft.server.level.ServerLevel;
- import net.minecraft.server.level.ServerPlayer;
- import net.minecraft.tags.BlockTags;
-@@ -28,6 +_,10 @@
+@@ -28,6 +_,9 @@
  import net.minecraft.world.level.gameevent.PositionSource;
  import net.minecraft.world.phys.HitResult;
  import net.minecraft.world.phys.Vec3;
-+import org.bukkit.craftbukkit.CraftGameEvent;
-+import org.bukkit.craftbukkit.block.CraftBlock;
-+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
++import org.bukkit.craftbukkit.v1_20_R1.CraftGameEvent;
++import org.bukkit.craftbukkit.v1_20_R1.block.CraftBlock;
 +import org.bukkit.event.block.BlockReceiveGameEvent;
  
  public interface VibrationSystem {

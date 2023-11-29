@@ -12,7 +12,7 @@
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.phys.Vec3;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 +import org.bukkit.event.entity.EntityPickupItemEvent;
 +import org.bukkit.event.player.PlayerPickupItemEvent;
  
@@ -119,7 +119,7 @@
 +         }
 +         if (item.m_41619_() && !this.m_213877_()) {
 +            // CraftBukkit start - fire ItemDespawnEvent
-+            if (org.bukkit.craftbukkit.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++            if (org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
 +               this.f_31985_ = 0;
 +               return;
 +            }
@@ -141,7 +141,7 @@
 +      // CraftBukkit end
 +      if (!this.m_9236_().f_46443_ && this.f_31985_ >= this.m_9236_().spigotConfig.itemDespawnRate) { // Spigot
 +         // CraftBukkit start - fire ItemDespawnEvent
-+         if (org.bukkit.craftbukkit.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++         if (org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
 +            this.f_31985_ = 0;
 +            return;
 +         }
@@ -213,7 +213,7 @@
           return true;
        } else {
 +         // CraftBukkit start
-+         if (org.bukkit.craftbukkit.event.CraftEventFactory.handleNonLivingEntityDamageEvent(this, p_32013_, p_32014_)) {
++         if (org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.handleNonLivingEntityDamageEvent(this, p_32013_, p_32014_)) {
 +            return false;
 +         }
 +         // CraftBukkit end

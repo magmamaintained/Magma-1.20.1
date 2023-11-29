@@ -1,9 +1,10 @@
 --- a/net/minecraft/world/item/HangingEntityItem.java
 +++ b/net/minecraft/world/item/HangingEntityItem.java
-@@ -19,6 +_,7 @@
+@@ -19,6 +_,8 @@
  import net.minecraft.world.item.context.UseOnContext;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.gameevent.GameEvent;
++import org.bukkit.craftbukkit.v1_20_R1.CraftEquipmentSlot;
 +import org.bukkit.event.hanging.HangingPlaceEvent;
  
  public class HangingEntityItem extends Item {
@@ -15,9 +16,9 @@
 +               // CraftBukkit start - fire HangingPlaceEvent
 +               org.bukkit.entity.Player who = (p_41331_.m_43723_() == null) ? null : (org.bukkit.entity.Player) p_41331_.m_43723_().getBukkitEntity();
 +               org.bukkit.block.Block blockClicked = level.getWorld().getBlockAt(blockpos1.m_123341_(), blockpos1.m_123342_(), blockpos1.m_123343_());
-+               org.bukkit.block.BlockFace blockFace = org.bukkit.craftbukkit.block.CraftBlock.notchToBlockFace(direction);
-+               org.bukkit.inventory.EquipmentSlot hand = org.bukkit.craftbukkit.CraftEquipmentSlot.getHand(p_41331_.m_43724_());
-+               HangingPlaceEvent event = new HangingPlaceEvent((org.bukkit.entity.Hanging) ((HangingEntity) hangingentity).getBukkitEntity(), who, blockClicked, blockFace, hand, org.bukkit.craftbukkit.inventory.CraftItemStack.asBukkitCopy(itemstack));
++               org.bukkit.block.BlockFace blockFace = org.bukkit.craftbukkit.v1_20_R1.block.CraftBlock.notchToBlockFace(direction);
++               org.bukkit.inventory.EquipmentSlot hand = CraftEquipmentSlot.getHand(p_41331_.m_43724_());
++               HangingPlaceEvent event = new HangingPlaceEvent((org.bukkit.entity.Hanging) ((HangingEntity) hangingentity).getBukkitEntity(), who, blockClicked, blockFace, hand, org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack.asBukkitCopy(itemstack));
 +               level.getCraftServer().getPluginManager().callEvent(event);
 +               if (event.isCancelled()) {
 +                  return InteractionResult.FAIL;

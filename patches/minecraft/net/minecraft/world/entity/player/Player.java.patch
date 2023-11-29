@@ -1,12 +1,34 @@
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
-@@ -113,9 +_,19 @@
+@@ -72,7 +_,6 @@
+ import net.minecraft.world.entity.animal.Parrot;
+ import net.minecraft.world.entity.animal.Pig;
+ import net.minecraft.world.entity.animal.horse.AbstractHorse;
+-import net.minecraft.world.entity.boss.EnderDragonPart;
+ import net.minecraft.world.entity.decoration.ArmorStand;
+ import net.minecraft.world.entity.item.ItemEntity;
+ import net.minecraft.world.entity.monster.Strider;
+@@ -85,12 +_,10 @@
+ import net.minecraft.world.inventory.ClickAction;
+ import net.minecraft.world.inventory.InventoryMenu;
+ import net.minecraft.world.inventory.PlayerEnderChestContainer;
+-import net.minecraft.world.item.ElytraItem;
+ import net.minecraft.world.item.ItemCooldowns;
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.item.ProjectileWeaponItem;
+-import net.minecraft.world.item.SwordItem;
+ import net.minecraft.world.item.crafting.Recipe;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
+ import net.minecraft.world.item.trading.MerchantOffers;
+@@ -112,10 +_,19 @@
+ import net.minecraft.world.phys.Vec3;
  import net.minecraft.world.scores.PlayerTeam;
  import net.minecraft.world.scores.Scoreboard;
- import net.minecraft.world.scores.Team;
-+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
-+import org.bukkit.craftbukkit.util.CraftVector;
+-import net.minecraft.world.scores.Team;
++import org.bukkit.craftbukkit.v1_20_R1.entity.CraftHumanEntity;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftVector;
 +import org.bukkit.entity.Item;
 +import org.bukkit.event.entity.CreatureSpawnEvent;
 +import org.bukkit.event.entity.EntityCombustByEntityEvent;
@@ -640,7 +662,7 @@
           this.m_183634_();
 -         this.m_20115_(7, false);
 +         // CraftBukkit start
-+         if (m_20291_(7) && !org.bukkit.craftbukkit.event.CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) {
++         if (m_20291_(7) && !org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) {
 +            this.m_20115_(7, false);
 +         }
 +         // CraftBukkit end
@@ -715,7 +737,7 @@
     public void m_36320_() {
 -      this.m_20115_(7, true);
 +      // CraftBukkit start
-+      if (!org.bukkit.craftbukkit.event.CraftEventFactory.callToggleGlideEvent(this, true).isCancelled()) {
++      if (!org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callToggleGlideEvent(this, true).isCancelled()) {
 +         this.m_20115_(7, true);
 +      } else {
 +         // SPIGOT-5542: must toggle like below
@@ -729,7 +751,7 @@
 -      this.m_20115_(7, true);
 -      this.m_20115_(7, false);
 +      // CraftBukkit start
-+      if (!org.bukkit.craftbukkit.event.CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) {
++      if (!org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callToggleGlideEvent(this, false).isCancelled()) {
 +         this.m_20115_(7, true);
 +         this.m_20115_(7, false);
 +      }

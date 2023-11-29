@@ -1,11 +1,12 @@
 --- a/net/minecraft/world/level/block/entity/BlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/BlockEntity.java
-@@ -13,9 +_,19 @@
+@@ -13,9 +_,20 @@
  import net.minecraft.world.item.ItemStack;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.state.BlockState;
-+import org.bukkit.craftbukkit.persistence.CraftPersistentDataContainer;
-+import org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry;
++import org.bukkit.craftbukkit.SpigotTimings;
++import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataContainer;
++import org.bukkit.craftbukkit.v1_20_R1.persistence.CraftPersistentDataTypeRegistry;
 +import org.bukkit.inventory.InventoryHolder;
 +import org.magmafoundation.magma.helpers.InventoryHelper;
  import org.slf4j.Logger;
@@ -13,7 +14,7 @@
  
 -public abstract class BlockEntity {
 +public abstract class BlockEntity extends net.minecraftforge.common.capabilities.CapabilityProvider<BlockEntity> implements net.minecraftforge.common.extensions.IForgeBlockEntity {
-+   public CustomTimingsHandler tickTimer = org.bukkit.craftbukkit.SpigotTimings.getTileEntityTimings(this); // Spigot
++   public CustomTimingsHandler tickTimer = SpigotTimings.getTileEntityTimings(this); // Spigot
 +   // CraftBukkit start - data containers
 +   private static final CraftPersistentDataTypeRegistry DATA_TYPE_REGISTRY = new CraftPersistentDataTypeRegistry();
 +   public CraftPersistentDataContainer persistentDataContainer;

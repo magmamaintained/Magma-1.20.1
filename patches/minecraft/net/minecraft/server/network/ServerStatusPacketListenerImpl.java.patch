@@ -8,15 +8,16 @@
  import net.minecraft.network.Connection;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.protocol.status.ClientboundPongResponsePacket;
-@@ -8,16 +_,32 @@
+@@ -8,16 +_,33 @@
  import net.minecraft.network.protocol.status.ServerStatusPacketListener;
  import net.minecraft.network.protocol.status.ServerboundPingRequestPacket;
  import net.minecraft.network.protocol.status.ServerboundStatusRequestPacket;
 +import net.minecraft.server.MinecraftServer;
 +import net.minecraft.server.level.ServerPlayer;
 +import net.minecraftforge.network.ServerStatusPing;
-+import org.bukkit.craftbukkit.util.CraftChatMessage;
-+import org.bukkit.craftbukkit.util.CraftIconCache;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftChatMessage;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftIconCache;
++import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 +import org.bukkit.entity.Player;
 +
 +import java.net.InetSocketAddress;
@@ -57,7 +58,7 @@
 +            @Override
 +            public void setServerIcon(org.bukkit.util.CachedServerIcon icon) {
 +               if (!(icon instanceof CraftIconCache)) {
-+                  throw new IllegalArgumentException(icon + " was not created by " + org.bukkit.craftbukkit.CraftServer.class);
++                  throw new IllegalArgumentException(icon + " was not created by " + CraftServer.class);
 +               }
 +               this.icon = (CraftIconCache) icon;
 +            }

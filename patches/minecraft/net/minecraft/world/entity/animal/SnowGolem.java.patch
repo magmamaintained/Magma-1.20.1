@@ -1,10 +1,16 @@
 --- a/net/minecraft/world/entity/animal/SnowGolem.java
 +++ b/net/minecraft/world/entity/animal/SnowGolem.java
-@@ -39,8 +_,9 @@
+@@ -33,14 +_,14 @@
+ import net.minecraft.world.entity.projectile.Snowball;
+ import net.minecraft.world.item.ItemStack;
+ import net.minecraft.world.item.Items;
+-import net.minecraft.world.level.GameRules;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.phys.Vec3;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
  
 -public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackMob {
 +public class SnowGolem extends AbstractGolem implements Shearable, RangedAttackMob, net.minecraftforge.common.IForgeShearable {
@@ -32,7 +38,7 @@
 -               this.m_9236_().m_46597_(blockpos, blockstate);
 +            if (this.m_9236_().m_46859_(blockpos) && blockstate.m_60710_(this.m_9236_(), blockpos)) {
 +               // CraftBukkit start
-+               if (!org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockFormEvent(this.m_9236_(), blockpos, blockstate, this)) {
++               if (!org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.handleBlockFormEvent(this.m_9236_(), blockpos, blockstate, this)) {
 +                  continue;
 +               }
 +               // CraftBukkit end

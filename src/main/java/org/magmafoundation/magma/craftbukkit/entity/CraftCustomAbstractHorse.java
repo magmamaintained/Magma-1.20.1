@@ -19,8 +19,8 @@
 package org.magmafoundation.magma.craftbukkit.entity;
 
 import net.minecraft.world.entity.animal.horse.AbstractHorse;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftAbstractHorse;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftAbstractHorse;
 import org.bukkit.entity.Horse;
 
 public class CraftCustomAbstractHorse extends CraftAbstractHorse {

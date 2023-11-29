@@ -19,8 +19,8 @@
 package org.magmafoundation.magma.craftbukkit.entity;
 
 import net.minecraft.world.entity.TamableAnimal;
-import org.bukkit.craftbukkit.CraftServer;
-import org.bukkit.craftbukkit.entity.CraftTameableAnimal;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftTameableAnimal;
 
 public class CraftCustomTamable extends CraftTameableAnimal {
 

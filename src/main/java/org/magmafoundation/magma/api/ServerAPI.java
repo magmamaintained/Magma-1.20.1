@@ -21,7 +21,7 @@ package org.magmafoundation.magma.api;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.entity.EntityType;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 import org.magmafoundation.magma.common.MagmaConstants;
 
 import java.util.Map;

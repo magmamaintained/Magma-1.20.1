@@ -4,9 +4,9 @@
  import net.minecraft.world.item.armortrim.TrimPattern;
  import net.minecraft.world.item.armortrim.TrimPatterns;
  import net.minecraft.world.level.Level;
-+import org.bukkit.craftbukkit.inventory.CraftRecipe;
-+import org.bukkit.craftbukkit.inventory.CraftSmithingTrimRecipe;
-+import org.bukkit.craftbukkit.util.CraftNamespacedKey;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftRecipe;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftSmithingTrimRecipe;
++import org.bukkit.craftbukkit.v1_20_R1.util.CraftNamespacedKey;
 +import org.bukkit.inventory.Recipe;
  
  public class SmithingTrimRecipe implements SmithingRecipe {

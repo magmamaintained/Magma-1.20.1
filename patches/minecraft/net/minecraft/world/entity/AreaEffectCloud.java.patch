@@ -1,27 +1,18 @@
 --- a/net/minecraft/world/entity/AreaEffectCloud.java
 +++ b/net/minecraft/world/entity/AreaEffectCloud.java
-@@ -5,6 +_,8 @@
+@@ -5,6 +_,7 @@
  import com.mojang.brigadier.StringReader;
  import com.mojang.brigadier.exceptions.CommandSyntaxException;
  import com.mojang.logging.LogUtils;
 +
-+import java.util.Collection;
  import java.util.List;
  import java.util.Map;
  import java.util.UUID;
-@@ -18,6 +_,7 @@
- import net.minecraft.network.syncher.EntityDataAccessor;
- import net.minecraft.network.syncher.EntityDataSerializers;
- import net.minecraft.network.syncher.SynchedEntityData;
-+import net.minecraft.resources.ResourceLocation;
- import net.minecraft.server.level.ServerLevel;
- import net.minecraft.util.Mth;
- import net.minecraft.world.effect.MobEffectInstance;
 @@ -26,6 +_,8 @@
  import net.minecraft.world.item.alchemy.Potions;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.material.PushReaction;
-+import org.bukkit.craftbukkit.entity.CraftLivingEntity;
++import org.bukkit.craftbukkit.v1_20_R1.entity.CraftLivingEntity;
 +import org.bukkit.event.entity.EntityPotionEffectEvent;
  import org.slf4j.Logger;
  
@@ -78,7 +69,7 @@
 +                        }
 +                     }
 +                  }
-+                  org.bukkit.event.entity.AreaEffectCloudApplyEvent event = org.bukkit.craftbukkit.event.CraftEventFactory.callAreaEffectCloudApplyEvent(this, entities);
++                  org.bukkit.event.entity.AreaEffectCloudApplyEvent event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callAreaEffectCloudApplyEvent(this, entities);
 +                  if (!event.isCancelled()) {
 +                     for (org.bukkit.entity.LivingEntity entity : event.getAffectedEntities()) {
 +                        if (entity instanceof CraftLivingEntity) {

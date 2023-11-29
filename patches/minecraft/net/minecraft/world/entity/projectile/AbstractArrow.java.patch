@@ -131,7 +131,7 @@
 +         ItemStack itemstack = this.m_7941_();
 +         if (this.f_36705_ == Pickup.ALLOWED && !itemstack.m_41619_() && p_36766_.m_150109_().canHold(itemstack) > 0) {
 +            ItemEntity item = new ItemEntity(this.m_9236_(), this.m_20185_(), this.m_20186_(), this.m_20189_(), itemstack);
-+            PlayerPickupArrowEvent event = new PlayerPickupArrowEvent((org.bukkit.entity.Player) p_36766_.getBukkitEntity(), new org.bukkit.craftbukkit.entity.CraftItem(this.m_9236_().getCraftServer(), this, item), (org.bukkit.entity.AbstractArrow) this.getBukkitEntity());
++            PlayerPickupArrowEvent event = new PlayerPickupArrowEvent((org.bukkit.entity.Player) p_36766_.getBukkitEntity(), new org.bukkit.craftbukkit.v1_20_R1.entity.CraftItem(this.m_9236_().getCraftServer(), this, item), (org.bukkit.entity.AbstractArrow) this.getBukkitEntity());
 +            this.m_9236_().getCraftServer().getPluginManager().callEvent(event);
 +            if (event.isCancelled()) {
 +               return;

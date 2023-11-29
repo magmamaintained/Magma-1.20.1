@@ -1,10 +1,17 @@
 --- a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
 +++ b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
-@@ -10,6 +_,8 @@
+@@ -3,13 +_,14 @@
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.BlockSource;
+ import net.minecraft.core.Direction;
+-import net.minecraft.tags.FluidTags;
+ import net.minecraft.world.entity.EntityType;
+ import net.minecraft.world.entity.vehicle.Boat;
+ import net.minecraft.world.entity.vehicle.ChestBoat;
  import net.minecraft.world.item.ItemStack;
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.DispenserBlock;
-+import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 +import org.bukkit.event.block.BlockDispenseEvent;
  
  public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {

@@ -4,7 +4,7 @@
  import net.minecraft.world.level.gameevent.GameEvent;
  import net.minecraft.world.level.pathfinder.BlockPathTypes;
  import net.minecraft.world.phys.Vec3;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
  
  public class Turtle extends Animal {
     private static final EntityDataAccessor<BlockPos> f_30123_ = SynchedEntityData.m_135353_(Turtle.class, EntityDataSerializers.f_135038_);
@@ -22,9 +22,9 @@
     }
  
     public void m_8038_(ServerLevel p_30140_, LightningBolt p_30141_) {
-+      org.bukkit.craftbukkit.event.CraftEventFactory.entityDamage = p_30141_; // CraftBukkit
++      org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.entityDamage = p_30141_; // CraftBukkit
        this.m_6469_(this.m_269291_().m_269548_(), Float.MAX_VALUE);
-+      org.bukkit.craftbukkit.event.CraftEventFactory.entityDamage = null; // CraftBukkit
++      org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.entityDamage = null; // CraftBukkit
     }
  
     static class TurtleBreedGoal extends BreedGoal {

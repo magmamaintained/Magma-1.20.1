@@ -29,7 +29,6 @@ import org.apache.logging.log4j.Logger;
 import io.netty.buffer.Unpooled;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.network.protocol.Packet;
@@ -42,7 +41,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.fml.config.ConfigTracker;
-import org.bukkit.craftbukkit.event.CraftEventFactory;
+import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 import org.jetbrains.annotations.Nullable;
 import org.magmafoundation.magma.helpers.InventoryViewHelper;
 

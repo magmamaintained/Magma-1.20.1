@@ -17,7 +17,7 @@
 +
 +      // CraftBukkit start
 +      if (!p_51032_.m_60710_(p_51035_, p_51036_)) {
-+         if (!org.bukkit.craftbukkit.event.CraftEventFactory.callBlockPhysicsEvent(p_51035_, p_51036_).isCancelled()) {
++         if (!org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callBlockPhysicsEvent(p_51035_, p_51036_).isCancelled()) {
 +            return Blocks.f_50016_.m_49966_();
 +         }
 +      }

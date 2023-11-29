@@ -1,10 +1,18 @@
 --- a/net/minecraft/world/entity/monster/EnderMan.java
 +++ b/net/minecraft/world/entity/monster/EnderMan.java
+@@ -56,7 +_,6 @@
+ import net.minecraft.world.item.alchemy.Potions;
+ import net.minecraft.world.item.enchantment.Enchantments;
+ import net.minecraft.world.level.ClipContext;
+-import net.minecraft.world.level.GameRules;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.Block;
+ import net.minecraft.world.level.block.Blocks;
 @@ -68,6 +_,7 @@
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
  import net.minecraft.world.phys.Vec3;
-+import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
  
  public class EnderMan extends Monster implements NeutralMob {
     private static final UUID f_32472_ = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
