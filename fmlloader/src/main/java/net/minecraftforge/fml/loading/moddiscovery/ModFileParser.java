@@ -36,7 +36,7 @@ public class ModFileParser {
         LOGGER.debug(LogMarkers.LOADING,"Considering mod file candidate {}", modFile.getFilePath());
         final Path modsjson = modFile.findResource("META-INF", "mods.toml");
         if (!Files.exists(modsjson)) {
-            if (!isDefaultMod(modFile.getFileName())) LOGGER.warn(LogMarkers.LOADING, "Mod file {} is missing mods.toml file", modFile.getFilePath());
+            if (!isDefaultMod(modFile.getFileName())) LOGGER.warn(LogMarkers.LOADING, "Mod file {} is missing mods.toml file", modFile.getFilePath()); // Magma - Remove unnecessary messages when load default forge mods
             return null;
         }
 
@@ -47,9 +47,11 @@ public class ModFileParser {
         return new ModFileInfo(modFile, configWrapper, configWrapper::setFile);
     }
 
+    // Magma start
     public static boolean isDefaultMod(String name) {
         return name.startsWith("fmlcore") || name.startsWith("javafmllanguage") || name.startsWith("lowcodelanguage") || name.startsWith("mclanguage");
     }
+    // Magma end
 
     protected static List<CoreModFile> getCoreMods(final ModFile modFile) {
         Map<String,String> coreModPaths;
