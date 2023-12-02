@@ -57,7 +57,7 @@ public class MagmaConfig extends ConfigBase {
     public final BooleanValue debugPrintInjections = new BooleanValue(this, "debug.print-bukkit-injections", false, "Prints Forge Bukkit Injections");
     public final BooleanValue debugWarnOnNullNBT = new BooleanValue(this, "debug.warn-on-null-nbt", false, "Prints a warning when an item tries to set an NBT tag to null");
     public final BooleanValue debugWarnOnUnknownEntity = new BooleanValue(this, "debug.warn-on-unknown-entity", false, "Prints a warning when an entity unknown to bukkit is spawned");
-
+    public final BooleanValue debugWorldConfig = new BooleanValue(this, "debug.world-config", false, "Prints the world config on load");
     public final IntValue forgePacketCompressionThreshold = new IntValue(this, "forge.packet-compression-threshold", 8388608, "Maximum packet size before compression is applied, Default: 8388608 (8MB)");
 
     private final String HEADER = "This is the main configuration file for Magma.\n" +
