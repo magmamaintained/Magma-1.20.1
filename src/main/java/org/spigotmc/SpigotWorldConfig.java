@@ -21,12 +21,12 @@ public class SpigotWorldConfig {
     public void init() {
         this.verbose = getBoolean("verbose", true);
 
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log("-------- World Settings For [" + worldName + "] --------");
+        log("-------- World Settings For [" + worldName + "] --------");
         SpigotConfig.readConfig(SpigotWorldConfig.class, this);
     }
 
     private void log(String s) {
-        if (verbose) {
+        if (verbose && MagmaConfig.instance.debugWorldConfig.getValues()) { // Magma - Add debugWorldConfig option
             Bukkit.getLogger().info(s);
         }
     }
@@ -94,10 +94,10 @@ public class SpigotWorldConfig {
         int modifier = getInt( "growth." + crop.toLowerCase(java.util.Locale.ENGLISH) + "-modifier", 100 );
         if ( modifier == 0 )
         {
-            if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Cannot set " + crop + " growth to zero, defaulting to 100" );
+            log( "Cannot set " + crop + " growth to zero, defaulting to 100" );
             modifier = 100;
         }
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( crop + " Growth Modifier: " + modifier + "%" );
+        log( crop + " Growth Modifier: " + modifier + "%" );
         return modifier;
     }
     private void growthModifiers()
@@ -127,13 +127,13 @@ public class SpigotWorldConfig {
     private void itemMerge()
     {
         itemMerge = getDouble("merge-radius.item", 2.5 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Item Merge Radius: " + itemMerge );
+        log( "Item Merge Radius: " + itemMerge );
     }
     public double expMerge;
     private void expMerge()
     {
         expMerge = getDouble("merge-radius.exp", 3.0 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Experience Merge Radius: " + expMerge );
+        log( "Experience Merge Radius: " + expMerge );
     }
 
     public int viewDistance;
@@ -150,7 +150,7 @@ public class SpigotWorldConfig {
             viewDistance = Bukkit.getViewDistance();
         }
         viewDistance = Math.max( Math.min( viewDistance, 32 ), 3 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "View Distance: " + viewDistance );
+        log( "View Distance: " + viewDistance );
     }
 
     public int simulationDistance;
@@ -162,21 +162,21 @@ public class SpigotWorldConfig {
         {
             simulationDistance = Bukkit.getSimulationDistance();
         }
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Simulation Distance: " + simulationDistance );
+        log( "Simulation Distance: " + simulationDistance );
     }
 
     public byte mobSpawnRange;
     private void mobSpawnRange()
     {
         mobSpawnRange = (byte) getInt( "mob-spawn-range", 6 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Mob Spawn Range: " + mobSpawnRange );
+        log( "Mob Spawn Range: " + mobSpawnRange );
     }
 
     public int itemDespawnRate;
     private void itemDespawnRate()
     {
         itemDespawnRate = getInt( "item-despawn-rate", 6000 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Item Despawn Rate: " + itemDespawnRate );
+        log( "Item Despawn Rate: " + itemDespawnRate );
     }
 
     public int animalActivationRange = 32;
@@ -193,7 +193,7 @@ public class SpigotWorldConfig {
         miscActivationRange = getInt( "entity-activation-range.misc", miscActivationRange );
         tickInactiveVillagers = getBoolean( "entity-activation-range.tick-inactive-villagers", tickInactiveVillagers );
         ignoreSpectatorActivation = getBoolean( "entity-activation-range.ignore-spectators", ignoreSpectatorActivation );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Entity Activation Range: An " + animalActivationRange + " / Mo " + monsterActivationRange + " / Ra " + raiderActivationRange + " / Mi " + miscActivationRange + " / Tiv " + tickInactiveVillagers + " / Isa " + ignoreSpectatorActivation );
+        log( "Entity Activation Range: An " + animalActivationRange + " / Mo " + monsterActivationRange + " / Ra " + raiderActivationRange + " / Mi " + miscActivationRange + " / Tiv " + tickInactiveVillagers + " / Isa " + ignoreSpectatorActivation );
     }
 
     public int playerTrackingRange = 48;
@@ -210,7 +210,7 @@ public class SpigotWorldConfig {
         miscTrackingRange = getInt( "entity-tracking-range.misc", miscTrackingRange );
         displayTrackingRange = getInt( "entity-tracking-range.display", displayTrackingRange );
         otherTrackingRange = getInt( "entity-tracking-range.other", otherTrackingRange );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Entity Tracking Range: Pl " + playerTrackingRange + " / An " + animalTrackingRange + " / Mo " + monsterTrackingRange + " / Mi " + miscTrackingRange + " / Di " + displayTrackingRange + " / Other " + otherTrackingRange );
+        log( "Entity Tracking Range: Pl " + playerTrackingRange + " / An " + animalTrackingRange + " / Mo " + monsterTrackingRange + " / Mi " + miscTrackingRange + " / Di " + displayTrackingRange + " / Other " + otherTrackingRange );
     }
 
     public int hopperTransfer;
@@ -228,7 +228,7 @@ public class SpigotWorldConfig {
         hopperCheck = getInt( "ticks-per.hopper-check", 1 );
         hopperAmount = getInt( "hopper-amount", 1 );
         hopperCanLoadChunks = getBoolean( "hopper-can-load-chunks", false );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Hopper Transfer: " + hopperTransfer + " Hopper Check: " + hopperCheck + " Hopper Amount: " + hopperAmount + " Hopper Can Load Chunks: " + hopperCanLoadChunks );
+        log( "Hopper Transfer: " + hopperTransfer + " Hopper Check: " + hopperCheck + " Hopper Amount: " + hopperAmount + " Hopper Can Load Chunks: " + hopperCanLoadChunks );
     }
 
     public int arrowDespawnRate;
@@ -237,28 +237,28 @@ public class SpigotWorldConfig {
     {
         arrowDespawnRate = getInt( "arrow-despawn-rate", 1200 );
         tridentDespawnRate = getInt( "trident-despawn-rate", arrowDespawnRate );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Arrow Despawn Rate: " + arrowDespawnRate + " Trident Respawn Rate:" + tridentDespawnRate );
+        log( "Arrow Despawn Rate: " + arrowDespawnRate + " Trident Respawn Rate:" + tridentDespawnRate );
     }
 
     public boolean zombieAggressiveTowardsVillager;
     private void zombieAggressiveTowardsVillager()
     {
         zombieAggressiveTowardsVillager = getBoolean( "zombie-aggressive-towards-villager", true );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Zombie Aggressive Towards Villager: " + zombieAggressiveTowardsVillager );
+        log( "Zombie Aggressive Towards Villager: " + zombieAggressiveTowardsVillager );
     }
 
     public boolean nerfSpawnerMobs;
     private void nerfSpawnerMobs()
     {
         nerfSpawnerMobs = getBoolean( "nerf-spawner-mobs", false );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Nerfing mobs spawned from spawners: " + nerfSpawnerMobs );
+        log( "Nerfing mobs spawned from spawners: " + nerfSpawnerMobs );
     }
 
     public boolean enableZombiePigmenPortalSpawns;
     private void enableZombiePigmenPortalSpawns()
     {
         enableZombiePigmenPortalSpawns = getBoolean( "enable-zombie-pigmen-portal-spawns", true );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Allow Zombie Pigmen to spawn from portal blocks: " + enableZombiePigmenPortalSpawns );
+        log( "Allow Zombie Pigmen to spawn from portal blocks: " + enableZombiePigmenPortalSpawns );
     }
 
     public int dragonDeathSoundRadius;
@@ -311,7 +311,7 @@ public class SpigotWorldConfig {
         mansionSeed = getInt( "seed-mansion", 10387319 );
         fossilSeed = getInt( "seed-fossil", 14357921 );
         portalSeed = getInt( "seed-portal", 34222645 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Custom Map Seeds:  Village: " + villageSeed + " Desert: " + desertSeed + " Igloo: " + iglooSeed + " Jungle: " + jungleSeed + " Swamp: " + swampSeed + " Monument: " + monumentSeed
+        log( "Custom Map Seeds:  Village: " + villageSeed + " Desert: " + desertSeed + " Igloo: " + iglooSeed + " Jungle: " + jungleSeed + " Swamp: " + swampSeed + " Monument: " + monumentSeed
                 + " Ocean: " + oceanSeed + " Shipwreck: " + shipwreckSeed + " End City: " + endCitySeed + " Slime: " + slimeSeed + " Nether: " + netherSeed + " Mansion: " + mansionSeed + " Fossil: " + fossilSeed + " Portal: " + portalSeed );
     }
 
@@ -348,7 +348,7 @@ public class SpigotWorldConfig {
             set( "max-tnt-per-tick", 100 );
         }
         maxTntTicksPerTick = getInt( "max-tnt-per-tick", 100 );
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log( "Max TNT Explosions: " + maxTntTicksPerTick );
+        log( "Max TNT Explosions: " + maxTntTicksPerTick );
     }
 
     public int hangingTickFrequency;
@@ -363,7 +363,7 @@ public class SpigotWorldConfig {
     {
         tileMaxTickTime = getInt("max-tick-time.tile", 50);
         entityMaxTickTime = getInt("max-tick-time.entity", 50);
-        if (MagmaConfig.instance.debugWorldConfig.getValues()) log("Tile Max Tick Time: " + tileMaxTickTime + "ms Entity max Tick Time: " + entityMaxTickTime + "ms");
+        log("Tile Max Tick Time: " + tileMaxTickTime + "ms Entity max Tick Time: " + entityMaxTickTime + "ms");
     }
 
     public int thunderChance;
