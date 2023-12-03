@@ -26,6 +26,8 @@ import org.bukkit.help.HelpTopic;
 import org.bukkit.help.HelpTopicComparator;
 import org.bukkit.help.HelpTopicFactory;
 import org.bukkit.help.IndexHelpTopic;
+import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.permission.ForgeCommandWrapper;
 
 /**
  * Standard implementation of {@link HelpMap} for CraftBukkit servers.
@@ -110,6 +112,13 @@ public class SimpleHelpMap implements HelpMap {
                 addTopic(topic);
             }
         }
+    }
+
+    public synchronized void updateCommands() {
+        helpTopics.clear();
+        initializeGeneralTopics();
+        initializeCommands();
+        Magma.LOGGER.info("Reloaded {} help topics", helpTopics.size());
     }
 
     /**
@@ -202,6 +211,9 @@ public class SimpleHelpMap implements HelpMap {
     private String getCommandPluginName(Command command) {
         if (command instanceof VanillaCommandWrapper) {
             return "Minecraft";
+        }
+        if (command instanceof ForgeCommandWrapper) {
+            return "Forge";
         }
         if (command instanceof BukkitCommand) {
             return "Bukkit";
