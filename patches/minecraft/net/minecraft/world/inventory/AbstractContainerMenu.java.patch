@@ -43,7 +43,7 @@
  import org.slf4j.Logger;
  
  public abstract class AbstractContainerMenu {
-@@ -60,6 +_,43 @@
+@@ -60,6 +_,42 @@
     private ContainerSynchronizer f_150397_;
     private boolean f_150398_;
  
@@ -75,8 +75,7 @@
 +   }
 +   private Component title;
 +   public final Component getTitle() {
-+      Preconditions.checkState(this.title != null, "Title not set");
-+      return this.title;
++      return this.title == null ? Component.m_237119_() : this.title; //Magma - Allow null titles
 +   }
 +   public final void setTitle(Component title) {
 +      Preconditions.checkState(this.title == null, "Title already set");
