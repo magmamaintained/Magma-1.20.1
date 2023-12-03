@@ -51,7 +51,7 @@
  
        this.m_9236_().m_7605_(this, (byte)18);
     }
-@@ -206,15 +_,43 @@
+@@ -206,15 +_,44 @@
  
     public void m_27563_(ServerLevel p_27564_, Animal p_27565_) {
        AgeableMob ageablemob = this.m_142606_(p_27564_, p_27565_);
@@ -70,7 +70,6 @@
           ageablemob.m_6863_(true);
           ageablemob.m_7678_(this.m_20185_(), this.m_20186_(), this.m_20189_(), 0.0F, 0.0F);
 -         this.m_277117_(p_27564_, p_27565_, ageablemob);
--         p_27564_.m_47205_(ageablemob);
 +         // CraftBukkit start - call EntityBreedEvent
 +         ServerPlayer breeder = Optional.ofNullable(this.m_27592_()).or(() -> {
 +            return Optional.ofNullable(p_27565_.m_27592_());
@@ -82,7 +81,8 @@
 +         }
 +         experience = entityBreedEvent.getExperience();
 +         this.finalizeSpawnChildFromBreeding(p_27564_, p_27565_, ageablemob, experience);
-+         p_27564_.addFreshEntityWithPassengers(ageablemob, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.BREEDING);
++         p_27564_.prepareAddFreshEntityWithPassengers(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.BREEDING); // Magma - Add SpawnReason
+          p_27564_.m_47205_(ageablemob);
 +         // CraftBukkit end
        }
     }

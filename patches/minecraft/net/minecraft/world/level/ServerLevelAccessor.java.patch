@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/ServerLevelAccessor.java
 +++ b/net/minecraft/world/level/ServerLevelAccessor.java
-@@ -2,11 +_,24 @@
+@@ -2,11 +_,31 @@
  
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.world.entity.Entity;
@@ -9,16 +9,17 @@
  public interface ServerLevelAccessor extends LevelAccessor {
     ServerLevel m_6018_();
  
++   // Magma start - Move reason to different constructor
++   default void prepareAddFreshEntityWithPassengers(CreatureSpawnEvent.SpawnReason reason) {
++      Fixes.reason = reason;
++   }
++   // Magma end
++
     default void m_47205_(Entity p_47206_) {
 -      p_47206_.m_20199_().forEach(this::m_7967_);
 -   }
-+      // CraftBukkit start
-+      //Magma - move spawn reason to the entity class
-+      this.addFreshEntityWithPassengers(p_47206_, CreatureSpawnEvent.SpawnReason.DEFAULT);
-+   }
-+
-+   default void addFreshEntityWithPassengers(Entity entity, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason reason) {
-+      entity.m_20199_().forEach((e) -> this.addFreshEntity(e, reason));
++      p_47206_.m_20199_().forEach((e) -> this.addFreshEntity(e, Fixes.reason)); // Magma
++      Fixes.reason = CreatureSpawnEvent.SpawnReason.DEFAULT; // reset
 +   }
 +
 +   @Override
@@ -26,4 +27,10 @@
 +      return m_6018_();
 +   }
 +   // CraftBukkit end
++
++   // Magma start - Make a class for create static field for reason
++   class Fixes {
++      public static CreatureSpawnEvent.SpawnReason reason = CreatureSpawnEvent.SpawnReason.DEFAULT;
++   }
++   // Magma end
  }

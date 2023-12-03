@@ -19,7 +19,7 @@
  
  public class ThrownEgg extends ThrowableItemProjectile {
     public ThrownEgg(EntityType<? extends ThrownEgg> p_37473_, Level p_37474_) {
-@@ -43,18 +_,45 @@
+@@ -43,18 +_,46 @@
     protected void m_6532_(HitResult p_37488_) {
        super.m_6532_(p_37488_);
        if (!this.m_9236_().f_46443_) {
@@ -61,12 +61,12 @@
                 if (chicken != null) {
 -                  chicken.m_146762_(-24000);
 -                  chicken.m_7678_(this.m_20185_(), this.m_20186_(), this.m_20189_(), this.m_146908_(), 0.0F);
--                  this.m_9236_().m_7967_(chicken);
 +                  // CraftBukkit start
 +                  if (chicken.getBukkitEntity() instanceof Ageable) {
 +                     ((Ageable) chicken.getBukkitEntity()).setBaby();
 +                  }
-+                  this.m_9236_().addFreshEntity(chicken, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.EGG);
++                  this.m_9236_().prepareAddFreshEntity(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.EGG); // Magma - Add SpawnReason
+                   this.m_9236_().m_7967_(chicken);
 +                  // CraftBukkit end
                 }
              }
