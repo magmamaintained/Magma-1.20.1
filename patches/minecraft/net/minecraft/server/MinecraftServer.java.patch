@@ -440,6 +440,7 @@
 +
 +
 +         worlddata.m_7955_(this.getServerModName(), this.m_183471_().m_184597_());
++         WorldBorder worldborder = world.m_6857_(); // Magma - Fix mixin issues
 +         this.initWorld(world, worlddata, f_129749_, worldoptions);
 +
 +         this.f_129762_.put(world.m_46472_(), world);
@@ -469,7 +470,6 @@
 +   // CraftBukkit start
 +   public void initWorld(ServerLevel serverlevel, ServerLevelData serverleveldata, WorldData saveData, WorldOptions worldoptions) {
 +      boolean flag = saveData.m_7513_();
-+      // CraftBukkit start
 +      if (serverlevel.generator != null) {
 +         serverlevel.getWorld().getPopulators().addAll(serverlevel.generator.getDefaultPopulators(serverlevel.getWorld()));
 +      }
