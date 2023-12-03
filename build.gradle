@@ -542,8 +542,6 @@ def sharedFmlonlyForge = { Project prj ->
                 exclude 'args.txt'
                 filter(ReplaceTokens, tokens: tokens)
                 into('data/')
-                //rename 'run.sh',  "run_forge_${VERSION.replace('-', '_').sh"
-                //rename 'run.bat', "run_forge_${VERSION.replace('-', '_').bat"
             }
         }
     }
@@ -1067,18 +1065,6 @@ project(':forge') {
                                     args: [
                                             '--task', 'EXTRACT_FILES',
                                             '--archive', '{INSTALLER}',
-
-                                            '--from', 'data/run.sh',
-                                            '--to',   '{ROOT}/run.sh',
-                                            '--exec', '{ROOT}/run.sh',
-                                            //'--from', "data/run_forge_${VERSION.replace('-', '_').sh",
-                                            //'--to',   '{ROOT}/run_forge_${VERSION.replace('-', '_').sh',
-                                            //'--exec', '{ROOT}/run_forge_${VERSION.replace('-', '_').sh',
-
-                                            '--from', 'data/run.bat',
-                                            '--to',   '{ROOT}/run.bat',
-                                            //'--from', 'data/run_forge_${VERSION.replace('-', '_').bat',
-                                            //'--to',   '{ROOT}/run_forge_${VERSION.replace('-', '_').bat',
 
                                             '--from',     'data/user_jvm_args.txt',
                                             '--to',       '{ROOT}/user_jvm_args.txt',
