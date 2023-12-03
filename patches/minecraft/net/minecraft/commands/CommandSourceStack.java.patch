@@ -34,7 +34,7 @@
     public boolean m_6761_(int p_81370_) {
 +      // CraftBukkit start
 +      CommandNode currentCommand = this.currentCommand;
-+      if (currentCommand != null) {
++      if (currentCommand != null && !currentCommand.isForgeCommand()) { //Magma - skip if forge command
 +         return hasPermission(p_81370_, VanillaCommandWrapper.getPermission(currentCommand));
 +      }
 +      // CraftBukkit end
