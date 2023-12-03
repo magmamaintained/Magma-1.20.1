@@ -430,17 +430,6 @@ public final class CraftServer implements Server {
         }
     }
 
-    public void checkForUnknownCommands(Commands dispatcher) {
-        for (CommandNode<CommandSourceStack> cmd : dispatcher.getForgeDispatcher().unwrap().getRoot().getChildren()) {
-            ForgeCommandWrapper wrapper = new ForgeCommandWrapper(dispatcher, cmd);
-            if (commandMap.getKnownCommands().containsKey(wrapper.getName())) continue;
-            if (org.spigotmc.SpigotConfig.replaceCommands.contains(wrapper.getName())) continue;
-
-            commandMap.register("forge", wrapper);
-            cmd.setForgeCommand();
-        }
-    }
-
     public void syncCommands() {
         // Clear existing commands
         Commands dispatcher = console.resources.managers().commands = new Commands();

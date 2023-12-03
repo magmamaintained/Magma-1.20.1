@@ -82,7 +82,7 @@
           TestCommand.m_127946_(this.f_82090_);
           SpawnArmorTrimsCommand.m_266283_(this.f_82090_);
        }
-@@ -218,11 +_,65 @@
+@@ -218,12 +_,65 @@
        if (p_230943_.f_82144_) {
           PublishCommand.m_138184_(this.f_82090_);
        }
@@ -96,10 +96,9 @@
  
        this.f_82090_.setConsumer((p_230954_, p_230955_, p_230956_) -> {
           p_230954_.getSource().m_81342_(p_230954_, p_230955_, p_230956_);
-+         p_230954_.getSource().m_81342_(p_230954_, p_230955_, p_230956_);
        });
     }
-+
+ 
 +   // CraftBukkit start
 +   public int dispatchServerCommand(CommandSourceStack sender, String command) {
 +      Joiner joiner = Joiner.on(" ");
@@ -119,7 +118,7 @@
 +      String cmd = args[0];
 +      if (cmd.startsWith("minecraft:")) cmd = cmd.substring("minecraft:".length());
 +      if (cmd.startsWith("bukkit:")) cmd = cmd.substring("bukkit:".length());
-+       if (cmd.startsWith("forge:")) {
++      if (cmd.startsWith("forge:")) {
 +           setForge(true);
 +           cmd = cmd.substring("forge:".length());
 +       }
@@ -145,16 +144,16 @@
 +      }
 +   }
 +   // CraftBukkit end
- 
++
     public static <S> ParseResults<S> m_242611_(ParseResults<S> p_242928_, UnaryOperator<S> p_242890_) {
        CommandContextBuilder<S> commandcontextbuilder = p_242928_.getContext();
-@@ -231,9 +_,27 @@
+       CommandContextBuilder<S> commandcontextbuilder1 = commandcontextbuilder.withSource(p_242890_.apply(commandcontextbuilder.getSource()));
+@@ -231,11 +_,21 @@
     }
  
     public int m_230957_(CommandSourceStack p_230958_, String p_230959_) {
 -      p_230959_ = p_230959_.startsWith("/") ? p_230959_.substring(1) : p_230959_;
 -      return this.m_242674_(this.f_82090_.parse(p_230959_, p_230958_), p_230959_);
--   }
 +      // CraftBukkit start
 +      return this.performPrefixedCommand(p_230958_, p_230959_, p_230959_);
 +   }
@@ -163,22 +162,16 @@
 +      s = s.startsWith("/") ? s.substring(1) : s;
 +      return this.performCommand(this.getCurrentDispatcher(s).parse(s, commandlistenerwrapper), s, label);
 +      // CraftBukkit end
+    }
+ 
+    public int m_242674_(ParseResults<CommandSourceStack> p_242844_, String p_242841_) {
++      return this.performCommand(p_242844_, p_242841_, p_242841_);
 +   }
 +
 +   public int performCommand(ParseResults<CommandSourceStack> p_242844_, String p_242841_, String label) { // CraftBukkit
-+      preparePerformCommand(label);
-+      return m_242674_(p_242844_, p_242841_);
-+   }
-+
-+   // Magma start - Move label to different constructor.
-+   public String label;
-+   public void preparePerformCommand(String label) {
-+      this.label = label;
-+   }
-+   // Magma end
- 
-    public int m_242674_(ParseResults<CommandSourceStack> p_242844_, String p_242841_) {
        CommandSourceStack commandsourcestack = p_242844_.getContext().getSource();
+       commandsourcestack.m_81377_().m_129905_().m_6521_(() -> {
+          return "/" + p_242841_;
 @@ -243,7 +_,16 @@
  
        try {
@@ -193,7 +186,7 @@
 +               }
 +               return 1;
 +            }
-+            return this.f_82090_.execute(event.getParseResults());
++            return this.getCurrentDispatcher(p_242841_).execute(event.getParseResults());
           } catch (CommandRuntimeException commandruntimeexception) {
              commandsourcestack.m_81352_(commandruntimeexception.m_79226_());
              return 0;
@@ -210,74 +203,73 @@
        }
     }
  
-+    //Magma start - rewrite to add forge dispatcher support
++   //Magma start - rewrite to add forge dispatcher support
     public void m_82095_(ServerPlayer p_82096_) {
 -      Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newHashMap();
 +      if ( org.spigotmc.SpigotConfig.tabComplete < 0 ) return; // Spigot
-+       // CraftBukkit start
-+       // Register Vanilla commands into builtRoot as before
-+       Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newIdentityHashMap(); // Use identity to prevent aliasing issues
++      // CraftBukkit start
++      // Register Vanilla commands into builtRoot as before
++      Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> map = Maps.newIdentityHashMap(); // Use identity to prevent aliasing issues
 +
-+       RootCommandNode<SharedSuggestionProvider> vanillaRoot = new RootCommandNode<>();
-+       Commands vanillaCommands = p_82096_.f_8924_.vanillaCommandDispatcher;
-+       map.put(vanillaCommands.m_82094_().getRoot(), vanillaRoot);
++      RootCommandNode<SharedSuggestionProvider> vanillaRoot = new RootCommandNode<>();
++      Commands vanillaCommands = p_82096_.f_8924_.vanillaCommandDispatcher;
++      map.put(vanillaCommands.m_82094_().getRoot(), vanillaRoot);
 +
-+       // FORGE: Use our own command node merging method to handle redirect nodes properly, see issue #7551
-+       CommandHelper.mergeCommandNode(vanillaCommands.m_82094_().getRoot(), vanillaRoot, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
++      // FORGE: Use our own command node merging method to handle redirect nodes properly, see issue #7551
++      CommandHelper.mergeCommandNode(vanillaCommands.m_82094_().getRoot(), vanillaRoot, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
 +
-+       // Now build the global commands in a second pass
++      // Now build the global commands in a second pass
        RootCommandNode<SharedSuggestionProvider> rootcommandnode = new RootCommandNode<>();
        map.put(this.f_82090_.getRoot(), rootcommandnode);
 -      this.m_82112_(this.f_82090_.getRoot(), rootcommandnode, p_82096_.m_20203_(), map);
 -      p_82096_.f_8906_.m_9829_(new ClientboundCommandsPacket(rootcommandnode));
--   }
 +
-+       CommandHelper.mergeCommandNode(this.f_82090_.getRoot(), rootcommandnode, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
++      CommandHelper.mergeCommandNode(this.f_82090_.getRoot(), rootcommandnode, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
 +
-+       LinkedHashSet<String> set = new LinkedHashSet<>();
-+       for (CommandNode<SharedSuggestionProvider> child : rootcommandnode.getChildren()) {
-+           set.add(child.getName());
-+       }
++      LinkedHashSet<String> set = new LinkedHashSet<>();
++      for (CommandNode<SharedSuggestionProvider> child : rootcommandnode.getChildren()) {
++         set.add(child.getName());
++      }
 +
-+       PlayerCommandSendEvent event = new PlayerCommandSendEvent(p_82096_.getBukkitEntity(), new LinkedHashSet<>(set));
-+       event.getPlayer().getServer().getPluginManager().callEvent(event);
++      PlayerCommandSendEvent event = new PlayerCommandSendEvent(p_82096_.getBukkitEntity(), new LinkedHashSet<>(set));
++      event.getPlayer().getServer().getPluginManager().callEvent(event);
 +
-+       // Remove labels that were removed during the event
-+       for (String orig : set) {
-+           if (!event.getCommands().contains(orig)) {
-+//               rootcommandnode.removeCommand(orig);
-+   }
-+       }
++      // Remove labels that were removed during the event
++      for (String orig : set) {
++         if (!event.getCommands().contains(orig)) {
++            rootcommandnode.removeCommand(orig);
++         }
++      }
 +
-+       //Now add the forge commands
-+       RootCommandNode<SharedSuggestionProvider> forgeRoot = new RootCommandNode<>();
-+       map.put(this.forgeDispatcher.getRoot(), forgeRoot);
++      //Now add the forge commands
++      RootCommandNode<SharedSuggestionProvider> forgeRoot = new RootCommandNode<>();
++      map.put(this.forgeDispatcher.getRoot(), forgeRoot);
 +
-+       CommandHelper.mergeCommandNode(this.forgeDispatcher.getRoot(), forgeRoot, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
++      CommandHelper.mergeCommandNode(this.forgeDispatcher.getRoot(), forgeRoot, map, p_82096_.m_20203_(), ctx -> 0, suggest -> SuggestionProviders.m_121664_((SuggestionProvider<SharedSuggestionProvider>) (SuggestionProvider<?>) suggest));
 +
-+       //Add all the forge commands to the root node
-+       forgeRoot.getChildren().forEach(rootcommandnode::addChild);
-+       //ambassador commands start - Magma
-+       ClientboundCommandsPacket packet = new ClientboundCommandsPacket(rootcommandnode);
-+       try{
-+           ConnectionData connectionData = (ConnectionData) p_82096_.f_8906_.f_9742_.channel().attr(AttributeKey.valueOf("fml:conndata")).get();
-+           if (connectionData == null){
-+               f_82089_.info("Failed to get a channel with the attribute of fml:conndata.");
-+               p_82096_.f_8906_.m_9829_(packet);
-+           } else if (connectionData.getChannels().keySet().stream().anyMatch((v) -> v.equals(new ResourceLocation("ambassador:commands")))) {
-+               FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
-+//               packet.wrapAndWrite(byteBuf);
-+               p_82096_.f_8906_.m_9829_(new ClientboundCustomPayloadPacket(new ResourceLocation("ambassador:commands"), byteBuf));
-+           } else {
-+               p_82096_.f_8906_.m_9829_(packet);
-+           }
-+       }catch (ClassCastException e){
-+           f_82089_.error("Failed to get connection data for player " + p_82096_.m_7755_().getString() + ". Someone registered a channel with the fml:conndata key that isn't a ConnectionData object.");
-+           p_82096_.f_8906_.m_9829_(packet);
-+       }
-+       //ambassador commands end - Magma
-+   }
-+    //Magma end
++      //Add all the forge commands to the root node
++      forgeRoot.getChildren().forEach(rootcommandnode::addChild);
++      //ambassador commands start - Magma
++      ClientboundCommandsPacket packet = new ClientboundCommandsPacket(rootcommandnode);
++      try{
++         ConnectionData connectionData = (ConnectionData) p_82096_.f_8906_.f_9742_.channel().attr(AttributeKey.valueOf("fml:conndata")).get();
++         if (connectionData == null){
++            f_82089_.info("Failed to get a channel with the attribute of fml:conndata.");
++            p_82096_.f_8906_.m_9829_(packet);
++         } else if (connectionData.getChannels().keySet().stream().anyMatch((v) -> v.equals(new ResourceLocation("ambassador:commands")))) {
++            FriendlyByteBuf byteBuf = new FriendlyByteBuf(Unpooled.buffer());
++            packet.wrapAndWrite(byteBuf);
++            p_82096_.f_8906_.m_9829_(new ClientboundCustomPayloadPacket(new ResourceLocation("ambassador:commands"), byteBuf));
++         } else {
++            p_82096_.f_8906_.m_9829_(packet);
++         }
++      }catch (ClassCastException e){
++         f_82089_.error("Failed to get connection data for player " + p_82096_.m_7755_().getString() + ". Someone registered a channel with the fml:conndata key that isn't a ConnectionData object.");
++         p_82096_.f_8906_.m_9829_(packet);
++      }
++      //ambassador commands end - Magma
+    }
++   //Magma end
  
     private void m_82112_(CommandNode<CommandSourceStack> p_82113_, CommandNode<SharedSuggestionProvider> p_82114_, CommandSourceStack p_82115_, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> p_82116_) {
        for(CommandNode<CommandSourceStack> commandnode : p_82113_.getChildren()) {
@@ -289,10 +281,10 @@
        return this.f_82090_;
     }
  
-+    //Magma - wrap the forge dispatcher to prevent LuckPerms from using this method as the vanilla dispatcher.. thanks reflection...
-+    public Wrapped<CommandDispatcher<CommandSourceStack>> getForgeDispatcher() {
-+        return Wrapped.wrap(forgeDispatcher);
-+    }
++   //Magma - wrap the forge dispatcher to prevent LuckPerms from using this method as the vanilla dispatcher.. thanks reflection...
++   public Wrapped<CommandDispatcher<CommandSourceStack>> getForgeDispatcher() {
++      return Wrapped.wrap(forgeDispatcher);
++   }
 +
     @Nullable
     public static <S> CommandSyntaxException m_82097_(ParseResults<S> p_82098_) {
@@ -302,38 +294,38 @@
        }
     }
 +
-+    //Magma start - add forge dispatcher
-+    private boolean forge = false;
-+    public void setForge(boolean b) {
-+        this.forge = b;
-+    }
++   // Magma start - add forge dispatcher
++   private boolean forge = false;
++   public void setForge(boolean b) {
++      this.forge = b;
++   }
 +
-+    private CommandDispatcher<CommandSourceStack> getCurrentDispatcher(String string) {
-+        if (forge)
-+            return getForgeDispatcher().unwrap();
++   private CommandDispatcher<CommandSourceStack> getCurrentDispatcher(String string) {
++      if (forge)
++         return getForgeDispatcher().unwrap();
 +
-+        String literal = string.split(" ")[0]; //the command root, ex. deop
-+        if (literal.startsWith("/"))
-+            literal = literal.substring(1);
-+        if (literal.startsWith("forge:"))
-+            return getForgeDispatcher().unwrap();
++      String literal = string.split(" ")[0]; //the command root, ex. deop
++      if (literal.startsWith("/"))
++         literal = literal.substring(1);
++      if (literal.startsWith("forge:"))
++         return getForgeDispatcher().unwrap();
 +
-+        final String search = literal;
-+        CommandNode<CommandSourceStack> found = getForgeDispatcher().unwrap()
-+                .getRoot()
-+                .getChildren()
-+                .stream()
-+                .filter(node -> node instanceof LiteralCommandNode)
-+                .filter(node -> ((LiteralCommandNode<?>) node).getLiteral().equals(search))
-+                .findFirst()
-+                .orElse(null);
++      final String search = literal;
++      CommandNode<CommandSourceStack> found = getForgeDispatcher().unwrap()
++              .getRoot()
++              .getChildren()
++              .stream()
++              .filter(node -> node instanceof LiteralCommandNode)
++              .filter(node -> ((LiteralCommandNode<?>) node).getLiteral().equals(search))
++              .findFirst()
++              .orElse(null);
 +
-+        if (found != null)
-+            return getForgeDispatcher().unwrap();
++      if (found != null)
++         return getForgeDispatcher().unwrap();
 +
-+        return m_82094_();
-+    }
-+    //Magma end
++      return m_82094_();
++   }
++   // Magma end
  
     public static enum CommandSelection {
        ALL(true, true),
