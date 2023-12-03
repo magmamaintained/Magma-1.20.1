@@ -672,7 +672,7 @@
     public void m_7570_(boolean p_129884_) {
        this.f_129764_ = false;
        if (p_129884_) {
-@@ -624,30 +_,55 @@
+@@ -624,30 +_,56 @@
  
     }
  
@@ -690,6 +690,7 @@
           }
  
 +         net.minecraftforge.server.ServerLifecycleHooks.handleServerStarted(this);
++         this.server.checkForUnknownCommands(m_129892_()); //Magma - force a command sync
           this.f_129726_ = Util.m_137550_();
           this.f_271173_ = this.m_272273_().orElse((ServerStatus.Favicon)null);
           this.f_129757_ = this.m_271988_();
