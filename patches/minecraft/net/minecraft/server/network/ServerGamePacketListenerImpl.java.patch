@@ -1098,18 +1098,21 @@
           }
  
        }
-@@ -1207,8 +_,13 @@
+@@ -1207,8 +_,15 @@
           Optional<LastSeenMessages> optional = this.m_247189_(p_215225_.f_237922_(), p_215225_.f_237923_(), p_215225_.f_241638_());
           if (optional.isPresent()) {
              this.f_9745_.m_18707_(() -> {
+-               this.m_246958_(p_215225_, optional.get());
+-               this.m_215251_();
 +               // CraftBukkit start - SPIGOT-7346: Prevent disconnected players from executing commands
 +               if (f_9743_.m_9232_()) {
 +                  return;
 +               }
 +               // CraftBukkit end
-                this.m_246958_(p_215225_, optional.get());
--               this.m_215251_();
-+               this.detectRateSpam("/" + p_215225_.f_237922_()); // Spigot
++               String command = "/" + p_215225_.f_237922_();
++               this.handleCommand(command); //Magma
++               //this.performChatCommand(p_215225_, optional.get());
++               this.detectRateSpam(command); // Spigot
              });
           }
  

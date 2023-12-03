@@ -1,0 +1,165 @@
+--- a/net/minecraft/network/protocol/game/ClientboundCommandsPacket.java
++++ b/net/minecraft/network/protocol/game/ClientboundCommandsPacket.java
+@@ -10,6 +_,7 @@
+ import com.mojang.brigadier.tree.CommandNode;
+ import com.mojang.brigadier.tree.LiteralCommandNode;
+ import com.mojang.brigadier.tree.RootCommandNode;
++import io.netty.buffer.Unpooled;
+ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+ import it.unimi.dsi.fastutil.ints.IntSet;
+ import it.unimi.dsi.fastutil.ints.IntSets;
+@@ -17,6 +_,8 @@
+ import it.unimi.dsi.fastutil.objects.Object2IntMaps;
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
++
++import java.util.Arrays;
+ import java.util.List;
+ import java.util.Queue;
+ import java.util.function.BiPredicate;
+@@ -61,6 +_,15 @@
+       p_131886_.m_130130_(this.f_237619_);
+    }
+ 
++   //Magma start - ambassador commands support
++   public void wrapAndWrite(FriendlyByteBuf byteBuf) {
++      byteBuf.m_236828_(this.f_237620_, (p_237642_, p_237643_) -> {
++         p_237643_.m_237674_(p_237642_);
++      });
++      byteBuf.m_130130_(this.f_237619_);
++   }
++   //Magma end
++
+    private static void m_237630_(List<ClientboundCommandsPacket.Entry> p_237631_, BiPredicate<ClientboundCommandsPacket.Entry, IntSet> p_237632_) {
+       IntSet intset = new IntOpenHashSet(IntSets.fromTo(0, p_237631_.size()));
+ 
+@@ -189,6 +_,61 @@
+    }
+ 
+    static class ArgumentNodeStub implements ClientboundCommandsPacket.NodeStub {
++      //Magma start - ambassador command support
++      private static final int MOD_ARGUMENT_INDICATOR = -256;
++      private static final List<String> integrated_argument_types = Arrays.asList(
++              "brigadier:bool",
++              "brigadier:float",
++              "brigadier:double",
++              "brigadier:integer",
++              "brigadier:long",
++              "brigadier:string",
++
++              "minecraft:entity",
++              "minecraft:game_profile",
++              "minecraft:block_pos",
++              "minecraft:column_pos",
++              "minecraft:vec3",
++              "minecraft:vec2",
++              "minecraft:block_state",
++              "minecraft:block_predicate",
++              "minecraft:item_stack",
++              "minecraft:item_predicate",
++              "minecraft:color",
++              "minecraft:component",
++              "minecraft:message",
++              "minecraft:nbt_compound_tag",
++              "minecraft:nbt_tag",
++              "minecraft:nbt_path",
++              "minecraft:objective",
++              "minecraft:objective_criteria",
++              "minecraft:operation",
++              "minecraft:particle",
++              "minecraft:angle",
++              "minecraft:rotation",
++              "minecraft:scoreboard_slot",
++              "minecraft:score_holder",
++              "minecraft:swizzle",
++              "minecraft:team",
++              "minecraft:item_slot",
++              "minecraft:resource_location",
++              "minecraft:function",
++              "minecraft:entity_anchor",
++              "minecraft:int_range",
++              "minecraft:float_range",
++              "minecraft:dimension",
++              "minecraft:gamemode",
++              "minecraft:time",
++
++              "minecraft:resource_or_tag",
++              "minecraft:resource_or_tag_key",
++              "minecraft:resource",
++              "minecraft:resource_key",
++              "minecraft:template_mirror",
++              "minecraft:template_rotation",
++              "minecraft:uuid"
++      );
++      //Magma end - ambassador command support
+       private final String f_237644_;
+       private final ArgumentTypeInfo.Template<?> f_237645_;
+       @Nullable
+@@ -228,6 +_,44 @@
+ 
+       }
+ 
++      //Magma start - ambassador command support
++      public void wrapAndWrite(FriendlyByteBuf byteBuf) {
++         byteBuf.m_130070_(this.f_237644_);
++         wrapInVelocityModArgument(byteBuf, this.f_237645_);
++         if (this.f_237646_ != null) {
++            byteBuf.m_130085_(this.f_237646_);
++         }
++      }
++
++      private static <A extends ArgumentType<?>> void wrapInVelocityModArgument(FriendlyByteBuf buf, ArgumentTypeInfo.Template<A> properties) {
++         wrapInVelocityModArgument(buf, properties.m_213709_(), properties);
++      }
++
++      private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void wrapInVelocityModArgument(FriendlyByteBuf buf, ArgumentTypeInfo<A, T> serializer, ArgumentTypeInfo.Template<A> properties) {
++         ResourceLocation identifier = BuiltInRegistries.f_256979_.m_7981_(properties.m_213709_());
++
++         if (identifier != null && integrated_argument_types.contains(identifier.toString())) {
++            buf.m_130130_(BuiltInRegistries.f_256979_.m_7447_(serializer));
++            serializer.m_214155_((T)properties, buf);
++            return;
++         }
++
++         // Not a standard Minecraft argument type - so we need to wrap it
++         serializeWrappedArgumentType(buf, properties.m_213709_(), properties);
++      }
++
++      private static <A extends ArgumentType<?>, T extends ArgumentTypeInfo.Template<A>> void serializeWrappedArgumentType(FriendlyByteBuf packetByteBuf, ArgumentTypeInfo<A, T> serializer, ArgumentTypeInfo.Template<A> properties) {
++         packetByteBuf.m_130130_(MOD_ARGUMENT_INDICATOR);
++         packetByteBuf.m_130130_(BuiltInRegistries.f_256979_.m_7447_(serializer));
++
++         FriendlyByteBuf extraData = new FriendlyByteBuf(Unpooled.buffer());
++         serializer.m_214155_((T) properties, extraData);
++
++         packetByteBuf.m_130130_(extraData.readableBytes());
++         packetByteBuf.writeBytes(extraData);
++      }
++      //Magma end
++
+       private static <A extends ArgumentType<?>> void m_237659_(FriendlyByteBuf p_237660_, ArgumentTypeInfo.Template<A> p_237661_) {
+          m_237662_(p_237660_, p_237661_.m_213709_(), p_237661_);
+       }
+@@ -263,6 +_,22 @@
+             this.f_237666_.m_214206_(p_237675_);
+          }
+ 
++      }
++
++      public void wrapAndWrite(FriendlyByteBuf byteBuf) {
++         byteBuf.writeByte(this.f_131890_);
++         byteBuf.m_130089_(this.f_131892_);
++         if ((this.f_131890_ & 8) != 0) {
++            byteBuf.m_130130_(this.f_131891_);
++         }
++
++         if (this.f_237666_ != null) {
++            if (this.f_237666_ instanceof ClientboundCommandsPacket.ArgumentNodeStub) {
++               ((ClientboundCommandsPacket.ArgumentNodeStub)this.f_237666_).wrapAndWrite(byteBuf);
++            } else{
++               this.f_237666_.m_214206_(byteBuf);
++            }
++         }
+       }
+ 
+       public boolean m_237672_(IntSet p_237673_) {
