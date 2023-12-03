@@ -923,12 +923,22 @@
              this.m_5496_(soundtype.m_56779_(), soundtype.m_56773_() * 0.5F, soundtype.m_56774_() * 0.75F);
           }
  
-@@ -1539,7 +_,7 @@
+@@ -1537,9 +_,17 @@
+    protected void m_7909_(float p_21316_) {
+    }
  
++   public boolean isDamageAfterArmorabsorbHurt = false; // Magma
     protected float m_21161_(DamageSource p_21162_, float p_21163_) {
-       if (!p_21162_.m_269533_(DamageTypeTags.f_268490_)) {
--         this.m_6472_(p_21162_, p_21163_);
-+         // this.hurtArmor(p_21162_, p_21163_); // CraftBukkit - Moved into damageEntity0(DamageSource, float)
+-      if (!p_21162_.m_269533_(DamageTypeTags.f_268490_)) {
++      // Magma start - Fix mixin issues
++      if (isDamageAfterArmorabsorbHurt) {
+          this.m_6472_(p_21162_, p_21163_);
++         isDamageAfterArmorabsorbHurt = false;
++         return 0.0F;
++      }
++      // Magma end
++
++      if (!p_21162_.m_269533_(DamageTypeTags.f_268490_)) {
           p_21163_ = CombatRules.m_19272_(p_21163_, (float)this.m_21230_(), (float)this.m_21133_(Attributes.f_22285_));
        }
  
@@ -971,7 +981,7 @@
           if (f1 != 0.0F) {
              this.m_21231_().m_289194_(p_21240_, f1);
              this.m_21153_(this.m_21223_() - f1);
-@@ -1605,6 +_,160 @@
+@@ -1605,6 +_,161 @@
        }
     }
  
@@ -1060,7 +1070,8 @@
 +         // Apply damage to armor
 +         if (!p_21240_.m_269533_(DamageTypeTags.f_268490_)) {
 +            float armorDamage = (float) (event.getDamage() + event.getDamage(EntityDamageEvent.DamageModifier.BLOCKING) + event.getDamage(EntityDamageEvent.DamageModifier.HARD_HAT));
-+            this.m_6472_(p_21240_, armorDamage);
++            this.isDamageAfterArmorabsorbHurt = true; // Magma
++            this.m_21161_(p_21240_, armorDamage); // Magma
 +         }
 +
 +         // Apply blocking code // PAIL: steal from above
