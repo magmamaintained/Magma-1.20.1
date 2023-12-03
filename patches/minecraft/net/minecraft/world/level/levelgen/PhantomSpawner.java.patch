@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/level/levelgen/PhantomSpawner.java
 +++ b/net/minecraft/world/level/levelgen/PhantomSpawner.java
-@@ -42,26 +_,29 @@
+@@ -42,25 +_,29 @@
                 for(ServerPlayer serverplayer : p_64576_.m_6907_()) {
                    if (!serverplayer.m_5833_()) {
                       BlockPos blockpos = serverplayer.m_20183_();
@@ -30,8 +30,7 @@
                                      if (phantom != null) {
                                         phantom.m_20035_(blockpos1, 0.0F, 0.0F);
                                         spawngroupdata = phantom.m_6518_(p_64576_, difficultyinstance, MobSpawnType.NATURAL, spawngroupdata, (CompoundTag)null);
--                                       p_64576_.m_47205_(phantom);
-+                                       p_64576_.addFreshEntityWithPassengers(phantom, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.NATURAL); // CraftBukkit
++                                       p_64576_.prepareAddFreshEntityWithPassengers(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.NATURAL); // Magma - Add SpawnReason
+                                        p_64576_.m_47205_(phantom);
                                         ++i;
                                      }
-                                  }

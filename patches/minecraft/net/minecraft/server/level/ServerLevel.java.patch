@@ -418,7 +418,7 @@
     }
  
     public void m_8622_(ServerPlayer p_8623_) {
-@@ -828,35 +_,68 @@
+@@ -828,35 +_,69 @@
     }
  
     private void m_8853_(ServerPlayer p_8854_) {
@@ -473,8 +473,8 @@
        if (p_8861_.m_20199_().map(Entity::m_20148_).anyMatch(this.f_143244_::m_157550_)) {
           return false;
        } else {
--         this.m_47205_(p_8861_);
-+         this.addFreshEntityWithPassengers(p_8861_, reason); // CraftBukkit
++         this.prepareAddFreshEntityWithPassengers(reason); // Magma
+          this.m_47205_(p_8861_);
           return true;
        }
     }

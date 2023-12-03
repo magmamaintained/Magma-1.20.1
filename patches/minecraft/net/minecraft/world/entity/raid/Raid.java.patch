@@ -95,15 +95,14 @@
     }
  
     public void m_37713_(int p_37714_, Raider p_37715_, @Nullable BlockPos p_37716_, boolean p_37717_) {
-@@ -554,7 +_,7 @@
+@@ -554,6 +_,7 @@
              p_37715_.m_6518_(this.f_37675_, this.f_37675_.m_6436_(p_37716_), MobSpawnType.EVENT, (SpawnGroupData)null, (CompoundTag)null);
              p_37715_.m_7895_(p_37714_, false);
              p_37715_.m_6853_(true);
--            this.f_37675_.m_47205_(p_37715_);
-+            this.f_37675_.addFreshEntityWithPassengers(p_37715_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.RAID); // CraftBukkit
++            this.f_37675_.prepareAddFreshEntityWithPassengers(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.RAID); // Magma - Add SpawnReason
+             this.f_37675_.m_47205_(p_37715_);
           }
        }
- 
 @@ -794,6 +_,12 @@
        this.f_37672_.add(p_37727_.m_20148_());
     }
