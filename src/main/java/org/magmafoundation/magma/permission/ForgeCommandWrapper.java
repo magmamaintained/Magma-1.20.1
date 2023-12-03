@@ -45,7 +45,7 @@ public class ForgeCommandWrapper extends Command {
             //So you will have to manually set the Forge permissions by allowing ex. "forge.command.coolmodcommand" in LuckPerms.
             boolean permissibleInjected = false;
             if (sender instanceof CraftPlayer player)
-//                permissibleInjected = player.isPermissibleInjected(); todo: reimplement
+                permissibleInjected = player.isPermissibleInjected();
 
             if ((permissibleInjected && !testPermission(sender)) ||
                     (!permissibleInjected && !forgeCommand.getRequirement().test(getListener(sender))))
