@@ -69,13 +69,10 @@
        }
  
        return 21;
-@@ -165,11 +_,33 @@
-       return this.f_77690_ != null && this.f_77692_ >= 2 && this.f_77692_ <= 21 && this.f_77691_ >= 3 && this.f_77691_ <= 21;
+@@ -166,10 +_,30 @@
     }
  
--   public void m_77743_() {
-+
-+   public boolean createPortalBlocks() {
+    public void m_77743_() {
 +      org.bukkit.World bworld = this.f_77686_.getMinecraftWorld().getWorld();
 +
 +      // Copy below for loop
@@ -95,7 +92,7 @@
 +      this.f_77686_.getMinecraftWorld().m_7654_().server.getPluginManager().callEvent(event);
 +
 +      if (event.isCancelled()) {
-+         return false;
++         return;
 +      }
 +      // CraftBukkit end
 +      BlockPos.m_121940_(this.f_77690_,
@@ -103,7 +100,6 @@
 +          .forEach((p_77725_) -> {
 +             this.f_77686_.m_7731_(p_77725_, blockstate, 18);
 +          });
-+      return true; // CraftBukkit
     }
  
     public boolean m_77744_() {

@@ -178,12 +178,18 @@
           atomicreference.get().m_130011_();
        }, "Server thread");
        thread.setUncaughtExceptionHandler((p_177909_, p_177910_) -> {
-@@ -263,11 +_,12 @@
+@@ -263,11 +_,19 @@
        return s;
     }
  
--   public MinecraftServer(Thread p_236723_, LevelStorageSource.LevelStorageAccess p_236724_, PackRepository p_236725_, WorldStem p_236726_, Proxy p_236727_, DataFixer p_236728_, Services p_236729_, ChunkProgressListenerFactory p_236730_) {
-+   public MinecraftServer(OptionSet options, WorldLoader.DataLoadContext worldLoader, Thread p_236723_, LevelStorageSource.LevelStorageAccess p_236724_, PackRepository p_236725_, WorldStem p_236726_, Proxy p_236727_, DataFixer p_236728_, Services p_236729_, ChunkProgressListenerFactory p_236730_) {
++   public static OptionSet cb_options = null;
++   public static WorldLoader.DataLoadContext cb_worldLoader = null;
++   public static void craftServerData(OptionSet options, WorldLoader.DataLoadContext worldLoader) {
++      MinecraftServer.cb_options = options;
++      MinecraftServer.cb_worldLoader = worldLoader;
++   }
++
+    public MinecraftServer(Thread p_236723_, LevelStorageSource.LevelStorageAccess p_236724_, PackRepository p_236725_, WorldStem p_236726_, Proxy p_236727_, DataFixer p_236728_, Services p_236729_, ChunkProgressListenerFactory p_236730_) {
        super("Server");
 +      instance = this;
        this.f_244176_ = p_236726_.f_244542_();
@@ -208,8 +214,8 @@
        }
 +
 +      // CraftBukkit start
-+      this.options = options;
-+      this.worldLoader = worldLoader;
++      this.options = MinecraftServer.cb_options;
++      this.worldLoader = MinecraftServer.cb_worldLoader;
 +      this.vanillaCommandDispatcher = p_236726_.f_206893_().f_206847_; // CraftBukkit
 +      // Try to see if we're actually running in a terminal, disable jline if not
 +      if (System.console() == null && System.getProperty("jline.terminal") == null) {
