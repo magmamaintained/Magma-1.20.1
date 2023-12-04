@@ -108,8 +108,6 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
 
                 //Delete brigadier, we have our own implementation
                 deleteLib("com/mojang/brigadier");
-                //Delete datafixers, we have our own implementation
-                deleteLib("com/mojang/datafixerupper");
                 System.out.println();
                 unmute();
                 pb.step();
