@@ -1142,7 +1142,7 @@
        }
  
     }
-@@ -1441,7 +_,34 @@
+@@ -1441,7 +_,35 @@
        return this.f_8937_;
     }
  
@@ -1152,6 +1152,7 @@
 +   public void prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause cause) {
 +      this.cause = Optional.of(cause);
 +   }
++   // Magma end
 +
     public void m_9158_(ResourceKey<Level> p_9159_, @Nullable BlockPos p_9160_, float p_9161_, boolean p_9162_, boolean p_9163_) {
 +      ServerLevel newWorld = this.f_8924_.m_129880_(p_9159_);
