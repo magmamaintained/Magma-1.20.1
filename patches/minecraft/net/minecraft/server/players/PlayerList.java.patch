@@ -487,10 +487,10 @@
 +   public  Optional<PlayerRespawnEvent.RespawnReason> reason;
 +
 +   public void prepareRespawn(ServerLevel serverLevel, Location location, boolean avoidSuffocation, PlayerRespawnEvent.RespawnReason reason) {
-+      this.worldserver = Optional.of(serverLevel);
++      this.worldserver = Optional.ofNullable(serverLevel);
 +      this.location = location;
 +      this.avoidSuffocation = avoidSuffocation;
-+      this.reason = Optional.of(reason);
++      this.reason = Optional.ofNullable(reason);
 +   }
 +
 +   // Magma end
