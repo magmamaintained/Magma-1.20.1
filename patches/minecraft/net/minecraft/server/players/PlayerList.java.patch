@@ -323,7 +323,7 @@
        this.m_6765_(p_11287_);
        if (p_11287_.m_20159_()) {
           Entity entity = p_11287_.m_20201_();
-@@ -355,82 +_,162 @@
+@@ -355,82 +_,172 @@
        serverlevel.m_143261_(p_11287_, Entity.RemovalReason.UNLOADED_WITH_PLAYER);
        p_11287_.m_8960_().m_135978_();
        this.f_11196_.remove(p_11287_);
@@ -474,20 +474,28 @@
  
 -      return new ServerPlayer(this.f_11195_, this.f_11195_.m_129783_(), p_215625_);
 -   }
--
--   public ServerPlayer m_11236_(ServerPlayer p_11237_, boolean p_11238_) {
 +      return new ServerPlayer(this.server, this.server.overworld(), p_215625_);
 +          */
 +      return player;
 +      // CraftBukkit end
 +   }
 +
-+   // CraftBukkit start
-+   public ServerPlayer respawn(ServerPlayer entityplayer, boolean flag, PlayerRespawnEvent.RespawnReason reason) {
-+      return this.respawn(entityplayer, this.f_11195_.m_129880_(entityplayer.m_8963_()), flag, null, true, reason);
++   // Magma start - Move PlayerRespawnEvent.RespawnReason to different constructor
++   public Optional<ServerLevel> worldserver;
++   public Location location;
++   public boolean avoidSuffocation;
++   public  Optional<PlayerRespawnEvent.RespawnReason> reason;
++
++   public void prepareRespawn(ServerLevel serverLevel, Location location, boolean avoidSuffocation, PlayerRespawnEvent.RespawnReason reason) {
++      this.worldserver = Optional.of(serverLevel);
++      this.location = location;
++      this.avoidSuffocation = avoidSuffocation;
++      this.reason = Optional.of(reason);
 +   }
 +
-+   public ServerPlayer respawn(ServerPlayer p_11237_, ServerLevel worldserver, boolean p_11238_, Location location, boolean avoidSuffocation, PlayerRespawnEvent.RespawnReason reason) {
++   // Magma end
+ 
+    public ServerPlayer m_11236_(ServerPlayer p_11237_, boolean p_11238_) {
 +      p_11237_.m_8127_(); // CraftBukkit
        this.f_11196_.remove(p_11237_);
 +      this.playersByName.remove(p_11237_.m_6302_().toLowerCase(java.util.Locale.ROOT)); // Spigot
@@ -518,7 +526,7 @@
        serverplayer.f_8906_ = p_11237_.f_8906_;
        serverplayer.m_9015_(p_11237_, p_11238_);
        serverplayer.m_20234_(p_11237_.m_19879_());
-@@ -441,24 +_,60 @@
+@@ -441,24 +_,61 @@
        }
  
        boolean flag2 = false;
@@ -566,7 +574,8 @@
 +               location = CraftLocation.toBukkit(vec3d, worldserver1.getWorld(), f1, 0.0F);
 +            } else if (blockpos != null) {
 +               p_11237_.f_8906_.m_9829_(new ClientboundGameEventPacket(ClientboundGameEventPacket.f_132153_, 0.0F));
-+               p_11237_.setRespawnPosition(null, null, 0f, false, false, PlayerSpawnChangeEvent.Cause.RESET); // CraftBukkit - SPIGOT-5988: Clear respawn location when obstructed
++               p_11237_.prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause.RESET); // Magma - Add cause
++               p_11237_.m_9158_(null, null, 0f, false, false); // CraftBukkit - SPIGOT-5988: Clear respawn location when obstructed
 +            }
 +         }
 +         if (location == null) {
@@ -576,7 +585,7 @@
 +         }
 +
 +         org.bukkit.entity.Player respawnPlayer = p_11237_.getBukkitEntity();
-+         PlayerRespawnEvent respawnEvent = new PlayerRespawnEvent(respawnPlayer, location, isBedSpawn && !flag2, flag2, reason);
++         PlayerRespawnEvent respawnEvent = new PlayerRespawnEvent(respawnPlayer, location, isBedSpawn && !flag2, flag2, reason.orElse(PlayerRespawnEvent.RespawnReason.UNKNOWN));
 +         cserver.getPluginManager().callEvent(respawnEvent);
 +         // Spigot Start
 +         if (p_11237_.f_8906_.isDisconnected()) {
@@ -586,7 +595,7 @@
 +         location = respawnEvent.getRespawnLocation();
 +         if (!flag) p_11237_.reset(); // SPIGOT-4785
 +      } else {
-+         location.setWorld(worldserver.getWorld());
++         location.setWorld(worldserver.orElse(this.f_11195_.m_129880_(p_11237_.m_8963_())).getWorld());
           serverplayer.f_8906_.m_9829_(new ClientboundGameEventPacket(ClientboundGameEventPacket.f_132153_, 0.0F));
        }
 +      ServerLevel serverlevel1 = ((CraftWorld) location.getWorld()).getHandle();

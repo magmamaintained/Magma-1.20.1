@@ -13,6 +13,50 @@
  import net.minecraft.core.registries.BuiltInRegistries;
  import net.minecraft.nbt.CompoundTag;
  import net.minecraft.nbt.NbtOps;
+@@ -38,42 +_,7 @@
+ import net.minecraft.network.chat.OutgoingChatMessage;
+ import net.minecraft.network.chat.RemoteChatSession;
+ import net.minecraft.network.protocol.Packet;
+-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
+-import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
+-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+-import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+-import net.minecraft.network.protocol.game.ClientboundChangeDifficultyPacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerClosePacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerSetDataPacket;
+-import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
+-import net.minecraft.network.protocol.game.ClientboundEntityEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundForgetLevelChunkPacket;
+-import net.minecraft.network.protocol.game.ClientboundGameEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundHorseScreenOpenPacket;
+-import net.minecraft.network.protocol.game.ClientboundHurtAnimationPacket;
+-import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
+-import net.minecraft.network.protocol.game.ClientboundMerchantOffersPacket;
+-import net.minecraft.network.protocol.game.ClientboundOpenBookPacket;
+-import net.minecraft.network.protocol.game.ClientboundOpenScreenPacket;
+-import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerAbilitiesPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerCombatEndPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerCombatEnterPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerCombatKillPacket;
+-import net.minecraft.network.protocol.game.ClientboundPlayerLookAtPacket;
+-import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+-import net.minecraft.network.protocol.game.ClientboundResourcePackPacket;
+-import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+-import net.minecraft.network.protocol.game.ClientboundServerDataPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetCameraPacket;
+-import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
+-import net.minecraft.network.protocol.game.ClientboundSetHealthPacket;
+-import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+-import net.minecraft.network.protocol.game.ClientboundSystemChatPacket;
+-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+-import net.minecraft.network.protocol.game.ServerboundClientInformationPacket;
++import net.minecraft.network.protocol.game.*;
+ import net.minecraft.network.protocol.status.ServerStatus;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.resources.ResourceLocation;
 @@ -95,6 +_,7 @@
  import net.minecraft.world.Container;
  import net.minecraft.world.InteractionHand;
@@ -615,16 +659,14 @@
           this.f_8933_ = null;
        }
  
-@@ -829,18 +_,21 @@
+@@ -829,18 +_,20 @@
        this.f_36096_.m_38946_();
     }
  
 -   public Either<Player.BedSleepingProblem, Unit> m_7720_(BlockPos p_9115_) {
 -      Direction direction = this.m_9236_().m_8055_(p_9115_).m_61143_(HorizontalDirectionalBlock.f_54117_);
 +   // CraftBukkit start - moved bed result checks from below into separate method
-+   private Either<Player.BedSleepingProblem, Unit> getBedResult(BlockPos p_9115_, Direction direction) {
-+      java.util.Optional<BlockPos> optAt = java.util.Optional.of(p_9115_);
-+      Player.BedSleepingProblem ret = net.minecraftforge.event.ForgeEventFactory.onPlayerSleepInBed(this, optAt);
++   private Either<Player.BedSleepingProblem, Unit> getBedResult(BlockPos p_9115_, Direction direction, Player.BedSleepingProblem ret, java.util.Optional<BlockPos> optAt) { // Magma - Add ret and optAt
 +      if (ret != null) return Either.left(ret);
        if (!this.m_5803_() && this.m_6084_()) {
 -         if (!this.m_9236_().m_6042_().f_63858_()) {
@@ -635,60 +677,88 @@
           } else if (this.m_9191_(p_9115_, direction)) {
              return Either.left(Player.BedSleepingProblem.OBSTRUCTED);
           } else {
--            this.m_9158_(this.m_9236_().m_46472_(), p_9115_, this.m_146908_(), false, true);
++            this.prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause.BED); // Magma - Add cause
+             this.m_9158_(this.m_9236_().m_46472_(), p_9115_, this.m_146908_(), false, true);
 -            if (this.m_9236_().m_46461_()) {
-+            this.setRespawnPosition(this.m_9236_().m_46472_(), p_9115_, this.m_146908_(), false, true, PlayerSpawnChangeEvent.Cause.BED); // CraftBukkit
 +            if (!net.minecraftforge.event.ForgeEventFactory.fireSleepingTimeCheck(this, optAt)) {
                 return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
              } else {
                 if (!this.m_7500_()) {
-@@ -855,7 +_,32 @@
+@@ -855,6 +_,48 @@
                    }
                 }
  
--               Either<Player.BedSleepingProblem, Unit> either = super.m_7720_(p_9115_).ifRight((p_9029_) -> {
 +               return Either.right(Unit.INSTANCE);
 +            }
 +         }
 +      } else {
 +         return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
 +      }
++
 +   }
 +
++   public Either<Player.BedSleepingProblem, Unit> bedResult;
 +   @Override
-+   public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos blockposition, boolean force) {
-+      Direction enumdirection = (Direction) this.m_9236_().m_8055_(blockposition).m_61143_(HorizontalDirectionalBlock.f_54117_);
-+      Either<Player.BedSleepingProblem, Unit> bedResult = this.getBedResult(blockposition, enumdirection);
++   public Either<Player.BedSleepingProblem, Unit> m_7720_(BlockPos p_9115_) {
++      java.util.Optional<BlockPos> optAt = java.util.Optional.of(p_9115_);
++      Player.BedSleepingProblem ret = net.minecraftforge.event.ForgeEventFactory.onPlayerSleepInBed(this, optAt);
++      if (ret != null) bedResult = Either.left(ret);
++      Direction direction = this.m_9236_().m_8055_(p_9115_).m_61143_(HorizontalDirectionalBlock.f_54117_);
++      if (!this.m_5803_() && this.m_6084_()) {
++         if (!this.m_9236_().m_6042_().f_63858_()) {
++            bedResult = Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
++         } else if (!this.m_9116_(p_9115_, direction)) {
++            bedResult = Either.left(Player.BedSleepingProblem.TOO_FAR_AWAY);
++         } else if (this.m_9191_(p_9115_, direction)) {
++            bedResult = Either.left(Player.BedSleepingProblem.OBSTRUCTED);
++         } else {
++
++            this.prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause.BED); // Magma - Add cause
++            this.m_9158_(this.m_9236_().m_46472_(), p_9115_, this.m_146908_(), false, true);
++            if (!net.minecraftforge.event.ForgeEventFactory.fireSleepingTimeCheck(this, optAt)) {
++               bedResult = Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
++            } else {
++               if (!this.m_7500_()) {
++                  double d0 = 8.0D;
++                  double d1 = 5.0D;
++                  Vec3 vec3 = Vec3.m_82539_(p_9115_);
++                  List<Monster> list = this.m_9236_().m_6443_(Monster.class, new AABB(vec3.m_7096_() - 8.0D, vec3.m_7098_() - 5.0D, vec3.m_7094_() - 8.0D, vec3.m_7096_() + 8.0D, vec3.m_7098_() + 5.0D, vec3.m_7094_() + 8.0D), (p_9062_) -> {
++                     return p_9062_.m_6935_(this);
++                  });
++                  if (!list.isEmpty()) {
++                     bedResult = Either.left(Player.BedSleepingProblem.NOT_SAFE);
++                  }
++               }
++
+                Either<Player.BedSleepingProblem, Unit> either = super.m_7720_(p_9115_).ifRight((p_9029_) -> {
+                   this.m_36220_(Stats.f_12969_);
+                   CriteriaTriggers.f_10583_.m_222618_(this);
+@@ -864,12 +_,25 @@
+                }
+ 
+                ((ServerLevel)this.m_9236_()).m_8878_();
+-               return either;
++               bedResult = either;
+             }
+          }
+       } else {
+-         return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
+-      }
++         bedResult = Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
++      }
++
 +      if (bedResult.left().orElse(null) == Player.BedSleepingProblem.OTHER_PROBLEM) {
 +         return bedResult; // return immediately if the result is not bypassable by plugins
 +      }
 +      if (force) {
 +         bedResult = Either.right(Unit.INSTANCE);
 +      }
-+      bedResult = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPlayerBedEnterEvent(this, blockposition, bedResult);
++      bedResult = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPlayerBedEnterEvent(this, p_9115_, bedResult);
 +      if (bedResult.left().isPresent()) {
 +         return bedResult;
 +      }
-+      {
-+         {
-+            {
-+               Either<Player.BedSleepingProblem, Unit> either = super.startSleepInBed(blockposition, force).ifRight((unit) -> {
-                   this.m_36220_(Stats.f_12969_);
-                   CriteriaTriggers.f_10583_.m_222618_(this);
-                });
-@@ -863,13 +_,12 @@
-                   this.m_5661_(Component.m_237115_("sleep.not_possible"), true);
-                }
- 
--               ((ServerLevel)this.m_9236_()).m_8878_();
-+               ((ServerLevel) this.m_9236_()).m_8878_();
-                return either;
-             }
-          }
--      } else {
--         return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
-       }
-+      // CraftBukkit end
++
++      return bedResult;
     }
  
     public void m_5802_(BlockPos p_9190_) {
@@ -733,7 +803,7 @@
        }
  
     }
-@@ -939,16 +_,50 @@
+@@ -939,16 +_,56 @@
        this.f_8940_ = this.f_8940_ % 100 + 1;
     }
  
@@ -767,6 +837,12 @@
 +            boolean cancelled = false;
 +            //Magma start - capture container owner
 +            InventoryViewHelper.captureContainerOwner(this);
++            // Magma start - Moved from CraftEventFactory#callInventoryOpenEvent(...) to fix mixin issues
++            if (this.f_36096_ != this.f_36095_) {
++               useHandleContainerClose = true;
++               this.m_6915_();
++            }
++            // Magma end
 +            abstractcontainermenu = CraftEventFactory.callInventoryOpenEvent(this, abstractcontainermenu, cancelled);
 +            InventoryViewHelper.resetContainerOwner();
 +            //Magma end
@@ -833,13 +909,22 @@
     }
  
     public void m_6986_(ItemStack p_9082_, InteractionHand p_9083_) {
-@@ -995,13 +_,24 @@
+@@ -994,14 +_,31 @@
+       this.f_8906_.m_9829_(ClientboundBlockEntityDataPacket.m_195642_(p_9099_, BlockEntity::m_187482_));
     }
  
++   public boolean useHandleContainerClose = false;
     public void m_6915_() {
-+      CraftEventFactory.handleInventoryCloseEvent(this); // CraftBukkit
-       this.f_8906_.m_9829_(new ClientboundContainerClosePacket(this.f_36096_.f_38840_));
-       this.m_9230_();
+-      this.f_8906_.m_9829_(new ClientboundContainerClosePacket(this.f_36096_.f_38840_));
+-      this.m_9230_();
++      if (useHandleContainerClose) {
++         this.f_8906_.m_7951_(new ServerboundContainerClosePacket(this.f_36096_.f_38840_));
++         useHandleContainerClose = false;
++      } else {
++         CraftEventFactory.handleInventoryCloseEvent(this); // CraftBukkit
++         this.f_8906_.m_9829_(new ClientboundContainerClosePacket(this.f_36096_.f_38840_));
++         this.m_9230_();
++      }
     }
  
     public void m_9230_() {
@@ -1057,18 +1142,21 @@
        }
  
     }
-@@ -1442,6 +_,31 @@
+@@ -1441,7 +_,34 @@
+       return this.f_8937_;
     }
  
-    public void m_9158_(ResourceKey<Level> p_9159_, @Nullable BlockPos p_9160_, float p_9161_, boolean p_9162_, boolean p_9163_) {
-+      // CraftBukkit start
-+      this.setRespawnPosition(p_9159_, p_9160_, p_9161_, p_9162_, p_9163_, PlayerSpawnChangeEvent.Cause.UNKNOWN);
++
++   // Magma start - Move PlayerSpawnChangeEvent.Cause to different constructor.
++   public Optional<PlayerSpawnChangeEvent.Cause> cause;
++   public void prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause cause) {
++      this.cause = Optional.of(cause);
 +   }
 +
-+   public void setRespawnPosition(ResourceKey<Level> p_9159_, @Nullable BlockPos p_9160_, float p_9161_, boolean p_9162_, boolean p_9163_, PlayerSpawnChangeEvent.Cause cause) {
+    public void m_9158_(ResourceKey<Level> p_9159_, @Nullable BlockPos p_9160_, float p_9161_, boolean p_9162_, boolean p_9163_) {
 +      ServerLevel newWorld = this.f_8924_.m_129880_(p_9159_);
 +      Location newSpawn = (p_9160_ != null) ? CraftLocation.toBukkit(p_9160_, newWorld.getWorld(), p_9161_, 0) : null;
-+      PlayerSpawnChangeEvent event = new PlayerSpawnChangeEvent(this.getBukkitEntity(), newSpawn, p_9163_, cause);
++      PlayerSpawnChangeEvent event = new PlayerSpawnChangeEvent(this.getBukkitEntity(), newSpawn, p_9163_, cause.orElse(PlayerSpawnChangeEvent.Cause.UNKNOWN));
 +      Bukkit.getServer().getPluginManager().callEvent(event);
 +      if (event.isCancelled()) {
 +         return;
