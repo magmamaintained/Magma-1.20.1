@@ -869,7 +869,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             entity.connection.teleport(to);
         } else {
             // The respawn reason should never be used if the passed location is non null.
-            server.getHandle().respawn(entity, toWorld, true, to, true, null);
+            server.getHandle().prepareRespawn(toWorld, to, true, null);
+            server.getHandle().respawn(entity, true);
         }
         return true;
     }
@@ -944,9 +945,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
     @Override
     public void setBedSpawnLocation(Location location, boolean override) {
         if (location == null) {
-            getHandle().setRespawnPosition(null, null, 0.0F, override, false, PlayerSpawnChangeEvent.Cause.PLUGIN);
+            getHandle().prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause.PLUGIN); // Magma - Add cause
+            getHandle().setRespawnPosition(null, null, 0.0F, override, false);
         } else {
-            getHandle().setRespawnPosition(((CraftWorld) location.getWorld()).getHandle().dimension(), CraftLocation.toBlockPosition(location), location.getYaw(), override, false, PlayerSpawnChangeEvent.Cause.PLUGIN);
+            getHandle().prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause.PLUGIN); // Magma - Add cause
+            getHandle().setRespawnPosition(((CraftWorld) location.getWorld()).getHandle().dimension(), CraftLocation.toBlockPosition(location), location.getYaw(), override, false);
         }
     }
 
@@ -2081,7 +2084,8 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         {
             if ( getHealth() <= 0 && isOnline() )
             {
-                server.getServer().getPlayerList().respawn( getHandle(), false, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN );
+                server.getServer().getPlayerList().prepareRespawn(null, null, true, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
+                server.getServer().getPlayerList().respawn( getHandle(), false);
             }
         }
 

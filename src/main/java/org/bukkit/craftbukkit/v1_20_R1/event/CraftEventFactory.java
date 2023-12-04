@@ -1167,9 +1167,13 @@ public class CraftEventFactory {
     }
 
     public static AbstractContainerMenu callInventoryOpenEvent(ServerPlayer player, AbstractContainerMenu container, boolean cancelled) {
+        // Magma start - Handle inventory closing in ServerPlayer#openMenu(...)
+        /*
         if (player.containerMenu != player.inventoryMenu) { // fire INVENTORY_CLOSE if one already open
             player.connection.handleContainerClose(new ServerboundContainerClosePacket(player.containerMenu.containerId));
         }
+         */
+        // Magma end
 
         CraftServer server = player.level().getCraftServer();
         CraftPlayer craftPlayer = player.getBukkitEntity();

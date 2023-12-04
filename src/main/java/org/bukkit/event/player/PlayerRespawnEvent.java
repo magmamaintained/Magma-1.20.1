@@ -99,7 +99,10 @@ public class PlayerRespawnEvent extends PlayerEvent {
      * An enum to specify the reason a respawn event was called.
      */
     public enum RespawnReason {
-
+        /**
+         * When reason is null.
+         */
+        UNKNOWN,
         /**
          * When the player dies and presses the respawn button.
          */

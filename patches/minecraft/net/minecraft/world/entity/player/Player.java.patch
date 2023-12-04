@@ -604,27 +604,16 @@
           this.m_5810_();
           this.m_9236_().m_7605_(this, (byte)30);
        }
-@@ -1268,13 +_,28 @@
+@@ -1268,13 +_,17 @@
        return this.f_36096_ != this.f_36095_;
     }
  
-+   //Magma start - force sleep
-+   protected boolean startSleepInBed_force = false;
-+   public Player forceSleepInBed(boolean force) {
-+      startSleepInBed_force = force;
-+      return this;
-+   }
-+   //Magma end
-+
++   public boolean force = false; // Magma
     public Either<Player.BedSleepingProblem, Unit> m_7720_(BlockPos p_36203_) {
-+      // CraftBukkit start
-+      return this.startSleepInBed(p_36203_, false);
-+   }
-+
-+   public Either<Player.BedSleepingProblem, Unit> startSleepInBed(BlockPos p_36203_, boolean force) {
 +      // CraftBukkit end
        this.m_5802_(p_36203_);
        this.f_36110_ = 0;
++      this.force = false; // Magma - Reset
        return Either.right(Unit.INSTANCE);
     }
  
