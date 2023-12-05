@@ -1,10 +1,11 @@
 --- a/net/minecraft/world/item/BowItem.java
 +++ b/net/minecraft/world/item/BowItem.java
-@@ -1,6 +_,8 @@
+@@ -1,6 +_,9 @@
  package net.minecraft.world.item;
  
  import java.util.function.Predicate;
 +
++import net.minecraft.server.level.ServerLevel;
 +import net.minecraft.server.level.ServerPlayer;
  import net.minecraft.sounds.SoundEvents;
  import net.minecraft.sounds.SoundSource;
@@ -50,18 +51,23 @@
  
                    p_40667_.m_41622_(1, player, (p_289501_) -> {
                       p_289501_.m_21190_(player.m_7655_());
-@@ -63,7 +_,16 @@
+@@ -63,7 +_,21 @@
                       abstractarrow.f_36705_ = AbstractArrow.Pickup.CREATIVE_ONLY;
                    }
  
 -                  p_40668_.m_7967_(abstractarrow);
 +                  // CraftBukkit start
 +                  if (event.getProjectile() == abstractarrow.getBukkitEntity()) {
-+                     if (!p_40668_.m_7967_(abstractarrow)) {
-+                        if (player instanceof ServerPlayer) {
-+                           ((ServerPlayer) player).getBukkitEntity().updateInventory();
++                     p_40668_.m_7967_(abstractarrow);
++                     // Magma start - Fix mixin issues
++                     if (p_40668_ instanceof ServerLevel) {
++                        if (!((ServerLevel) p_40668_).addFreshEntityReturn) {
++                           // Magma end
++                           if (player instanceof ServerPlayer) {
++                              ((ServerPlayer) player).getBukkitEntity().updateInventory();
++                           }
++                           return;
 +                        }
-+                        return;
 +                     }
 +                  }
 +                  // CraftBukkit end
