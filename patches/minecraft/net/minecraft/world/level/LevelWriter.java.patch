@@ -11,7 +11,7 @@
  
  public interface LevelWriter {
     boolean m_6933_(BlockPos p_46947_, BlockState p_46948_, int p_46949_, int p_46950_);
-@@ -24,7 +_,23 @@
+@@ -24,7 +_,22 @@
  
     boolean m_7740_(BlockPos p_46957_, boolean p_46958_, @Nullable Entity p_46959_, int p_46960_);
  
@@ -24,7 +24,6 @@
 +   }
 +
 +   // Magma end
-+
     default boolean m_7967_(Entity p_46964_) {
        return false;
     }
