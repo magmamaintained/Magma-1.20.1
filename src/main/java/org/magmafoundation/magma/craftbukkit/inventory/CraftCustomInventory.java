@@ -26,6 +26,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.*;
 import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventory;
+import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryCustom;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -49,8 +50,7 @@ public class CraftCustomInventory implements InventoryHolder {
     }
 
     public CraftCustomInventory(ItemStackHandler handler) {
-//        this.container = new CraftInventoryCustom(this, handler.getStacks());
-        this.container = null;
+        this.container = new CraftInventoryCustom(this, handler.getStacks());
     }
 
     @Nullable
@@ -68,7 +68,7 @@ public class CraftCustomInventory implements InventoryHolder {
             return new CraftCustomInventory(((InvWrapper) handler).getInv());
         }
         if (handler instanceof SidedInvWrapper) {
-//            return new CraftCustomInventory(((SidedInvWrapper) handler).getInventory());
+            return new CraftCustomInventory(((SidedInvWrapper) handler).getInventory());
         }
         if (handler instanceof PlayerInvWrapper) {
             IItemHandlerModifiable[] playerInventoryWrapper = ObfuscationReflectionHelper.getPrivateValue(CombinedInvWrapper.class, (PlayerInvWrapper) handler, "itemHandler");

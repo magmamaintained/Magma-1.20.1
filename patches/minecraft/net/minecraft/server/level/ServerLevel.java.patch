@@ -368,21 +368,25 @@
        }
     }
  
-@@ -799,16 +_,49 @@
+@@ -799,16 +_,53 @@
        return list.isEmpty() ? null : list.get(this.f_46441_.m_188503_(list.size()));
     }
  
 +   // Magma start - Move SpawnReason to different constructor
-+   public Optional<CreatureSpawnEvent.SpawnReason> reason;
++   public CreatureSpawnEvent.SpawnReason reason;
 +   public void prepareAddFreshEntity(CreatureSpawnEvent.SpawnReason reason) {
-+      this.reason = Optional.of(reason);
++      this.reason = reason;
 +   }
 +   // Magma end
 +
     public boolean m_7967_(Entity p_8837_) {
 -      return this.m_8872_(p_8837_);
 +      // CraftBukkit start
-+      return this.addFreshEntity(p_8837_, reason.orElse(CreatureSpawnEvent.SpawnReason.DEFAULT));
++      // Magma start - Reset the result
++      CreatureSpawnEvent.SpawnReason result = reason == null ? CreatureSpawnEvent.SpawnReason.DEFAULT : reason;
++      reason = null;
++      return this.addFreshEntity(p_8837_, result);
++      // Magma end
 +   }
 +
 +   // Magma start - Add return value to addFreshEntityReturn

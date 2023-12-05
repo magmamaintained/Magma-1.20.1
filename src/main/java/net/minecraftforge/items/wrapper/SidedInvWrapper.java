@@ -5,6 +5,7 @@
 
 package net.minecraftforge.items.wrapper;
 
+import net.minecraft.world.Container;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
@@ -262,4 +263,10 @@ public class SidedInvWrapper implements IItemHandlerModifiable
         int slot1 = getSlot(inv, slot, side);
         return slot1 == -1 ? false : inv.canPlaceItem(slot1, stack);
     }
+
+    // Magma start - add forge inventory support
+    public Container getInventory() {
+        return inv;
+    }
+    // Magma end
 }
