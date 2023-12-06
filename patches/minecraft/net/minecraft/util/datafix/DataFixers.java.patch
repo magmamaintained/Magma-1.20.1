@@ -1,5 +1,22 @@
 --- a/net/minecraft/util/datafix/DataFixers.java
 +++ b/net/minecraft/util/datafix/DataFixers.java
+@@ -263,6 +_,7 @@
+ import net.minecraft.util.datafix.schemas.V705;
+ import net.minecraft.util.datafix.schemas.V808;
+ import net.minecraft.util.datafix.schemas.V99;
++import org.magmafoundation.magma.util.MagmaDataFixerBuilder;
+ 
+ public class DataFixers {
+    private static final BiFunction<Integer, Schema, Schema> f_14508_ = Schema::new;
+@@ -278,7 +_,7 @@
+    }
+ 
+    private static synchronized DataFixer m_274588_(Set<DSL.TypeReference> p_275618_) {
+-      DataFixerBuilder datafixerbuilder = new DataFixerBuilder(SharedConstants.m_183709_().m_183476_().m_193006_());
++      DataFixerBuilder datafixerbuilder = new MagmaDataFixerBuilder(SharedConstants.m_183709_().m_183476_().m_193006_()); // Magma - Lazy data fixer
+       m_14513_(datafixerbuilder);
+       if (p_275618_.isEmpty()) {
+          return datafixerbuilder.buildUnoptimized();
 @@ -396,6 +_,19 @@
        Schema schema44 = p_14514_.addSchema(1456, f_14509_);
        p_14514_.addFixer(new EntityItemFrameDirectionFix(schema44, false));

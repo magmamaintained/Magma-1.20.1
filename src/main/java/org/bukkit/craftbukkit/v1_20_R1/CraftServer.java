@@ -420,11 +420,11 @@ public final class CraftServer implements Server {
             if (org.spigotmc.SpigotConfig.replaceCommands.contains( wrapper.getName() ) ) {
                 if (first) {
                     commandMap.register("forge", wrapper);
-                    cmd.setForgeCommand();
+                    ((CommandNode<?>) cmd).setForgeCommand(); // Magma - Fix compile error
                 }
             } else if (!first) {
                 commandMap.register("forge", wrapper);
-                cmd.setForgeCommand();
+                ((CommandNode<?>) cmd).setForgeCommand(); // Magma - Fix compile error
             }
             // Magma end
         }
