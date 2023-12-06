@@ -82,7 +82,7 @@
 +   public int expToDrop;
 +   public boolean forceDrops;
 +   public ArrayList<org.bukkit.inventory.ItemStack> drops = new ArrayList<org.bukkit.inventory.ItemStack>();
-+   public final org.bukkit.craftbukkit.v1_20_R1.attribute.CraftAttributeMap craftAttributes;
++   public org.bukkit.craftbukkit.v1_20_R1.attribute.CraftAttributeMap craftAttributes;
 +   public boolean collides = true;
 +   public Set<UUID> collidableExemptions = new HashSet<>();
 +   public boolean bukkitPickUpLoot;
@@ -108,15 +108,6 @@
        this.f_19850_ = true;
        this.f_20928_ = (float)((Math.random() + 1.0D) * (double)0.01F);
        this.m_20090_();
-@@ -240,6 +_,8 @@
-       this.m_274367_(0.6F);
-       NbtOps nbtops = NbtOps.f_128958_;
-       this.f_20939_ = this.m_8075_(new Dynamic<>(nbtops, nbtops.createMap(ImmutableMap.of(nbtops.createString("memories"), nbtops.emptyMap()))));
-+      this.craftAttributes = new CraftAttributeMap(f_20943_); // CraftBukkit
-+      this.f_19804_.m_135381_(LivingEntity.f_20961_, (float) this.m_21051_(Attributes.f_22276_).m_22135_());
-    }
- 
-    public Brain<?> m_6274_() {
 @@ -273,7 +_,7 @@
     }
  
@@ -150,6 +141,23 @@
     public boolean m_6040_() {
        return this.m_6336_() == MobType.f_21641_;
     }
+@@ -320,7 +_,16 @@
+       return Mth.m_14179_(p_20999_, this.f_20932_, this.f_20931_);
+    }
+ 
++   public boolean firstTime = true; // Magma
+    public void m_6075_() {
++      // Magma start - Initialize CraftBukkit LivingEntity thigns
++      if (firstTime) {
++         this.craftAttributes = new CraftAttributeMap(f_20943_); // CraftBukkit
++         this.f_19804_.m_135381_(LivingEntity.f_20961_, (float) this.m_21051_(Attributes.f_22276_).m_22135_());
++         firstTime = false;
++      }
++      // Magma end
++
+       this.f_20920_ = this.f_20921_;
+       if (this.f_19803_) {
+          this.m_21257_().ifPresent(this::m_21080_);
 @@ -352,6 +_,9 @@
              }
           }
