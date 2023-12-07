@@ -214,7 +214,7 @@
                 });
                 if (j > 10) {
                    mutablecomponent1.m_7220_(CommonComponents.f_238772_);
-@@ -293,18 +_,82 @@
+@@ -293,19 +_,96 @@
        } finally {
           commandsourcestack.m_81377_().m_129905_().m_7238_();
        }
@@ -262,7 +262,7 @@
 +      // Remove labels that were removed during the event
 +      for (String orig : set) {
 +         if (!event.getCommands().contains(orig)) {
-+            ((CommandNode<?>) rootcommandnode).removeCommand(orig); // Magma - Fix compile error
++            rootcommandnode.removeCommand(orig);
 +         }
 +      }
 +
@@ -293,15 +293,30 @@
 +         p_82096_.f_8906_.m_9829_(packet);
 +      }
 +      //ambassador commands end - Magma
-    }
++   }
 +   //Magma end
++
++   public static <S> boolean canUse(CommandNode<S> node, S source) {
++      if (source instanceof CommandSourceStack s) {
++         try {
++            s.currentCommand = node;
++            return node.canUse(source);
++         } finally {
++            s.currentCommand = null;
++         }
++      } else {
++         return node.canUse(source);
++      }
+    }
  
     private void m_82112_(CommandNode<CommandSourceStack> p_82113_, CommandNode<SharedSuggestionProvider> p_82114_, CommandSourceStack p_82115_, Map<CommandNode<CommandSourceStack>, CommandNode<SharedSuggestionProvider>> p_82116_) {
        for(CommandNode<CommandSourceStack> commandnode : p_82113_.getChildren()) {
+-         if (commandnode.canUse(p_82115_)) {
 +         if ( !org.spigotmc.SpigotConfig.sendNamespaced && commandnode.getName().contains( ":" ) ) continue; // Spigot
-          if (commandnode.canUse(p_82115_)) {
++         if (canUse(commandnode, p_82115_)) {
              ArgumentBuilder<SharedSuggestionProvider, ?> argumentbuilder = (ArgumentBuilder)commandnode.createBuilder();
              argumentbuilder.requires((p_82126_) -> {
+                return true;
 @@ -361,6 +_,11 @@
        return this.f_82090_;
     }

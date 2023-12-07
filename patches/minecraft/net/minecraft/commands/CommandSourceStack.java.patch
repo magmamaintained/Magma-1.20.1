@@ -28,13 +28,14 @@
  
     public CommandSourceStack(CommandSource p_81302_, Vec3 p_81303_, Vec2 p_81304_, ServerLevel p_81305_, int p_81306_, String p_81307_, Component p_81308_, MinecraftServer p_81309_, @Nullable Entity p_81310_) {
        this(p_81302_, p_81303_, p_81304_, p_81305_, p_81306_, p_81307_, p_81308_, p_81309_, p_81310_, false, (p_81361_, p_81362_, p_81363_) -> {
-@@ -172,9 +_,22 @@
+@@ -172,9 +_,23 @@
     }
  
     public boolean m_6761_(int p_81370_) {
 +      // CraftBukkit start
 +      CommandNode currentCommand = this.currentCommand;
-+      if (currentCommand != null && !currentCommand.isForgeCommand()) { //Magma - skip if forge command
++
++      if (currentCommand != null) {
 +         return hasPermission(p_81370_, VanillaCommandWrapper.getPermission(currentCommand));
 +      }
 +      // CraftBukkit end
