@@ -366,32 +366,22 @@ public final class CraftServer implements Server {
         }
 
         if (type == PluginLoadOrder.POSTWORLD) {
-            doSync(console.vanillaCommandDispatcher);
+            // Spigot start - Allow vanilla commands to be forced to be the main command
+            setVanillaCommands(true);
+            commandMap.setFallbackCommands();
+            setVanillaCommands(false);
+            // Spigot end
+            commandMap.registerServerAliases();
+            DefaultPermissions.registerCorePermissions();
+            CraftDefaultPermissions.registerCorePermissions();
+            loadCustomPermissions();
+            helpMap.initializeCommands();
+            syncCommands();
         }
     }
 
     public void disablePlugins() {
         pluginManager.disablePlugins();
-    }
-
-    private boolean firstSync = true;
-    public void doSync(Commands dispatcher) {
-        setVanillaCommands(true);
-        setForgeCommands(true, dispatcher);
-        commandMap.setFallbackCommands();
-        setVanillaCommands(false);
-        setForgeCommands(false, dispatcher);
-        commandMap.registerServerAliases();
-
-        if (firstSync) {
-            DefaultPermissions.registerCorePermissions();
-            CraftDefaultPermissions.registerCorePermissions();
-            loadCustomPermissions();
-            helpMap.initializeCommands();
-        } else helpMap.updateCommands();
-
-        syncCommands();
-        firstSync = false;
     }
 
     private void setVanillaCommands(boolean first) { // Spigot
@@ -409,24 +399,6 @@ public final class CraftServer implements Server {
                 commandMap.register("minecraft", wrapper);
             }
             // Spigot end
-        }
-    }
-
-    private void setForgeCommands(boolean first, Commands dispatcher) { // Magma
-        // Build a list of all Forge commands and create wrappers
-        for (CommandNode<CommandSourceStack> cmd : dispatcher.getForgeDispatcher().unwrap().getRoot().getChildren()) {
-            // Magma start
-            ForgeCommandWrapper wrapper = new ForgeCommandWrapper(dispatcher, cmd);
-            if (org.spigotmc.SpigotConfig.replaceCommands.contains( wrapper.getName() ) ) {
-                if (first) {
-                    commandMap.register("forge", wrapper);
-                    ((CommandNode<?>) cmd).setForgeCommand(); // Magma - Fix compile error
-                }
-            } else if (!first) {
-                commandMap.register("forge", wrapper);
-                ((CommandNode<?>) cmd).setForgeCommand(); // Magma - Fix compile error
-            }
-            // Magma end
         }
     }
 

@@ -156,6 +156,7 @@ subprojects {
             name = 'minecraft'
             url = 'https://libraries.minecraft.net/'
         }
+        maven { url 'https://maven.mohistmc.com/' }
     }
 
     java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -270,12 +271,13 @@ def sharedDeps = {
 
     // Magma
     installer 'org.magma:magma-common:2.6'
-    installer 'io.izzel:tools:1.3.0'
 
     // Spigot
     installer 'net.md-5:bungeecord-chat:1.20-R0.1'
     installer 'commons-codec:commons-codec:1.16.0'
 
+    installer 'io.izzel:tools:1.3.0'
+    installer 'com.mohistmc:brigadier:1.20.1'
     installer 'com.google.guava:failureaccess:1.0.1'
     installer "com.google.guava:guava:${GUAVA_VERSION}"
     installer 'com.google.code.gson:gson:2.10'
@@ -811,11 +813,6 @@ project(':forge') {
         ]
     }
 
-    task crowdin(type: Crowdin) {
-        key = project.hasProperty('crowdinKey') ? project.crowdinKey : null
-        //TODO: Merge our english.json?
-    }
-
     sharedFmlonlyForge.call(project)
 
     task downloadLibraries(type: DownloadLibraries, dependsOn: ':mcp:setupMCP') {
@@ -834,18 +831,6 @@ project(':forge') {
         jar = createJoinedSRG.output
         output = rootProject.file('src/main/resources/coremods/field_to_instanceof.json')
         fields {
-            /* 1.17 changed most things to use Tags. So this isn't nessasary anymore so just make an empty list
-            bows {
-                cls = 'net/minecraft/world/item/Items'
-                name = 'f_42411_'
-                replacement = 'net/minecraft/world/item/BowItem'
-            }
-            crossbows {
-                cls = 'net/minecraft/world/item/Items'
-                name = 'f_42717_'
-                replacement = 'net/minecraft/world/item/CrossbowItem'
-            }
-            */
         }
     }
 
@@ -1299,9 +1284,6 @@ project(':forge') {
     universalJar {
         from extraTxts
 
-        // add crowdin locales
-        from { crowdin.output.present && crowdin.output.get().asFile.exists() ? zipTree(crowdin.output) : null}
-        dependsOn crowdin
         duplicatesStrategy = 'exclude'
 
         doFirst {
@@ -1330,18 +1312,6 @@ project(':forge') {
     }
 
     license {
-//        Uncomment to update forge headders
-//        header = file("$rootDir/LICENSE-header.txt")
-//
-//        include 'net/minecraftforge/'
-//        exclude 'net/minecraftforge/common/LenientUnboundedMapCodec.java'
-//
-//        tasks {
-//            main {
-//                files.from files("$rootDir/src/main/java")
-//            }
-//        }
-
         header = file("$rootDir/LICENSE-header.txt")
 
         ext {
