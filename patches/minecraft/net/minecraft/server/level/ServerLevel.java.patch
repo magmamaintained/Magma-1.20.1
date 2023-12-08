@@ -425,7 +425,7 @@
     }
  
     public void m_8622_(ServerPlayer p_8623_) {
-@@ -828,35 +_,69 @@
+@@ -828,35 +_,78 @@
     }
  
     private void m_8853_(ServerPlayer p_8854_) {
@@ -443,12 +443,14 @@
 +      p_8854_.onAddedToWorld();
     }
  
++   public CreatureSpawnEvent.SpawnReason spawnReason; // Magma - Add SpawnReason to normal method.
     private boolean m_8872_(Entity p_8873_) {
-+      return addEntity(p_8873_, CreatureSpawnEvent.SpawnReason.CUSTOM);
-+   }
++      // Magma start - Reset SpawnReason
++      CreatureSpawnEvent.SpawnReason spawnReason = this.spawnReason == null ? CreatureSpawnEvent.SpawnReason.CUSTOM : this.spawnReason;
++      this.spawnReason = null;
++      // Magma end
 +
-+   // CraftBukkit start
-+   public boolean addEntity(Entity p_8873_, CreatureSpawnEvent.SpawnReason spawnReason) {
++      // CraftBukkit start
 +      org.spigotmc.AsyncCatcher.catchOp("entity add"); // Spigot
        if (p_8873_.m_213877_()) {
 -         f_8566_.warn("Tried to add entity {} but it was marked as removed already", (Object)EntityType.m_20613_(p_8873_.m_6095_()));
@@ -469,6 +471,13 @@
 +         }
        }
     }
++
++   // CraftBukkit start
++   public boolean addEntity(Entity p_8873_, CreatureSpawnEvent.SpawnReason spawnReason) {
++      this.spawnReason = spawnReason; // Magma
++      return this.m_8872_(p_8873_);
++   }
++   // CraftBukkit end
  
     public boolean m_8860_(Entity p_8861_) {
 +      // CraftBukkit start
