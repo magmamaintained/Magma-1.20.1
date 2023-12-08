@@ -46,7 +46,7 @@
  import net.minecraft.world.entity.player.Player;
  import net.minecraft.world.entity.projectile.AbstractArrow;
  import net.minecraft.world.food.FoodProperties;
-@@ -117,14 +_,26 @@
+@@ -117,14 +_,27 @@
  import net.minecraft.world.phys.HitResult;
  import net.minecraft.world.phys.Vec3;
  import net.minecraft.world.scores.PlayerTeam;
@@ -59,6 +59,7 @@
 +import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 +import org.bukkit.event.entity.*;
 +import org.bukkit.event.player.PlayerItemConsumeEvent;
++import org.bukkit.event.player.PlayerTeleportEvent;
 +import org.magmafoundation.magma.forge.ForgeInventoryHelper;
  import org.slf4j.Logger;
  
@@ -1578,20 +1579,35 @@
              return false;
           } else {
              return item.m_8105_(this.f_20935_) - this.f_20936_ >= 5;
-@@ -3028,6 +_,12 @@
+@@ -3027,7 +_,27 @@
+       return this.f_20937_;
     }
  
-    public boolean m_20984_(double p_20985_, double p_20986_, double p_20987_, boolean p_20988_) {
-+      // CraftBukkit start
-+      return this.randomTeleport(p_20985_, p_20986_, p_20987_, p_20988_, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.UNKNOWN).orElse(false);
++   // Magma start - Move TeleportCause to different constructor
++   public PlayerTeleportEvent.TeleportCause teleportCause;
++   public void prepareRandomTeleport(PlayerTeleportEvent.TeleportCause teleportCause) {
++      this.teleportCause = teleportCause;
 +   }
++   // Magma end
 +
-+   public Optional<Boolean> randomTeleport(double p_20985_, double p_20986_, double p_20987_, boolean p_20988_, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause) {
-+      // CraftBukkit end
++   // CraftBukkit start
++   public boolean randomTeleport(double p_20985_, double p_20986_, double p_20987_, boolean p_20988_, org.bukkit.event.player.PlayerTeleportEvent.TeleportCause cause) {
++      this.prepareRandomTeleport(cause); // Magma - Add TeleportCause
++      return this.m_20984_(p_20985_, p_20986_, p_20987_, p_20988_);
++   }
++   // CraftBukkit end
++
++   public boolean cancelled; // Magma
+    public boolean m_20984_(double p_20985_, double p_20986_, double p_20987_, boolean p_20988_) {
++      // Magma start - Reset TeleportCause
++      PlayerTeleportEvent.TeleportCause cause = teleportCause == null ? PlayerTeleportEvent.TeleportCause.UNKNOWN : teleportCause;
++      teleportCause = null;
++      // Magma end
++
        double d0 = this.m_20185_();
        double d1 = this.m_20186_();
        double d2 = this.m_20189_();
-@@ -3050,16 +_,40 @@
+@@ -3050,16 +_,42 @@
           }
  
           if (flag1) {
@@ -1614,12 +1630,14 @@
 +                     Location to = teleport.getTo();
 +                     this.m_6021_(to.getX(), to.getY(), to.getZ());
 +                  } else {
-+                     return Optional.empty();
++                     cancelled = true;
++                     return false;
 +                  }
 +               } else {
 +                  // player teleport event is called in the underlining code
 +                  if (((ServerPlayer) this).f_8906_.teleport(d0, d3, d2, this.m_146908_(), this.m_146909_(), java.util.Collections.emptySet(), cause)) {
-+                     return Optional.empty();
++                     cancelled = true;
++                     return false;
 +                  }
 +               }
 +            }
@@ -1631,7 +1649,7 @@
 -         this.m_6021_(d0, d1, d2);
 -         return false;
 +         // this.teleportTo(d0, d1, d2); // CraftBukkit - already set the location back
-+         return Optional.of(false); // CraftBukkit
++         return false; // CraftBukkit
        } else {
           if (p_20988_) {
              level.m_7605_(this, (byte)46);
@@ -1640,7 +1658,7 @@
           }
  
 -         return true;
-+         return Optional.of(true); // CraftBukkit
++         return true; // CraftBukkit
        }
     }
  
