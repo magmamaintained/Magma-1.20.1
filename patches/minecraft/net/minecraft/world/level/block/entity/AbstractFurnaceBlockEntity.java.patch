@@ -260,13 +260,22 @@
        }
     }
  
-@@ -453,8 +_,8 @@
+@@ -453,8 +_,17 @@
     public void m_58395_(Player p_58396_, List<ItemStack> p_282202_) {
     }
  
 -   public void m_155003_(ServerPlayer p_155004_) {
 -      List<Recipe<?>> list = this.m_154995_(p_155004_.m_284548_(), p_155004_.m_20182_());
-+   public void awardUsedRecipesAndPopExperience(ServerPlayer p_155004_, ItemStack itemstack, int amount) { // CraftBukkit
++   // Magma start
++   public ItemStack itemstack;
++   public int amount;
++   public void prepareAwardUsedRecipesAndPopExperience(ItemStack itemstack, int amount) {
++      this.itemstack = itemstack;
++      this.amount = amount;
++   }
++   // Magma end
++
++   public void m_155003_(ServerPlayer p_155004_) { // CraftBukkit
 +      List<Recipe<?>> list = this.getRecipesToAwardAndPopExperience(p_155004_.m_284548_(), p_155004_.m_20182_(), this.f_58858_, p_155004_, itemstack, amount); // CraftBukkit
        p_155004_.m_7281_(list);
  

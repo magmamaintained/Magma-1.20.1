@@ -277,7 +277,7 @@
        if (profiledduration != null) {
           profiledduration.m_185413_();
        }
-@@ -325,21 +_,195 @@
+@@ -325,26 +_,226 @@
     protected void m_7044_() {
     }
  
@@ -446,8 +446,34 @@
 +
 +
 +         worlddata.m_7955_(this.getServerModName(), this.m_183471_().m_184597_());
-+         WorldBorder worldborder = world.m_6857_(); // Magma - Fix mixin issues
-+         this.initWorld(world, worlddata, f_129749_, worldoptions);
++         boolean flag1 = f_129749_.m_7513_();
++         if (world.generator != null) {
++            world.getWorld().getPopulators().addAll(world.generator.getDefaultPopulators(world.getWorld()));
++         }
++         WorldBorder worldborder = world.m_6857_();
++         worldborder.m_61931_(worlddata.m_5813_()); // CraftBukkit - move up so that WorldBorder is set during WorldInitEvent
++         this.server.getPluginManager().callEvent(new org.bukkit.event.world.WorldInitEvent(world.getWorld())); // CraftBukkit - SPIGOT-5569: Call WorldInitEvent before any chunks are generated
++
++         if (!worlddata.m_6535_()) {
++            try {
++               m_177896_(world, worlddata, worldoptions.m_245100_(), flag1);
++               worlddata.m_5555_(true);
++               if (flag1) {
++                  this.m_129847_(this.f_129749_);
++               }
++            } catch (Throwable throwable1) {
++               CrashReport crashreport = CrashReport.m_127521_(throwable1, "Exception initializing level");
++
++               try {
++                  world.m_6026_(crashreport);
++               } catch (Throwable throwable) {
++               }
++
++               throw new ReportedException(crashreport);
++            }
++
++            worlddata.m_5555_(true);
++         }
 +
 +         this.f_129762_.put(world.m_46472_(), world);
 +
@@ -475,7 +501,7 @@
 +
 +   // CraftBukkit start
 +   public void initWorld(ServerLevel serverlevel, ServerLevelData serverleveldata, WorldData saveData, WorldOptions worldoptions) {
-+      boolean flag = saveData.m_7513_();
++      boolean flag1 = saveData.m_7513_();
 +      if (serverlevel.generator != null) {
 +         serverlevel.getWorld().getPopulators().addAll(serverlevel.generator.getDefaultPopulators(serverlevel.getWorld()));
 +      }
@@ -485,7 +511,14 @@
 +
        if (!serverleveldata.m_6535_()) {
           try {
-             m_177896_(serverlevel, serverleveldata, worldoptions.m_245100_(), flag);
+-            m_177896_(serverlevel, serverleveldata, worldoptions.m_245100_(), flag);
++            m_177896_(serverlevel, serverleveldata, worldoptions.m_245100_(), flag1);
+             serverleveldata.m_5555_(true);
+-            if (flag) {
++            if (flag1) {
+                this.m_129847_(this.f_129749_);
+             }
+          } catch (Throwable throwable1) {
 @@ -360,34 +_,31 @@
  
           serverleveldata.m_5555_(true);
