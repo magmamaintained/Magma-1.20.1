@@ -1560,6 +1560,8 @@ public class CraftEventFactory {
         return handleBlockFormEvent(world, pos, block, flag, null);
     }
 
+    public static boolean updateBlockHere;
+    public static boolean handleBlockFormEventReturn;
     public static boolean handleBlockFormEvent(Level world, BlockPos pos, net.minecraft.world.level.block.state.BlockState block, int flag, @Nullable Entity entity) {
         CraftBlockState blockState = CraftBlockStates.getBlockState(world, pos, flag);
         blockState.setData(block);
@@ -1568,9 +1570,14 @@ public class CraftEventFactory {
         world.getCraftServer().getPluginManager().callEvent(event);
 
         if (!event.isCancelled()) {
-            blockState.update(true);
+            if (updateBlockHere) {
+                blockState.update(true);
+            } else {
+                updateBlockHere = true;
+            }
         }
 
+        handleBlockFormEventReturn = true;
         return !event.isCancelled();
     }
 
