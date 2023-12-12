@@ -803,7 +803,7 @@
        }
  
     }
-@@ -939,16 +_,56 @@
+@@ -939,16 +_,59 @@
        this.f_8940_ = this.f_8940_ % 100 + 1;
     }
  
@@ -841,8 +841,11 @@
 +            if (this.f_36096_ != this.f_36095_) {
 +               useHandleContainerClose = true;
 +               this.m_6915_();
++               CraftEventFactory.alreadyProcessed = true;
 +            }
 +            // Magma end
++            CraftEventFactory.callInventoryOpenEvent(this, abstractcontainermenu, cancelled);
++
 +            abstractcontainermenu = CraftEventFactory.callInventoryOpenEvent(this, abstractcontainermenu, cancelled);
 +            InventoryViewHelper.resetContainerOwner();
 +            //Magma end
