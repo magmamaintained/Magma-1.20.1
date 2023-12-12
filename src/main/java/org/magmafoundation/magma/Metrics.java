@@ -1,6 +1,6 @@
 /*
  * Magma Server
- * Copyright (C) 2019-2023.
+ * Copyright (C) 2023-2024.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,7 +56,7 @@ public class Metrics {
     private static String serverUUID;
     // A list with all custom charts
     private final List<CustomChart> charts = new ArrayList<>();
-    private final String pluginName = "Magma";
+    private final String pluginName = "Magma%20Maintained";
     private final String pluginVersion = Magma.getVersion();
     // Is bStats enabled on this server?
     private boolean enabled;

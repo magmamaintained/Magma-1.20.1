@@ -1,6 +1,10 @@
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -4,13 +_,11 @@
+@@ -1,16 +_,15 @@
+ package net.minecraft.server.dedicated;
+ 
++import com.destroystokyo.paper.youcandfindpaper.PaperConfig;
+ import com.google.common.collect.Lists;
  import com.mojang.authlib.GameProfile;
  import com.mojang.datafixers.DataFixer;
  import com.mojang.logging.LogUtils;
@@ -28,7 +32,7 @@
  import net.minecraft.server.gui.MinecraftServerGui;
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.server.level.ServerPlayer;
-@@ -51,6 +_,13 @@
+@@ -51,6 +_,14 @@
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.entity.SkullBlockEntity;
  import net.minecraft.world.level.storage.LevelStorageSource;
@@ -39,6 +43,7 @@
 +import org.bukkit.craftbukkit.v1_20_R1.SpigotTimings;
 +import org.bukkit.event.server.RemoteServerCommandEvent;
 +import org.bukkit.event.server.ServerCommandEvent;
++import org.magmafoundation.magma.configuration.MagmaConfig;
  import org.slf4j.Logger;
  
  public class DedicatedServer extends MinecraftServer implements ServerInterface {
@@ -145,7 +150,7 @@
        thread.setDaemon(true);
        thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(f_139598_));
        thread.start();
-@@ -110,6 +_,12 @@
+@@ -110,6 +_,26 @@
           this.m_129913_(dedicatedserverproperties.f_139730_);
        }
  
@@ -155,10 +160,24 @@
 +      org.spigotmc.SpigotConfig.registerCommands();
 +      // Spigot end
 +
++      // Paper start
++      try {
++         PaperConfig.init((java.io.File) options.valueOf("paper-settings"));
++      } catch (Exception e) {
++         DedicatedServer.f_139598_.error("Unable to load server configuration", e);
++         return false;
++      }
++      PaperConfig.registerCommands();
++      // Paper end
++
++      // Magma start
++      MagmaConfig.instance.registerCommands();
++      // Magma end
++
        this.m_129997_(dedicatedserverproperties.f_139733_);
        this.m_129999_(dedicatedserverproperties.f_139734_);
        this.m_129989_(dedicatedserverproperties.f_139736_);
-@@ -138,10 +_,23 @@
+@@ -138,10 +_,30 @@
           return false;
        }
  
@@ -168,14 +187,21 @@
 +      server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
 +      // CraftBukkit end
 +
++      // Paper start
++      boolean usingProxy = org.spigotmc.SpigotConfig.bungee || PaperConfig.velocitySupport;
++      String proxyFlavor = (PaperConfig.velocitySupport) ? "Velocity" : "BungeeCord";
++      String proxyLink = (PaperConfig.velocitySupport) ? "https://docs.papermc.io/velocity/security" : "http://www.spigotmc.org/wiki/firewall-guide/";
++      // Paper end
        if (!this.m_129797_()) {
           f_139598_.warn("**** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!");
           f_139598_.warn("The server will make no attempt to authenticate usernames. Beware.");
 -         f_139598_.warn("While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.");
 +         // Spigot start
-+         if (org.spigotmc.SpigotConfig.bungee) {
-+            DedicatedServer.f_139598_.warn("Whilst this makes it possible to use BungeeCord, unless access to your server is properly restricted, it also opens up the ability for hackers to connect with any username they choose.");
-+            DedicatedServer.f_139598_.warn("Please see http://www.spigotmc.org/wiki/firewall-guide/ for further information.");
++         // Paper start
++         if (usingProxy) {
++            DedicatedServer.f_139598_.warn("Whilst this makes it possible to use "+proxyFlavor+", unless access to your server is properly restricted, it also opens up the ability for hackers to connect with any username they choose.");
++            DedicatedServer.f_139598_.warn("Please see "+proxyLink+" for further information.");
++            // Paper end
 +         } else {
 +            DedicatedServer.f_139598_.warn("While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.");
 +         }
