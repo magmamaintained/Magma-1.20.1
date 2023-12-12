@@ -1,5 +1,6 @@
 package org.bukkit.craftbukkit.v1_20_R1;
 
+import com.destroystokyo.paper.youcandfindpaper.PaperConfig;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -153,7 +154,6 @@ import org.bukkit.structure.StructureManager;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.permission.ForgeCommandWrapper;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -165,6 +165,7 @@ import java.io.*;
 import java.net.InetAddress;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -421,20 +422,9 @@ public final class CraftServer implements Server {
                     }
                     node = clone;
                 }
-
+                final Predicate<CommandSourceStack> original = node.getRequirement();
+                node.setRequirement(original.or(source -> source.getBukkitSender().hasPermission(command.getPermission())));
                 dispatcher.getDispatcher().getRoot().addChild(node);
-            } else if (command instanceof ForgeCommandWrapper forge) { //Magma
-                LiteralCommandNode<CommandSourceStack> forgeNode = (LiteralCommandNode<CommandSourceStack>) forge.forgeCommand;
-                if (!forgeNode.getLiteral().equals(label)) {
-                    LiteralCommandNode<CommandSourceStack> clone = new LiteralCommandNode(label, forgeNode.getCommand(), forgeNode.getRequirement(), forgeNode.getRedirect(), forgeNode.getRedirectModifier(), forgeNode.isFork());
-
-                    for (CommandNode<CommandSourceStack> child : forgeNode.getChildren()) {
-                        clone.addChild(child);
-                    }
-                    forgeNode = clone;
-                }
-
-                dispatcher.getForgeDispatcher().unwrap().getRoot().addChild(forgeNode);
             } else {
                 new BukkitCommandWrapper(this, entry.getValue()).register(dispatcher.getDispatcher(), label);
             }
@@ -689,7 +679,7 @@ public final class CraftServer implements Server {
     @Override
     public long getConnectionThrottle() {
         // Spigot Start - Automatically set connection throttle for bungee configurations
-        if (org.spigotmc.SpigotConfig.bungee) {
+        if (org.spigotmc.SpigotConfig.bungee || com.destroystokyo.paper.youcandfindpaper.PaperConfig.velocitySupport) { // Paper - Velocity support
             return -1;
         } else {
             return this.configuration.getInt("settings.connection-throttle");
@@ -1516,7 +1506,7 @@ public final class CraftServer implements Server {
             // Spigot Start
             GameProfile profile = null;
             // Only fetch an online UUID in online mode
-            if ( getOnlineMode() || org.spigotmc.SpigotConfig.bungee )
+            if ( getOnlineMode() || org.spigotmc.SpigotConfig.bungee || (PaperConfig.velocitySupport && PaperConfig.velocityOnlineMode) )
             {
                 profile = console.getProfileCache().get(name).orElse(null);
             }

@@ -223,10 +223,10 @@
 +         org.bukkit.craftbukkit.Main.useJline = false;
 +      }
 +
++      metrics = new Metrics();
 +      this.magma = Magma.getInstance();
 +      this.magma.setPatcherManager(new PatcherManager());
 +      this.magma.getPatcherManager().init();
-+      metrics = new Metrics();
 +
 +      try {
 +         reader = new ConsoleReader(System.in, System.out);
