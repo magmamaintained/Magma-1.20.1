@@ -91,10 +91,6 @@ println('Version: ' + VERSION +
 
 println('Forge Version: ' + MAGMA_VERSION)
 
-def extraTxts = [
-        rootProject.file('CREDITS.txt'),
-        rootProject.file('LICENSE.txt'),
-]
 
 task downloadVersionManifest(type: Download) {
     src 'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'
@@ -835,11 +831,11 @@ project(':forge') {
     }
 
     tasks.register('checkAll') {
-        dependsOn 'checkLicenses'
         group = 'checks'
     }
+
     tasks.register('checkAllAndFix') {
-        dependsOn 'findFieldInstanceChecks', 'checkLicenses'
+        dependsOn 'findFieldInstanceChecks'
         group = 'checks'
     }
 
@@ -970,7 +966,6 @@ project(':forge') {
             BIN_PATCHER = BINPATCH_TOOL.substring(0, BINPATCH_TOOL.length() - 1 - BINPATCH_TOOL.split(':')[3].length())
         }
         input.from applyClientBinPatches.output, applyServerBinPatches.output, genClientBinPatches.toolJar, launcherJson.output
-        icon = rootProject.file('icon.ico')
         packedDependencies = PACKED_DEPS
 
         doFirst {
@@ -1282,8 +1277,6 @@ project(':forge') {
     }
 
     universalJar {
-        from extraTxts
-
         duplicatesStrategy = 'exclude'
 
         doFirst {
@@ -1299,7 +1292,6 @@ project(':forge') {
 
     task installerJar(type: InstallerJar, dependsOn: [genClientBinPatches, genServerBinPatches, 'signUniversalJar', launcherJson]) {
         packedDependencies = PACKED_DEPS
-        from(extraTxts)
         from(rootProject.file('/magma-logo.png')) {
             rename { 'big_logo.png' }
         }
@@ -1308,26 +1300,6 @@ project(':forge') {
         }
         from(genServerBinPatches.output) {
             rename { 'data/server.lzma' }
-        }
-    }
-
-    license {
-        header = file("$rootDir/LICENSE-header.txt")
-
-        ext {
-            year = new Date().format("yyyy")
-        }
-
-        include 'org/magmafoundation/magma/'
-        exclude 'net/minecraftforge/'
-
-        tasks {
-            main {
-                files.from files("$rootDir/src/main/java")
-            }
-            test {
-                files.from files("$rootDir/src/test/java")
-            }
         }
     }
 

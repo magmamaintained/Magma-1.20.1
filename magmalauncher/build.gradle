@@ -23,16 +23,3 @@ dependencies {
     implementation 'dev.vankka:dependencydownload-common:1.3.0'
     implementation 'me.tongfei:progressbar:0.9.3'
 }
-
-license {
-    header = rootProject.file('LICENSE-header.txt')
-
-    include 'org/magmafoundation/magma/'
-    exclude 'net/minecraftforge/'
-
-    tasks {
-        main {
-            files.from files("$rootDir/magmalauncher/src/main/java")
-        }
-    }
-}
