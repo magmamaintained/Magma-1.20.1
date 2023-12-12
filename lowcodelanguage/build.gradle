@@ -51,13 +51,3 @@ jar.doFirst {
 tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:unchecked'
 }
-
-license {
-    header = rootProject.file('LICENSE-header.txt')
-
-    ext {
-        year = new Date().format("yyyy")
-}
-
-    exclude 'net/minecraftforge/'
-}

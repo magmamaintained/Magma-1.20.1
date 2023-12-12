@@ -80,18 +80,6 @@ tasks.withType(JavaCompile) {
     options.compilerArgs << '-Xlint:-unchecked'
 }
 
-license {
-    header = rootProject.file('LICENSE-header.txt')
-
-    ext {
-        year = new Date().format("yyyy")
-    }
-
-    exclude 'net/minecraftforge/'
-
-    exclude '**/log4j2.xml'
-}
-
 artifacts {
     archives jar
     archives sourcesJar
