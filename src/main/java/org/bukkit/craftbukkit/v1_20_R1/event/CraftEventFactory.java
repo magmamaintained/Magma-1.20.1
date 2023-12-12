@@ -1577,7 +1577,7 @@ public class CraftEventFactory {
             }
         }
 
-        handleBlockFormEventReturn = true;
+        handleBlockFormEventReturn = !event.isCancelled();
         return !event.isCancelled();
     }
 
