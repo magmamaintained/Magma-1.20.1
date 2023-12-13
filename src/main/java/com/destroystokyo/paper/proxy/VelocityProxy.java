@@ -1,16 +1,17 @@
-package com.destroystokyo.paper.youcandfindpaper.proxy;
+package com.destroystokyo.paper.proxy;
 
 
-import com.destroystokyo.paper.youcandfindpaper.PaperConfig;
 import com.google.common.net.InetAddresses;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,7 +30,7 @@ public class VelocityProxy {
 
         try {
             final Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(new SecretKeySpec(PaperConfig.velocitySecretKey, "HmacSHA256"));
+            mac.init(new SecretKeySpec(MagmaConfig.instance.paperVelocitySecret.getValues().getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
             final byte[] mySignature = mac.doFinal(data);
             if (!MessageDigest.isEqual(signature, mySignature)) {
                 return false;

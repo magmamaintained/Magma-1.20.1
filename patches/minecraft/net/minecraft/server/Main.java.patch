@@ -43,7 +43,7 @@
  
  public class Main {
     private static final Logger f_129670_ = LogUtils.getLogger();
-@@ -84,6 +_,46 @@
+@@ -84,6 +_,40 @@
        OptionSpec<Void> optionspec13 = optionparser.accepts("jfrProfile");
        OptionSpec<Path> optionspec14 = optionparser.accepts("pidFile").withRequiredArg().withValuesConvertedBy(new PathConverter());
        OptionSpec<String> optionspec15 = optionparser.nonOptions();
@@ -80,12 +80,6 @@
 +              .ofType(File.class)
 +              .defaultsTo(new File("spigot.yml"))
 +              .describedAs("Yml file");
-+
-+      optionparser.acceptsAll(Arrays.asList("p", "paper-settings"), "File for paper settings")
-+              .withRequiredArg()
-+              .ofType(File.class)
-+              .defaultsTo(new File("paper.yml"))
-+              .describedAs("Yml file");
 +      // Spigot End
  
        try {
@@ -113,7 +107,7 @@
  
           Path path = optionset.valueOf(optionspec14);
           if (path != null) {
-@@ -102,29 +_,56 @@
+@@ -102,29 +_,55 @@
              JvmProfiler.f_185340_.m_183425_(Environment.SERVER);
           }
  
@@ -139,7 +133,6 @@
 +         // Paper start - load config files for access below if needed
 +         org.bukkit.configuration.file.YamlConfiguration bukkitConfiguration = loadConfigFile((File) optionset.valueOf("bukkit-settings"));
 +         org.bukkit.configuration.file.YamlConfiguration spigotConfiguration = loadConfigFile((File) optionset.valueOf("spigot-settings"));
-+         org.bukkit.configuration.file.YamlConfiguration paperConfiguration = loadConfigFile((File) optionset.valueOf("paper-settings"));
 +         // Paper end
           if (optionset.has(optionspec1)) {
 +            // CraftBukkit start - SPIGOT-5761: Create bukkit.yml and commands.yml if not present

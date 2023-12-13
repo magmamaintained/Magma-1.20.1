@@ -1,6 +1,5 @@
 package org.bukkit.craftbukkit.v1_20_R1;
 
-import com.destroystokyo.paper.youcandfindpaper.PaperConfig;
 import com.google.common.base.Charsets;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
@@ -154,6 +153,7 @@ import org.bukkit.structure.StructureManager;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -679,7 +679,7 @@ public final class CraftServer implements Server {
     @Override
     public long getConnectionThrottle() {
         // Spigot Start - Automatically set connection throttle for bungee configurations
-        if (org.spigotmc.SpigotConfig.bungee || com.destroystokyo.paper.youcandfindpaper.PaperConfig.velocitySupport) { // Paper - Velocity support
+        if (org.spigotmc.SpigotConfig.bungee || MagmaConfig.instance.paperVelocityEnabled.getValues()) { // Paper - Velocity support
             return -1;
         } else {
             return this.configuration.getInt("settings.connection-throttle");
@@ -1506,7 +1506,7 @@ public final class CraftServer implements Server {
             // Spigot Start
             GameProfile profile = null;
             // Only fetch an online UUID in online mode
-            if ( getOnlineMode() || org.spigotmc.SpigotConfig.bungee || (PaperConfig.velocitySupport && PaperConfig.velocityOnlineMode) )
+            if ( getOnlineMode() || org.spigotmc.SpigotConfig.bungee || (MagmaConfig.instance.paperVelocityEnabled.getValues()) )
             {
                 profile = console.getProfileCache().get(name).orElse(null);
             }
