@@ -224,8 +224,8 @@
 +      }
 +
 +      // Magma start
-+      metrics = new Metrics();
 +      this.magma = Magma.getInstance();
++      metrics = new Metrics();
 +      this.magma.setPatcherManager(new PatcherManager());
 +      this.magma.getPatcherManager().init();
 +      // Magma end
