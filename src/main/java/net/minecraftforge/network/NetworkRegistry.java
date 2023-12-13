@@ -17,6 +17,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.magmafoundation.magma.configuration.MagmaConfig;
+import org.spigotmc.SpigotCommand;
+import org.spigotmc.SpigotConfig;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -185,7 +188,7 @@ public class NetworkRegistry
                     return Pair.of(ni.getChannelName(), test);
                 }).filter(p->!p.getRight()).toList();
 
-        if (!results.isEmpty()) {
+        if ((SpigotConfig.bungee || MagmaConfig.instance.paperVelocityEnabled.getValues()) && !results.isEmpty()) {
             LOGGER.error(NETREGISTRY, "Channels [{}] rejected vanilla connections",
                     results.stream().map(Pair::getLeft).map(Object::toString).collect(Collectors.joining(",")));
             return results.stream().map(Pair::getLeft).map(Object::toString).collect(Collectors.toList());

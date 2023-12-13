@@ -1,10 +1,6 @@
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -1,16 +_,15 @@
- package net.minecraft.server.dedicated;
- 
-+import com.destroystokyo.paper.youcandfindpaper.PaperConfig;
- import com.google.common.collect.Lists;
+@@ -4,13 +_,11 @@
  import com.mojang.authlib.GameProfile;
  import com.mojang.datafixers.DataFixer;
  import com.mojang.logging.LogUtils;
@@ -150,7 +146,7 @@
        thread.setDaemon(true);
        thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(f_139598_));
        thread.start();
-@@ -110,6 +_,26 @@
+@@ -110,6 +_,16 @@
           this.m_129913_(dedicatedserverproperties.f_139730_);
        }
  
@@ -159,16 +155,6 @@
 +      org.spigotmc.SpigotConfig.init((java.io.File) options.valueOf("spigot-settings"));
 +      org.spigotmc.SpigotConfig.registerCommands();
 +      // Spigot end
-+
-+      // Paper start
-+      try {
-+         PaperConfig.init((java.io.File) options.valueOf("paper-settings"));
-+      } catch (Exception e) {
-+         DedicatedServer.f_139598_.error("Unable to load server configuration", e);
-+         return false;
-+      }
-+      PaperConfig.registerCommands();
-+      // Paper end
 +
 +      // Magma start
 +      MagmaConfig.instance.registerCommands();
@@ -188,9 +174,9 @@
 +      // CraftBukkit end
 +
 +      // Paper start
-+      boolean usingProxy = org.spigotmc.SpigotConfig.bungee || PaperConfig.velocitySupport;
-+      String proxyFlavor = (PaperConfig.velocitySupport) ? "Velocity" : "BungeeCord";
-+      String proxyLink = (PaperConfig.velocitySupport) ? "https://docs.papermc.io/velocity/security" : "http://www.spigotmc.org/wiki/firewall-guide/";
++      boolean usingProxy = org.spigotmc.SpigotConfig.bungee || MagmaConfig.instance.paperVelocityEnabled.getValues();
++      String proxyFlavor = (MagmaConfig.instance.paperVelocityEnabled.getValues()) ? "Velocity" : "BungeeCord";
++      String proxyLink = (MagmaConfig.instance.paperVelocityEnabled.getValues()) ? "https://docs.papermc.io/velocity/security" : "http://www.spigotmc.org/wiki/firewall-guide/";
 +      // Paper end
        if (!this.m_129797_()) {
           f_139598_.warn("**** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!");
