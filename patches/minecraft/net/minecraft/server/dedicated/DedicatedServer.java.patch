@@ -28,7 +28,7 @@
  import net.minecraft.server.gui.MinecraftServerGui;
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.server.level.ServerPlayer;
-@@ -51,6 +_,14 @@
+@@ -51,6 +_,15 @@
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.entity.SkullBlockEntity;
  import net.minecraft.world.level.storage.LevelStorageSource;
@@ -40,6 +40,7 @@
 +import org.bukkit.event.server.RemoteServerCommandEvent;
 +import org.bukkit.event.server.ServerCommandEvent;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
++import org.magmafoundation.magma.metrics.Metrics;
  import org.slf4j.Logger;
  
  public class DedicatedServer extends MinecraftServer implements ServerInterface {
@@ -52,13 +53,16 @@
     @Nullable
     private RconThread f_139603_;
     private final DedicatedServerSettings f_139604_;
-@@ -68,23 +_,59 @@
+@@ -68,23 +_,61 @@
     private MinecraftServerGui f_139605_;
     @Nullable
     private final TextFilterClient f_139606_;
+-
 +   @Nullable
 +   private net.minecraft.client.server.LanServerPinger dediLanPinger;
- 
++
++   public Metrics metrics; // Magma
++
 +   // CraftBukkit start - Signature changed
     public DedicatedServer(Thread p_214789_, LevelStorageSource.LevelStorageAccess p_214790_, PackRepository p_214791_, WorldStem p_214792_, DedicatedServerSettings p_214793_, DataFixer p_214794_, Services p_214795_, ChunkProgressListenerFactory p_214796_) {
        super(p_214789_, p_214790_, p_214791_, p_214792_, Proxy.NO_PROXY, p_214794_, p_214795_, p_214796_);
@@ -146,7 +150,7 @@
        thread.setDaemon(true);
        thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(f_139598_));
        thread.start();
-@@ -110,6 +_,16 @@
+@@ -110,6 +_,17 @@
           this.m_129913_(dedicatedserverproperties.f_139730_);
        }
  
@@ -158,6 +162,7 @@
 +
 +      // Magma start
 +      MagmaConfig.instance.registerCommands();
++      metrics = new Metrics();
 +      // Magma end
 +
        this.m_129997_(dedicatedserverproperties.f_139733_);

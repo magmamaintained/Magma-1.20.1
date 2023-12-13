@@ -65,6 +65,7 @@ import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.PatrolSpawner;
+import net.minecraft.world.level.levelgen.PhantomSpawner;
 import net.minecraft.world.level.levelgen.WorldDimensions;
 import net.minecraft.world.level.levelgen.WorldOptions;
 import net.minecraft.world.level.saveddata.maps.MapDecoration;
@@ -154,6 +155,7 @@ import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.configuration.MagmaConfig;
+import org.magmafoundation.magma.forge.ForgeInject;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -910,6 +912,7 @@ public final class CraftServer implements Server {
             biomeProvider = getBiomeProvider(name);
         }
 
+
         ResourceKey<LevelStem> actualDimension;
         switch (creator.environment()) {
             case NORMAL:
@@ -968,7 +971,7 @@ public final class CraftServer implements Server {
         }
 
         long j = BiomeManager.obfuscateSeed(creator.seed());
-        List<CustomSpawner> list = ImmutableList.of(new PatrolSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(), new WanderingTraderSpawner(worlddata));
+        List<CustomSpawner> list = ImmutableList.of(new PhantomSpawner(), new PatrolSpawner(), new CatSpawner(), new VillageSiege(), new WanderingTraderSpawner(worlddata));
         LevelStem worlddimension = iregistry.get(actualDimension);
 
         WorldInfo worldInfo = new CraftWorldInfo(worlddata, worldSession, creator.environment(), worlddimension.type().value());
@@ -986,18 +989,18 @@ public final class CraftServer implements Server {
             worldKey = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(name.toLowerCase(Locale.ENGLISH)));
         }
 
-        ServerLevel.craftWorldData(generator, creator.environment(), biomeProvider);
-        ServerLevel internal = (ServerLevel) new ServerLevel(console, console.executor, worldSession, worlddata, worldKey, worlddimension, getServer().progressListenerFactory.create(11),
+        net.minecraft.world.level.Level.craftWorldData(generator, creator.environment(), biomeProvider);
+        ServerLevel internal = new ServerLevel(console, console.executor, worldSession, worlddata, worldKey, worlddimension, getServer().progressListenerFactory.create(11),
                 worlddata.isDebugWorld(), j, creator.environment() == Environment.NORMAL ? list : ImmutableList.of(), true, console.overworld().getRandomSequences());
 
         if (!(worlds.containsKey(name.toLowerCase(Locale.ENGLISH)))) {
             return null;
         }
 
+        console.addLevel(internal);
         console.initWorld(internal, worlddata, worlddata, worlddata.worldGenOptions());
 
         internal.setSpawnSettings(true, true);
-        console.levels.put(internal.dimension(), internal);
 
         getServer().prepareLevels(internal.getChunkSource().chunkMap.progressListener, internal);
         internal.entityManager.tick(); // SPIGOT-6526: Load pending entities so they are available to the API
@@ -1051,7 +1054,7 @@ public final class CraftServer implements Server {
         }
 
         worlds.remove(world.getName().toLowerCase(Locale.ENGLISH));
-        console.levels.remove(handle.dimension());
+        this.console.removeLevel(handle);
         return true;
     }
 
