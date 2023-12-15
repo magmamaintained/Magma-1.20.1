@@ -195,25 +195,26 @@
     public static final double f_215198_ = Mth.m_144952_(6.0D);
     private static final int f_215199_ = -1;
     private static final int f_244471_ = 4096;
-@@ -197,7 +_,6 @@
+@@ -197,7 +_,9 @@
     private long f_9747_;
     private boolean f_9748_;
     private long f_9749_;
 -   private int f_9750_;
-    private int f_9751_;
-    private double f_9753_;
-    private double f_9754_;
-@@ -231,6 +_,10 @@
-    private final MessageSignatureCache f_243718_ = MessageSignatureCache.m_246587_();
-    private final FutureChain f_241681_;
- 
 +   // CraftBukkit start - multithreaded fields
 +   private final AtomicInteger f_9750_ = new AtomicInteger();
 +   // CraftBukkit end
-+
-    public ServerGamePacketListenerImpl(MinecraftServer p_9770_, Connection p_9771_, ServerPlayer p_9772_) {
-       this.f_9745_ = p_9770_;
-       this.f_9742_ = p_9771_;
+    private int f_9751_;
+    private double f_9753_;
+    private double f_9754_;
+@@ -206,7 +_,7 @@
+    private double f_9757_;
+    private double f_9758_;
+    @Nullable
+-   private Entity f_9759_;
++   private Entity f_9759_; //
+    private double f_9760_;
+    private double f_9761_;
+    private double f_9762_;
 @@ -240,10 +_,35 @@
        this.f_9747_ = Util.m_137550_();
        p_9772_.m_8967_().m_7674_();
