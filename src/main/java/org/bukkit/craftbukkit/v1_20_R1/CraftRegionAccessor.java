@@ -420,8 +420,12 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
         return createEntity(location, clazz, true);
     }
 
+    public boolean withLocation;
     @SuppressWarnings("unchecked")
     public net.minecraft.world.entity.Entity createEntity(Location location, Class<? extends Entity> clazz, boolean randomizeData) throws IllegalArgumentException {
+        boolean withLocation = this.withLocation;
+        this.withLocation = true;
+
         Preconditions.checkArgument(location != null, "Location cannot be null");
         Preconditions.checkArgument(clazz != null, "Entity class cannot be null");
 
@@ -441,7 +445,7 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
             } else {
                 entity = net.minecraft.world.entity.EntityType.BOAT.create(world);
             }
-            entity.moveTo(x, y, z, yaw, pitch);
+            if (withLocation) entity.moveTo(x, y, z, yaw, pitch); // Magma
         } else if (FallingBlock.class.isAssignableFrom(clazz)) {
             BlockPos pos = BlockPos.containing(x, y, z);
             entity = FallingBlockEntity.fall(world, pos, getHandle().getBlockState(pos));
@@ -461,13 +465,13 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
                 } else {
                     entity = net.minecraft.world.entity.EntityType.ARROW.create(world);
                 }
-                entity.moveTo(x, y, z, 0, 0);
+                if (withLocation) entity.moveTo(x, y, z, 0, 0); // Magma
             } else if (ThrownExpBottle.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.EXPERIENCE_BOTTLE.create(world);
-                entity.moveTo(x, y, z, 0, 0);
+                if (withLocation) entity.moveTo(x, y, z, 0, 0); // Magma
             } else if (EnderPearl.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.ENDER_PEARL.create(world);
-                entity.moveTo(x, y, z, 0, 0);
+                if (withLocation) entity.moveTo(x, y, z, 0, 0); // Magma
             } else if (ThrownPotion.class.isAssignableFrom(clazz)) {
                 if (LingeringPotion.class.isAssignableFrom(clazz)) {
                     entity = new net.minecraft.world.entity.projectile.ThrownPotion(world, x, y, z);
@@ -486,15 +490,15 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
                 } else {
                     entity = net.minecraft.world.entity.EntityType.FIREBALL.create(world);
                 }
-                entity.moveTo(x, y, z, yaw, pitch);
+                if (withLocation) entity.moveTo(x, y, z, yaw, pitch); // Magma
                 Vector direction = location.getDirection().multiply(10);
                 ((AbstractHurtingProjectile) entity).setDirection(direction.getX(), direction.getY(), direction.getZ());
             } else if (ShulkerBullet.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.SHULKER_BULLET.create(world);
-                entity.moveTo(x, y, z, yaw, pitch);
+                if (withLocation) entity.moveTo(x, y, z, yaw, pitch); // Magma
             } else if (LlamaSpit.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.LLAMA_SPIT.create(world);
-                entity.moveTo(x, y, z, yaw, pitch);
+                if (withLocation) entity.moveTo(x, y, z, yaw, pitch); // Magma
             } else if (Firework.class.isAssignableFrom(clazz)) {
                 entity = new FireworkRocketEntity(world, x, y, z, net.minecraft.world.item.ItemStack.EMPTY);
             }
@@ -518,7 +522,7 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
             entity = new EyeOfEnder(world, x, y, z);
         } else if (EnderCrystal.class.isAssignableFrom(clazz)) {
             entity = net.minecraft.world.entity.EntityType.END_CRYSTAL.create(world);
-            entity.moveTo(x, y, z, 0, 0);
+            if (withLocation) entity.moveTo(x, y, z, 0, 0); // Magma
         } else if (LivingEntity.class.isAssignableFrom(clazz)) {
             if (Chicken.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.CHICKEN.create(world);
@@ -722,7 +726,7 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
             }
 
             if (entity != null) {
-                entity.absMoveTo(x, y, z, yaw, pitch);
+                if (withLocation) entity.absMoveTo(x, y, z, yaw, pitch); // Magma
                 entity.setYHeadRot(yaw); // SPIGOT-3587
             }
         } else if (Hanging.class.isAssignableFrom(clazz)) {
@@ -778,7 +782,7 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
                         entity = net.minecraft.world.entity.decoration.Painting.create(world, pos, dir).orElse(null);
                     } else {
                         entity = new net.minecraft.world.entity.decoration.Painting(net.minecraft.world.entity.EntityType.PAINTING, getHandle().getMinecraftWorld());
-                        entity.absMoveTo(x, y, z, yaw, pitch);
+                        if (withLocation) entity.absMoveTo(x, y, z, yaw, pitch); // Magma
                         ((net.minecraft.world.entity.decoration.Painting) entity).setDirection(dir);
                     }
                 } else if (ItemFrame.class.isAssignableFrom(clazz)) {
@@ -795,17 +799,17 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
             entity = new net.minecraft.world.entity.ExperienceOrb(world, x, y, z, 0);
         } else if (LightningStrike.class.isAssignableFrom(clazz)) {
             entity = net.minecraft.world.entity.EntityType.LIGHTNING_BOLT.create(world);
-            entity.moveTo(location.getX(), location.getY(), location.getZ());
+            if (withLocation) entity.moveTo(location.getX(), location.getY(), location.getZ()); // Magma
         } else if (AreaEffectCloud.class.isAssignableFrom(clazz)) {
             entity = new net.minecraft.world.entity.AreaEffectCloud(world, x, y, z);
         } else if (EvokerFangs.class.isAssignableFrom(clazz)) {
             entity = new net.minecraft.world.entity.projectile.EvokerFangs(world, x, y, z, (float) Math.toRadians(yaw), 0, null);
         } else if (Marker.class.isAssignableFrom(clazz)) {
             entity = net.minecraft.world.entity.EntityType.MARKER.create(world);
-            entity.setPos(x, y, z);
+            if (withLocation) entity.setPos(x, y, z); // Magma
         } else if (Interaction.class.isAssignableFrom(clazz)) {
             entity = net.minecraft.world.entity.EntityType.INTERACTION.create(world);
-            entity.setPos(x, y, z);
+            if (withLocation) entity.setPos(x, y, z); // Magma
         } else if (Display.class.isAssignableFrom(clazz)) {
             if (BlockDisplay.class.isAssignableFrom(clazz)) {
                 entity = net.minecraft.world.entity.EntityType.BLOCK_DISPLAY.create(world);
@@ -816,7 +820,7 @@ public abstract class CraftRegionAccessor implements RegionAccessor {
             }
 
             if (entity != null) {
-                entity.setPos(x, y, z);
+                if (withLocation) entity.setPos(x, y, z); // Magma
             }
         }
 
