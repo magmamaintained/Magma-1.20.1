@@ -91,7 +91,7 @@
 +      if (bukkitEntity instanceof CraftPlayer player)
 +         player.setFirstPlayed(((CraftPlayer) temp).getFirstPlayed());
 +
-+      if (bukkitEntity instanceof CraftHumanEntity human) //Keep perms on reset
++      if (bukkitEntity instanceof CraftHumanEntity human) // Keep perms on reset
 +         human.setPerm(((CraftHumanEntity) temp).getPerm());
 +   }
 +
