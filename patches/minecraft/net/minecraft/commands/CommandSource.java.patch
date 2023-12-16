@@ -14,10 +14,14 @@
     };
  
     void m_213846_(Component p_230797_);
-@@ -31,4 +_,6 @@
+@@ -31,4 +_,10 @@
     default boolean m_142559_() {
        return false;
     }
 +
-+   org.bukkit.command.CommandSender getBukkitSender(CommandSourceStack wrapper); // CraftBukkit
++   // CraftBukkit start
++   default org.bukkit.command.CommandSender getBukkitSender(CommandSourceStack wrapper) {
++      return f_80164_.getBukkitSender(wrapper);
++   }
++   // CraftBukkit end
  }

@@ -8,6 +8,7 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.MapMaker;
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
@@ -77,6 +78,8 @@ import net.minecraft.world.level.storage.WorldData;
 import net.minecraft.world.level.storage.loot.LootDataManager;
 import net.minecraft.world.level.validation.ContentValidationException;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.CommandEvent;
 import org.apache.commons.lang3.Validate;
 import org.bukkit.*;
 import org.bukkit.Warning.WarningState;
@@ -95,8 +98,10 @@ import org.bukkit.craftbukkit.v1_20_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_20_R1.boss.CraftBossBar;
 import org.bukkit.craftbukkit.v1_20_R1.boss.CraftKeyedBossbar;
 import org.bukkit.craftbukkit.v1_20_R1.command.BukkitCommandWrapper;
+import org.bukkit.craftbukkit.v1_20_R1.command.CraftBlockCommandSender;
 import org.bukkit.craftbukkit.v1_20_R1.command.CraftCommandMap;
 import org.bukkit.craftbukkit.v1_20_R1.command.VanillaCommandWrapper;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 import org.bukkit.craftbukkit.v1_20_R1.generator.CraftWorldInfo;
@@ -154,6 +159,7 @@ import org.bukkit.structure.StructureManager;
 import org.bukkit.util.StringUtil;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.api.ServerAPI;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.forge.ForgeInject;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -777,12 +783,12 @@ public final class CraftServer implements Server {
         }
     }
 
-    @Override
     public boolean dispatchCommand(CommandSender sender, String commandLine) {
-        Preconditions.checkArgument(sender != null, "sender cannot be null");
-        Preconditions.checkArgument(commandLine != null, "commandLine cannot be null");
-        org.spigotmc.AsyncCatcher.catchOp("command dispatch"); // Spigot
+        Validate.notNull(sender, "Sender cannot be null");
+        Validate.notNull(commandLine, "CommandLine cannot be null");
 
+        commandLine = commandLine(sender, commandLine);
+        if (commandLine == null) return false;
         if (commandMap.dispatch(sender, commandLine)) {
             return true;
         }
@@ -791,8 +797,36 @@ public final class CraftServer implements Server {
         if (!org.spigotmc.SpigotConfig.unknownCommandMessage.isEmpty()) {
             sender.sendMessage(org.spigotmc.SpigotConfig.unknownCommandMessage);
         }
+        // Spigot end
 
         return false;
+    }
+
+    public String commandLine(CommandSender sender, String commandLine) {
+        CommandSourceStack commandSource;
+        if (sender instanceof CraftEntity) {
+            commandSource = ((CraftEntity) sender).getHandle().createCommandSourceStack();
+        } else if (sender == Bukkit.getConsoleSender()) {
+            commandSource = ServerAPI.getNMSServer().createCommandSourceStack();
+        } else if (sender instanceof CraftBlockCommandSender) {
+            commandSource = ((CraftBlockCommandSender) sender).getWrapper();
+        } else {
+            return commandLine;
+        }
+        StringReader stringreader = new StringReader("/" + commandLine);
+        if (stringreader.canRead() && stringreader.peek() == '/') {
+            stringreader.skip();
+        }
+        ParseResults<CommandSourceStack> parse = ServerAPI.getNMSServer().getCommands().getDispatcher().parse(stringreader, commandSource);
+        CommandEvent event = new CommandEvent(parse);
+        if (MinecraftForge.EVENT_BUS.post(event)) {
+            return null;
+        } else if (event.getException() != null) {
+            return null;
+        } else {
+            String s = event.getParseResults().getReader().getString();
+            return s.startsWith("/") ? s.substring(1) : s;
+        }
     }
 
     @Override
