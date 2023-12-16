@@ -98,13 +98,6 @@ public class SimpleHelpMap implements HelpMap {
         }
     }
 
-    public synchronized void updateCommands() {
-        helpTopics.clear();
-        initializeGeneralTopics();
-        initializeCommands();
-        Magma.LOGGER.info("Reloaded {} help topics", helpTopics.size());
-    }
-
     /**
      * Processes all the commands registered in the server and creates help topics for them.
      */

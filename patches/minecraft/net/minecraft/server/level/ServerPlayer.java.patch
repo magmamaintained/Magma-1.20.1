@@ -121,7 +121,7 @@
  import org.slf4j.Logger;
  
  public class ServerPlayer extends Player {
-@@ -245,20 +_,73 @@
+@@ -245,6 +_,22 @@
     public int f_8943_;
     public boolean f_8944_;
  
@@ -144,10 +144,7 @@
     public ServerPlayer(MinecraftServer p_254143_, ServerLevel p_254435_, GameProfile p_253651_) {
        super(p_254435_, p_254435_.m_220360_(), p_254435_.m_220361_(), p_253651_);
        this.f_8939_ = p_254143_.m_7950_(this);
-       this.f_8941_ = p_254143_.m_177933_(this);
-       this.f_8924_ = p_254143_;
--      this.f_8910_ = p_254143_.m_6846_().m_11239_(this);
-+      this.f_8910_ = p_254143_.m_6846_().getPlayerStats(this);
+@@ -254,11 +_,48 @@
        this.f_8909_ = p_254143_.m_6846_().m_11296_(this);
        this.m_274367_(1.0F);
        this.m_9201_(p_254435_);
