@@ -17,7 +17,7 @@
  
  public interface Container extends Clearable {
     int f_146642_ = 64;
-@@ -92,4 +_,35 @@
+@@ -92,4 +_,37 @@
           return p_272670_.m_20275_((double)blockpos.m_123341_() + 0.5D, (double)blockpos.m_123342_() + 0.5D, (double)blockpos.m_123343_() + 0.5D) <= (double)(p_273411_ * p_273411_);
        }
     }
@@ -37,7 +37,9 @@
 +      return Collections.emptyList();
 +   }
 +
-+   org.bukkit.inventory.InventoryHolder getOwner();
++   default org.bukkit.inventory.InventoryHolder getOwner() {
++      return null;
++   }
 +
 +   void setMaxStackSize(int size);
 +
