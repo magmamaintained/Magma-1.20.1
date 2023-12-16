@@ -1151,7 +1151,7 @@
  
 +
 +   // Magma start - Move PlayerSpawnChangeEvent.Cause to different constructor.
-+   public Optional<PlayerSpawnChangeEvent.Cause> cause;
++   public Optional<PlayerSpawnChangeEvent.Cause> cause = Optional.ofNullable(null);
 +   public void prepareSetRespawnPosition(PlayerSpawnChangeEvent.Cause cause) {
 +      this.cause = Optional.of(cause);
 +   }

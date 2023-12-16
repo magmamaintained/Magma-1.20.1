@@ -7,11 +7,11 @@
 +
 +   // CraftBukkit start
 +   default Level getWorld() {
-+      throw new UnsupportedOperationException("Not supported yet.");
++      return this.m_6721_((level, blockpos) -> level).orElse(null); // Magma
 +   }
 +
 +   default BlockPos getPosition() {
-+      throw new UnsupportedOperationException("Not supported yet.");
++      return this.m_6721_((level, blockpos) -> blockpos).orElse(null); // Magma
 +   }
 +
 +   default org.bukkit.Location getLocation() {

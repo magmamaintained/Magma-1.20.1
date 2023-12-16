@@ -870,8 +870,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
             entity.connection.teleport(to);
         } else {
             // The respawn reason should never be used if the passed location is non null.
-            server.getHandle().prepareRespawn(toWorld, to, true, null);
-            server.getHandle().respawn(entity, true);
+            server.getHandle().respawn(entity, toWorld, true, to, true, null);
         }
         return true;
     }
@@ -1939,6 +1938,11 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         getHandle().connection.send(packetReset);
     }
 
+    public void restore(CraftPlayer player) {
+        setDisplayName(player.getDisplayName());
+        player.setHandle(getHandle());
+    }
+
     @Override
     public void spawnParticle(Particle particle, Location location, int count) {
         spawnParticle(particle, location.getX(), location.getY(), location.getZ(), count);
@@ -2085,8 +2089,7 @@ public class CraftPlayer extends CraftHumanEntity implements Player {
         {
             if ( getHealth() <= 0 && isOnline() )
             {
-                server.getServer().getPlayerList().prepareRespawn(null, null, true, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
-                server.getServer().getPlayerList().respawn( getHandle(), false);
+                server.getServer().getPlayerList().respawn( getHandle(), false, org.bukkit.event.player.PlayerRespawnEvent.RespawnReason.PLUGIN);
             }
         }
 
