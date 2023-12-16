@@ -8,3 +8,12 @@
     private static final int f_188031_ = 0;
     private final PaletteResize<T> f_63070_ = (p_238275_, p_238276_) -> {
        return 0;
+@@ -120,7 +_,7 @@
+       return this.f_188032_.f_188102_.m_5795_(j);
+    }
+ 
+-   public void m_156470_(int p_156471_, int p_156472_, int p_156473_, T p_156474_) {
++   public void set(int p_156471_, int p_156472_, int p_156473_, T p_156474_) {
+       this.m_63084_();
+ 
+       try {

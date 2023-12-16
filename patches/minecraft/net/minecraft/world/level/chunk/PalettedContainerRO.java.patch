@@ -1,0 +1,11 @@
+--- a/net/minecraft/world/level/chunk/PalettedContainerRO.java
++++ b/net/minecraft/world/level/chunk/PalettedContainerRO.java
+@@ -32,4 +_,8 @@
+    public interface Unpacker<T, C extends PalettedContainerRO<T>> {
+       DataResult<C> m_238363_(IdMap<T> p_238364_, PalettedContainer.Strategy p_238365_, PalettedContainerRO.PackedData<T> p_238366_);
+    }
++
++   // Magma start - read/write
++   public void set(int i1, int i2, int i3, T i4);
++   // Magma end
+ }
