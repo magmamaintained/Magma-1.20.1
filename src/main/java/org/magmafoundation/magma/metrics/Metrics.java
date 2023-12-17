@@ -65,7 +65,7 @@ public class Metrics {
 
     public Metrics() {
         // Get the config file
-        File bStatsFolder = new File((File) MinecraftServer.getServerInstance().options.valueOf("plugins"), "bStats");
+        File bStatsFolder = new File(new File((File) MinecraftServer.getServerInstance().options.valueOf("plugins"), "bStats"), "config");
         File configFile = new File(bStatsFolder, "config.yml");
         YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
@@ -644,5 +644,4 @@ public class Metrics {
             return data;
         }
     }
-
 }
