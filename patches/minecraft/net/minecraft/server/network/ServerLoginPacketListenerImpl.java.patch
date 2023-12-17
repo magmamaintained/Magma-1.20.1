@@ -21,24 +21,13 @@
     ServerLoginPacketListenerImpl.State f_10019_ = ServerLoginPacketListenerImpl.State.HELLO;
     private int f_10020_;
     @Nullable
-@@ -52,6 +_,20 @@
+@@ -52,6 +_,9 @@
     private final String f_10022_ = "";
     @Nullable
     private ServerPlayer f_10024_;
 +   private int velocityLoginMessageId = -1; // Paper - Velocity support
 +
-+   // Paper start - Cache authenticator threads
-+   private static final AtomicInteger threadId = new AtomicInteger(0);
-+   private static final java.util.concurrent.ExecutorService authenticatorPool = java.util.concurrent.Executors.newCachedThreadPool(
-+           r -> {
-+              Thread ret = new Thread(r, "User Authenticator #" + threadId.incrementAndGet());
-+
-+              ret.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(f_10015_));
-+
-+              return ret;
-+           }
-+   );
-+   // Paper end
++   private static final java.util.concurrent.ExecutorService authenticatorPool = java.util.concurrent.Executors.newCachedThreadPool(new com.google.common.util.concurrent.ThreadFactoryBuilder().setNameFormat("User Authenticator #%d").setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(f_10015_)).build()); // Paper - Cache authenticator threads
  
     public ServerLoginPacketListenerImpl(MinecraftServer p_10027_, Connection p_10028_) {
        this.f_10018_ = p_10027_;
@@ -159,12 +148,13 @@
           }
  
        }
-@@ -186,19 +_,23 @@
+@@ -186,19 +_,24 @@
           throw new IllegalStateException("Protocol error", cryptexception);
        }
  
 -      Thread thread = new Thread("User Authenticator #" + f_10014_.incrementAndGet()) {
-+      Thread thread = new Thread(net.minecraftforge.fml.util.thread.SidedThreadGroups.SERVER, "User Authenticator #" + f_10014_.incrementAndGet()) {
++      // Paper start - Cache authenticator threads
++      authenticatorPool.execute(new Runnable() {
           public void run() {
              GameProfile gameprofile = ServerLoginPacketListenerImpl.this.f_10021_;
  
@@ -187,7 +177,7 @@
                 } else {
                    ServerLoginPacketListenerImpl.this.m_10053_(Component.m_237115_("multiplayer.disconnect.unverified_username"));
                    ServerLoginPacketListenerImpl.f_10015_.error("Username '{}' tried to join with an invalid session", (Object)gameprofile.getName());
-@@ -207,14 +_,21 @@
+@@ -207,11 +_,17 @@
                 if (ServerLoginPacketListenerImpl.this.f_10018_.m_129792_()) {
                    ServerLoginPacketListenerImpl.f_10015_.warn("Authentication servers are down but will let them in anyway!");
                    ServerLoginPacketListenerImpl.this.f_10021_ = gameprofile;
@@ -200,20 +190,24 @@
 +               // CraftBukkit start - catch all exceptions
 +            } catch (Exception exception) {
 +               disconnect("Failed to verify username!");
-+               f_10018_.server.getLogger().log(java.util.logging.Level.WARNING, "Exception verifying " + gameprofile.getName(), exception);
++               f_10018_.server.getLogger()
++                       .log(java.util.logging.Level.WARNING, "Exception verifying " + gameprofile.getName(), exception);
 +               // CraftBukkit end
              }
  
           }
+@@ -221,12 +_,97 @@
+             SocketAddress socketaddress = ServerLoginPacketListenerImpl.this.f_10013_.m_129523_();
+             return ServerLoginPacketListenerImpl.this.f_10018_.m_129798_() && socketaddress instanceof InetSocketAddress ? ((InetSocketAddress)socketaddress).getAddress() : null;
+          }
+-      };
+-      thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(f_10015_));
+-      thread.start();
+-   }
++      });
++      // Paper end
++   }
 +
-+
- 
-          @Nullable
-          private InetAddress m_10064_() {
-@@ -226,7 +_,93 @@
-       thread.start();
-    }
- 
 +   // Spigot start
 +   public class LoginHandler {
 +      public void fireEvents() throws Exception {
@@ -257,10 +251,11 @@
 +      }
 +   }
 +   // Spigot end
-+
+ 
     public void m_7223_(ServerboundCustomQueryPacket p_10045_) {
 +      // Paper start - Velocity support
 +      if (MagmaConfig.instance.paperVelocityEnabled.getValues() && p_10045_.m_179824_() == this.velocityLoginMessageId) {
++         System.out.println(1);
 +         net.minecraft.network.FriendlyByteBuf buf = p_10045_.m_179825_();
 +         if (buf == null) {
 +            this.disconnect("This server requires you to connect with Velocity.");
@@ -285,7 +280,6 @@
 +         this.f_10013_.f_129469_ = new java.net.InetSocketAddress(com.destroystokyo.paper.proxy.VelocityProxy.readAddress(buf), port);
 +
 +         this.f_10021_ = com.destroystokyo.paper.proxy.VelocityProxy.createProfile(buf);
-+
 +         //TODO Update handling for lazy sessions, might not even have to do anything?
 +
 +         // Proceed with login

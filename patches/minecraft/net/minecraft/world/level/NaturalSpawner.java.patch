@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/level/NaturalSpawner.java
 +++ b/net/minecraft/world/level/NaturalSpawner.java
+@@ -6,6 +_,7 @@
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+ import java.util.Objects;
+ import java.util.Optional;
++import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.function.Consumer;
+ import java.util.stream.Stream;
+ import javax.annotation.Nullable;
 @@ -42,12 +_,16 @@
  import net.minecraft.world.level.levelgen.Heightmap;
  import net.minecraft.world.level.levelgen.structure.BuiltinStructures;
@@ -27,7 +35,7 @@
           if (mobcategory != MobCategory.MISC) {
              BlockPos blockpos = entity.m_20183_();
              p_186527_.m_47103_(ChunkPos.m_151388_(blockpos), (p_275163_) -> {
-@@ -101,13 +_,29 @@
+@@ -101,13 +_,30 @@
  
     public static void m_47029_(ServerLevel p_47030_, LevelChunk p_47031_, NaturalSpawner.SpawnState p_47032_, boolean p_47033_, boolean p_47034_, boolean p_47035_) {
        p_47030_.m_46473_().m_6180_("spawner");
@@ -36,7 +44,6 @@
 +      LevelData worlddata = p_47030_.m_6106_(); // CraftBukkit - Other mob type spawn tick rate
  
        for(MobCategory mobcategory : f_46979_) {
--         if ((p_47033_ || !mobcategory.m_21609_()) && (p_47034_ || mobcategory.m_21609_()) && (p_47035_ || !mobcategory.m_21610_()) && p_47032_.m_186548_(mobcategory, p_47031_.m_7697_())) {
 +         // CraftBukkit start - Use per-world spawn limits
 +         boolean spawnThisTick = true;
 +         int limit = mobcategory.m_21608_();
@@ -48,7 +55,8 @@
 +         if (!spawnThisTick || limit == 0) {
 +            continue;
 +         }
-+         if ((p_47033_ || !mobcategory.m_21609_()) && (p_47034_ || mobcategory.m_21609_()) && (p_47035_ || !mobcategory.m_21610_()) && p_47032_.canSpawnForCategory(mobcategory, p_47031_.m_7697_(), limit)) {
++         p_47032_.limit.set(limit);
+          if ((p_47033_ || !mobcategory.m_21609_()) && (p_47034_ || mobcategory.m_21609_()) && (p_47035_ || !mobcategory.m_21610_()) && p_47032_.m_186548_(mobcategory, p_47031_.m_7697_())) {
 +            // CraftBukkit end
              m_47045_(mobcategory, p_47030_, p_47031_, p_47032_::m_47127_, p_47032_::m_47131_);
           }
@@ -140,16 +148,16 @@
                                p_220451_.m_47205_(mob);
                                flag = true;
                             }
-@@ -489,8 +_,10 @@
+@@ -489,8 +_,11 @@
           return this.f_47113_;
        }
  
--      boolean m_186548_(MobCategory p_186549_, ChunkPos p_186550_) {
++      // Magma start - CraftBukkit
++      public AtomicInteger limit = new AtomicInteger(1);
+       boolean m_186548_(MobCategory p_186549_, ChunkPos p_186550_) {
 -         int i = p_186549_.m_21608_() * this.f_47110_ / NaturalSpawner.f_46978_;
-+      // CraftBukkit start
-+      boolean canSpawnForCategory(MobCategory p_186549_, ChunkPos p_186550_, int limit) {
-+         int i = limit * this.f_47110_ / NaturalSpawner.f_46978_;
-+         // CraftBukkit end
++         int i = limit.getAndSet(1) * this.f_47110_ / NaturalSpawner.f_46978_;
++         // Magma end - CraftBukkit
           if (this.f_47111_.getInt(p_186549_) >= i) {
              return false;
           } else {
