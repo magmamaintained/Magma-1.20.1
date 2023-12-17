@@ -6,6 +6,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.ProfilePublicKey;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 
 import javax.crypto.Mac;
@@ -15,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 public class VelocityProxy {
     public static final int MODERN_LAZY_SESSION = 4;
@@ -60,5 +62,13 @@ public class VelocityProxy {
             final String signature = buf.readBoolean() ? buf.readUtf(Short.MAX_VALUE) : null;
             profile.getProperties().put(name, new Property(name, value, signature));
         }
+    }
+
+    public static ProfilePublicKey.Data readForwardedKey(FriendlyByteBuf buf) {
+        return new ProfilePublicKey.Data(buf);
+    }
+
+    public static UUID readSignerUuidOrElse(FriendlyByteBuf buf, UUID orElse) {
+        return buf.readBoolean() ? buf.readUUID() : orElse;
     }
 }
