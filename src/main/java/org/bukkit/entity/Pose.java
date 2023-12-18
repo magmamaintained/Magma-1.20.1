@@ -65,5 +65,9 @@ public enum Pose {
     /**
      * Entity is digging.
      */
-    DIGGING;
+    DIGGING, //Magma - add modded poses
+    /**
+     * Pose is likely coming from a mod.
+     */
+    MODDED
 }

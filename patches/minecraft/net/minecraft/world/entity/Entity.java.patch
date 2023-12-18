@@ -211,7 +211,7 @@
     }
  
     public boolean m_20039_(BlockPos p_20040_, BlockState p_20041_) {
-@@ -344,12 +_,19 @@
+@@ -344,12 +_,30 @@
  
     public void m_142687_(Entity.RemovalReason p_146834_) {
        this.m_142467_(p_146834_);
@@ -226,7 +226,18 @@
 +      if (p_20125_ == this.m_20089_()) {
 +         return;
 +      }
-+      this.f_19853_.getCraftServer().getPluginManager().callEvent(new EntityPoseChangeEvent(this.getBukkitEntity(), org.bukkit.entity.Pose.values()[p_20125_.ordinal()]));
++
++      //Magma start - fix IndexOutOfBoundsException
++      org.bukkit.entity.Pose pose;
++      try {
++         pose = org.bukkit.entity.Pose.values()[p_20125_.ordinal()];
++      } catch (IndexOutOfBoundsException ignored) {
++         pose = org.bukkit.entity.Pose.MODDED;
++      }
++
++      this.f_19853_.getCraftServer().getPluginManager().callEvent(new EntityPoseChangeEvent(this.getBukkitEntity(), pose));
++      //Magma end
++
 +      // CraftBukkit end
        this.f_19804_.m_135381_(f_19806_, p_20125_);
     }
