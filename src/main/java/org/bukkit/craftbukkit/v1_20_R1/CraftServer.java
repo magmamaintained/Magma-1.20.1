@@ -1036,7 +1036,8 @@ public final class CraftServer implements Server {
 
         internal.setSpawnSettings(true, true);
 
-        getServer().prepareLevels(internal.getChunkSource().chunkMap.progressListener, internal);
+        getServer().serverlevel.set(internal);
+        getServer().prepareLevels(internal.getChunkSource().chunkMap.progressListener);
         internal.entityManager.tick(); // SPIGOT-6526: Load pending entities so they are available to the API
 
         pluginManager.callEvent(new WorldLoadEvent(internal.getWorld()));

@@ -277,7 +277,7 @@
        if (profiledduration != null) {
           profiledduration.m_185413_();
        }
-@@ -325,26 +_,226 @@
+@@ -325,26 +_,227 @@
     protected void m_7044_() {
     }
  
@@ -488,7 +488,8 @@
 +      }
 +      this.m_7044_();
 +      for (ServerLevel worldserver : this.m_129785_()) {
-+         this.prepareLevels(worldserver.m_7726_().f_8325_.f_140144_, worldserver);
++         this.serverlevel.set(worldserver);
++         this.m_129940_(worldserver.m_7726_().f_8325_.f_140144_);
 +         worldserver.f_143244_.m_157506_(); // SPIGOT-6526: Load pending entities so they are available to the API
 +         this.server.getPluginManager().callEvent(new org.bukkit.event.world.WorldLoadEvent(worldserver.getWorld()));
 +      }
@@ -571,14 +572,20 @@
           int i = serverchunkcache.m_8481_().m_142051_(p_177897_);
           if (i < p_177897_.m_141937_()) {
              BlockPos blockpos = chunkpos.m_45615_();
-@@ -442,40 +_,47 @@
+@@ -442,40 +_,54 @@
        serverleveldata.m_5458_(GameType.SPECTATOR);
     }
  
--   public void m_129940_(ChunkProgressListener p_129941_) {
++
++   public AtomicReference<ServerLevel> serverlevel = new AtomicReference<>(null); // Magma // CraftBukkit
+    public void m_129940_(ChunkProgressListener p_129941_) {
 -      ServerLevel serverlevel = this.m_129783_();
-+   // CraftBukkit start
-+   public void prepareLevels(ChunkProgressListener p_129941_, ServerLevel serverlevel) {
++      // Magma start
++      if (serverlevel.get() == null) return;
++      ServerLevel serverlevel = this.serverlevel.getAndSet(null);
++      // Magma end
++
++      // CraftBukkit start
 +      // WorldServer worldserver = this.overworld();
 +      this.forceTicks = true;
 +      // CraftBukkit end
