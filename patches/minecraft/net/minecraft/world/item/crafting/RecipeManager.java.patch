@@ -20,7 +20,7 @@
  import net.minecraft.core.NonNullList;
  import net.minecraft.core.registries.BuiltInRegistries;
  import net.minecraft.resources.ResourceLocation;
-@@ -37,45 +_,100 @@
+@@ -37,45 +_,99 @@
     public Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> f_44007_ = ImmutableMap.of();
     private Map<ResourceLocation, Recipe<?>> f_199900_ = ImmutableMap.of();
     private boolean f_44008_;
@@ -44,9 +44,8 @@
        ImmutableMap.Builder<ResourceLocation, Recipe<?>> builder = ImmutableMap.builder();
 +
 +      // CraftBukkit start - SPIGOT-5667 make sure all types are populated and mutable
-+      Map<RecipeType<?>, Object2ObjectLinkedOpenHashMap<ResourceLocation, Recipe<?>>> map1 = Maps.newHashMap();
 +      for (RecipeType<?> recipeType : BuiltInRegistries.f_256990_) {
-+         map1.put(recipeType, new Object2ObjectLinkedOpenHashMap<>());
++         map.put(recipeType, new Object2ObjectLinkedOpenHashMap<>());
 +      }
 +      // CraftBukkit end
  
@@ -81,11 +80,13 @@
 -         return p_44033_.getValue().build();
 -      }));
 -      this.f_199900_ = builder.build();
+-      f_44006_.info("Loaded {} recipes", (int)map.size());
+-   }
 +      this.f_44007_ = (Map) map; // Magma
 +      this.f_199900_ = Maps.newHashMap(builder.build()); // CraftBukkit
-       f_44006_.info("Loaded {} recipes", (int)map.size());
-    }
- 
++      f_44006_.info("Loaded {} recipes", (int) map.size());
++   }
++
 +   // CraftBukkit start - Magma Start
 +   public void addRecipe(Recipe<?> recipe) {
 +      org.spigotmc.AsyncCatcher.catchOp("Recipe Add"); // Spigot
@@ -114,7 +115,7 @@
 +      }
 +   }
 +   // CraftBukkit end - Magma End
-+
+ 
     public boolean m_151269_() {
        return this.f_44008_;
     }
