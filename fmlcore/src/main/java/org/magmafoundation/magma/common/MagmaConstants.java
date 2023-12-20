@@ -32,8 +32,7 @@ public class MagmaConstants {
 
     private static final String fullVersion = (MagmaConstants.class.getPackage().getImplementationVersion() != null) ? MagmaConstants.class.getPackage().getImplementationVersion() : "dev-env";
 
-    public static final String NAME = "MagmaMaintained";
-    public static final String METRICS_NAME = "Magma%20Maintained";
+    public static final String NAME = "Magma";
     public static final String BRAND = "MagmaFoundation";
     public static final String VERSION = !Objects.equals(fullVersion, "dev-env") ? fullVersion.split("-")[0] + "-" + fullVersion.split("-")[2] : "dev-env";
     public static final String BUKKIT_VERSION = "v1_20_R1";
