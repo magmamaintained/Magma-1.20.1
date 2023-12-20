@@ -23,6 +23,7 @@ import net.minecraftforge.forgespi.locating.ForgeFeature;
 import net.minecraftforge.forgespi.locating.IModFile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.magmafoundation.magma.common.MagmaConstants;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -178,6 +179,11 @@ public class ModLoader
         }
         modList.setLoadedMods(modContainers);
         this.modList = modList;
+        // Magma start - Get modList
+        MagmaConstants.mods.put("mods", modList.size());
+        modList.getMods().forEach(modInfo -> MagmaConstants.modList.add(modInfo.getModId()));
+        MagmaConstants.modInfoList.addAll(modList.getMods());
+        // Magma end
         var stateList = stateManager.getStates(ModLoadingPhase.GATHER);
         var progress = StartupMessageManager.addProgressBar("Mod Gather", stateList.stream().mapToInt(mls -> mls.size().applyAsInt(modList)).sum());
         stateList.forEach(mls->dispatchAndHandleError(mls, syncExecutor, parallelExecutor, periodicTask, progress));
