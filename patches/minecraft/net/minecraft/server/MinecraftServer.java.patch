@@ -208,7 +208,7 @@
           this.f_129756_ = p_236730_;
           this.f_129744_ = p_236724_;
           this.f_129745_ = p_236724_.m_78301_();
-@@ -289,7 +_,42 @@
+@@ -289,7 +_,44 @@
           this.f_129725_ = p_236723_;
           this.f_129738_ = Util.m_183991_();
        }
@@ -223,11 +223,13 @@
 +         org.bukkit.craftbukkit.Main.useJline = false;
 +      }
 +
-+      // Magma start
++      // Magma start - Add magma
++      magma = Magma.getInstance();
 +      metrics = new Metrics();
-+      this.magma = Magma.getInstance();
-+      this.magma.setPatcherManager(new PatcherManager());
-+      this.magma.getPatcherManager().init();
++
++      //init patcher
++      magma.setPatcherManager(new PatcherManager());
++      magma.getPatcherManager().init();
 +      // Magma end
 +
 +      try {
