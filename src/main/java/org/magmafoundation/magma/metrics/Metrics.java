@@ -103,7 +103,7 @@ public class Metrics {
         logSentData = config.getBoolean("logSentData", false);
         logResponseStatusText = config.getBoolean("logResponseStatusText", false);
 
-        addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
+        addCustomChart(new SimplePie("minecraft_version", () -> {
             String version = Bukkit.getVersion();
             version = version.substring(version.indexOf("MC: ") + 4, version.length() - 1);
             return version;
@@ -132,10 +132,10 @@ public class Metrics {
 
             return map;
         }));
-        addCustomChart(new Metrics.SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
-        addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ?  "online": "offline"));
-        addCustomChart(new Metrics.SimplePie("server_version", Magma::getVersion));
-        addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
+        addCustomChart(new SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
+        addCustomChart(new SimplePie("online_mode", () -> Bukkit.getOnlineMode() ?  "online": "offline"));
+        addCustomChart(new SimplePie("server_version", Magma::getVersion));
+        addCustomChart(new DrilldownPie("java_version", () -> {
             Map<String, Map<String, Integer>> map = new HashMap<>();
             Map<String, Integer> entry = new HashMap<>();
             entry.put(System.getProperty("java.version"), 1);

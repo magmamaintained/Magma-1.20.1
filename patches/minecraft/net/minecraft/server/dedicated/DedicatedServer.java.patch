@@ -28,7 +28,7 @@
  import net.minecraft.server.gui.MinecraftServerGui;
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.server.level.ServerPlayer;
-@@ -51,6 +_,14 @@
+@@ -51,6 +_,15 @@
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.entity.SkullBlockEntity;
  import net.minecraft.world.level.storage.LevelStorageSource;
@@ -40,6 +40,7 @@
 +import org.bukkit.event.server.RemoteServerCommandEvent;
 +import org.bukkit.event.server.ServerCommandEvent;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
++import org.magmafoundation.magma.protect.InjectProtect;
  import org.slf4j.Logger;
  
  public class DedicatedServer extends MinecraftServer implements ServerInterface {
@@ -52,17 +53,15 @@
     @Nullable
     private RconThread f_139603_;
     private final DedicatedServerSettings f_139604_;
-@@ -68,23 +_,59 @@
+@@ -68,23 +_,57 @@
     private MinecraftServerGui f_139605_;
     @Nullable
     private final TextFilterClient f_139606_;
 +   @Nullable
 +   private net.minecraft.client.server.LanServerPinger dediLanPinger;
  
-+   // CraftBukkit start - Signature changed
     public DedicatedServer(Thread p_214789_, LevelStorageSource.LevelStorageAccess p_214790_, PackRepository p_214791_, WorldStem p_214792_, DedicatedServerSettings p_214793_, DataFixer p_214794_, Services p_214795_, ChunkProgressListenerFactory p_214796_) {
        super(p_214789_, p_214790_, p_214791_, p_214792_, Proxy.NO_PROXY, p_214794_, p_214795_, p_214796_);
-+      // CraftBukkit end
        this.f_139604_ = p_214793_;
 -      this.f_139602_ = new RconConsoleSource(this);
 +      //this.rconConsoleSource = new RconConsoleSource(this); // CraftBukkit - remove field
@@ -238,7 +237,7 @@
        }
     }
  
-@@ -263,6 +_,10 @@
+@@ -263,6 +_,16 @@
           this.f_139601_.m_7530_();
        }
  
@@ -246,6 +245,12 @@
 +         this.dediLanPinger.interrupt();
 +         this.dediLanPinger = null;
 +      }
++
++      //Magma start - injectprotect
++      InjectProtect.shutdownCalled();
++      //Magma end
++
++      Runtime.getRuntime().halt(0);
     }
  
     public void m_5703_(BooleanSupplier p_139661_) {
