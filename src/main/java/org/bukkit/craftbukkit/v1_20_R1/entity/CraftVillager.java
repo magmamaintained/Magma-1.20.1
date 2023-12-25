@@ -7,13 +7,17 @@ import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.npc.VillagerProfession;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R1.util.CraftLocation;
 import org.bukkit.craftbukkit.v1_20_R1.util.CraftNamespacedKey;
 import org.bukkit.entity.Villager;
 import org.bukkit.entity.ZombieVillager;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.magmafoundation.magma.forge.ForgeInject;
+import org.magmafoundation.magma.util.ResourceLocationUtil;
 
 import java.util.Locale;
 
@@ -123,10 +127,10 @@ public class CraftVillager extends CraftAbstractVillager implements Villager {
     }
 
     public static Profession nmsToBukkitProfession(VillagerProfession nms) {
-        return Profession.valueOf(BuiltInRegistries.VILLAGER_PROFESSION.getKey(nms).getPath().toUpperCase(Locale.ROOT));
+        return BuiltInRegistries.VILLAGER_PROFESSION.getKey(nms).getNamespace().equals(NamespacedKey.MINECRAFT) ? Profession.valueOf(BuiltInRegistries.VILLAGER_PROFESSION.getKey(nms).getPath().toUpperCase(Locale.ROOT)) : Profession.valueOf(ResourceLocationUtil.standardize(BuiltInRegistries.VILLAGER_PROFESSION.getKey(nms)));
     }
 
     public static VillagerProfession bukkitToNmsProfession(Profession bukkit) {
-        return BuiltInRegistries.VILLAGER_PROFESSION.get(CraftNamespacedKey.toMinecraft(bukkit.getKey()));
+        return !ForgeInject.PROFESSION_MAP.containsKey(bukkit) ? BuiltInRegistries.VILLAGER_PROFESSION.get(CraftNamespacedKey.toMinecraft(bukkit.getKey())) : ForgeRegistries.VILLAGER_PROFESSIONS.getValue(ForgeInject.PROFESSION_MAP.get(bukkit));
     }
 }
