@@ -454,17 +454,12 @@ public class ForgeInject {
   }
 
   private static void addForgeVillagerProfessions() {
-    int ordinal = Villager.Profession.values().length;
-    List<Villager.Profession> values = new ArrayList<>();
     for (var entry : ForgeRegistries.VILLAGER_PROFESSIONS.getEntries()) {
       var location = entry.getKey().location();
       if (!location.getNamespace().equals(NamespacedKey.MINECRAFT)) {
         var enumName = ResourceLocationUtil.standardize(location);
         try {
-          var profession = EnumJ17Helper.makeEnum(Villager.Profession.class, enumName, ordinal, List.of(),
-              List.of());
-          values.add(profession);
-          ordinal++;
+          var profession = EnumJ17Helper.addEnum(Villager.Profession.class, enumName, List.of(), List.of());
           PROFESSION_MAP.put(profession, location);
           debug("Injecting Forge VillagerProfession into Bukkit: " + profession.name());
         } catch (Throwable e) {
@@ -472,7 +467,6 @@ public class ForgeInject {
         }
       }
     }
-    EnumJ17Helper.addEnums(Villager.Profession.class, values);
     debug("Injecting Forge VillagerProfession into Bukkit: DONE");
   }
 
