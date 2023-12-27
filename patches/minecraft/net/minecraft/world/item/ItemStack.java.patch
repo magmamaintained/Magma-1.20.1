@@ -174,7 +174,7 @@
     }
  
     public Holder<Item> m_220173_() {
-@@ -226,17 +_,181 @@
+@@ -226,17 +_,180 @@
     }
  
     public InteractionResult m_41661_(UseOnContext p_41662_) {
@@ -244,6 +244,7 @@
 +         }
 +         world.captureTreeGeneration = false;
           if (player != null && interactionresult.m_146666_()) {
+-            player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
 +            InteractionHand hand = p_41662_.m_43724_();
 +            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
@@ -349,7 +350,6 @@
 +               }
 +               player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            }
-             player.m_36246_(Stats.f_12982_.m_12902_(item));
           }
 +         world.capturedTileEntities.clear();
 +         world.capturedBlockStates.clear();
