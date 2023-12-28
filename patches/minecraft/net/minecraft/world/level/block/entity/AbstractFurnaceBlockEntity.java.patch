@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
 +++ b/net/minecraft/world/level/block/entity/AbstractFurnaceBlockEntity.java
+@@ -6,6 +_,7 @@
+ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+ import java.util.List;
+ import java.util.Map;
++import java.util.concurrent.atomic.AtomicReference;
+ import javax.annotation.Nullable;
+ import net.minecraft.SharedConstants;
+ import net.minecraft.Util;
 @@ -44,6 +_,16 @@
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.state.BlockState;
@@ -103,7 +111,7 @@
        ContainerHelper.m_18973_(p_187452_, this.f_58310_);
        CompoundTag compoundtag = new CompoundTag();
        this.f_58320_.forEach((p_187449_, p_187450_) -> {
-@@ -249,28 +_,47 @@
+@@ -249,28 +_,48 @@
           }
  
           int i = p_155017_.m_6893_();
@@ -154,7 +162,8 @@
                 p_155017_.f_58318_ = 0;
                 p_155017_.f_58319_ = m_222692_(p_155014_, p_155017_);
 -               if (m_266209_(p_155014_.m_9598_(), recipe, p_155017_.f_58310_, i)) {
-+               if (p_155017_.burn(p_155017_.f_58857_, p_155017_.f_58858_, p_155014_.m_9598_(), recipe, p_155017_.f_58310_, i)) { // CraftBukkit
++               p_155017_.prepareBurn(p_155017_.f_58857_, p_155017_.f_58858_); // Magma // CraftBukkit
++               if (p_155017_.m_266209_(p_155014_.m_9598_(), recipe, p_155017_.f_58310_, i)) {
                    p_155017_.m_6029_(recipe);
                 }
  
@@ -183,13 +192,30 @@
              }
           }
        } else {
-@@ -317,17 +_,39 @@
+@@ -317,17 +_,59 @@
        }
     }
  
 -   private static boolean m_266209_(RegistryAccess p_266740_, @Nullable Recipe<?> p_266780_, NonNullList<ItemStack> p_267073_, int p_267157_) {
 -      if (p_266780_ != null && m_155005_(p_266740_, p_266780_, p_267073_, p_267157_)) {
-+   private boolean burn(Level level, BlockPos blockposition, RegistryAccess p_266740_, @Nullable Recipe<?> p_266780_, NonNullList<ItemStack> p_267073_, int p_267157_) { // CraftBukkit
++
++   // Magma start - Move Level and BlockPos to different constructor
++   private AtomicReference<Level> burnLevel = new AtomicReference<>(null);
++   private AtomicReference<BlockPos> burnBlockPos = new AtomicReference<>(null);
++   private void prepareBurn(Level level, BlockPos blockposition) {
++      burnLevel.set(level);
++      burnBlockPos.set(blockposition);
++   }
++   // Magma end
++
++   // CraftBukkit start
++   private boolean burn(Level level, BlockPos blockposition, RegistryAccess p_266740_, @Nullable Recipe<?> p_266780_, NonNullList<ItemStack> p_267073_, int p_267157_) {
++      this.prepareBurn(level, blockposition);
++      return this.m_266209_(p_266740_, p_266780_, p_267073_, p_267157_);
++   }
++   // CraftBukkit end
++
++   private boolean m_266209_(RegistryAccess p_266740_, @Nullable Recipe<?> p_266780_, NonNullList<ItemStack> p_267073_, int p_267157_) {
 +      if (p_266780_ != null && this.m_155005_(p_266740_, p_266780_, p_267073_, p_267157_)) {
           ItemStack itemstack = p_267073_.get(0);
 -         ItemStack itemstack1 = p_266780_.m_8043_(p_266740_);
@@ -202,19 +228,22 @@
 -         }
  
 +         // CraftBukkit start - fire FurnaceSmeltEvent
-+         CraftItemStack source = CraftItemStack.asCraftMirror(itemstack);
 +         org.bukkit.inventory.ItemStack result = CraftItemStack.asBukkitCopy(itemstack1);
-+         FurnaceSmeltEvent furnaceSmeltEvent = new FurnaceSmeltEvent(CraftBlock.at(level, blockposition), source, result);
-+         level.getCraftServer().getPluginManager().callEvent(furnaceSmeltEvent);
-+         if (furnaceSmeltEvent.isCancelled()) {
-+            return false;
++         boolean flag = this.burnLevel.get() != null && this.burnBlockPos.get() != null;
++         if (flag) {
++            CraftItemStack source = CraftItemStack.asCraftMirror(itemstack);
++            FurnaceSmeltEvent furnaceSmeltEvent = new FurnaceSmeltEvent(CraftBlock.at(this.burnLevel.getAndSet(null), this.burnBlockPos.getAndSet(null)), source, result);
++            f_58857_.getCraftServer().getPluginManager().callEvent(furnaceSmeltEvent);
++            if (furnaceSmeltEvent.isCancelled()) {
++               return false;
++            }
++            result = furnaceSmeltEvent.getResult();
++            itemstack1 = CraftItemStack.asNMSCopy(result);
 +         }
-+         result = furnaceSmeltEvent.getResult();
-+         itemstack1 = CraftItemStack.asNMSCopy(result);
 +         if (!itemstack1.m_41619_()) {
 +            if (itemstack2.m_41619_()) {
 +               p_267073_.set(2, itemstack1.m_41777_());
-+            } else if (CraftItemStack.asCraftMirror(itemstack2).isSimilar(result)) {
++            } else if (flag && CraftItemStack.asCraftMirror(itemstack2).isSimilar(result)) {
 +               itemstack2.m_41769_(itemstack1.m_41613_());
 +            } else {
 +               return false;
