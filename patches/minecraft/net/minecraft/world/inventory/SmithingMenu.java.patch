@@ -1,10 +1,12 @@
 --- a/net/minecraft/world/inventory/SmithingMenu.java
 +++ b/net/minecraft/world/inventory/SmithingMenu.java
-@@ -11,6 +_,7 @@
+@@ -11,6 +_,9 @@
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.state.BlockState;
 +import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryView;
++import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
++import org.bukkit.event.inventory.PrepareSmithingEvent;
  
  public class SmithingMenu extends ItemCombinerMenu {
     public static final int f_266015_ = 0;
@@ -18,12 +20,16 @@
  
     public SmithingMenu(int p_40245_, Inventory p_40246_) {
        this(p_40245_, p_40246_, ContainerLevelAccess.f_39287_);
-@@ -88,14 +_,16 @@
+@@ -86,16 +_,22 @@
+    }
+ 
     public void m_6640_() {
++      PrepareSmithingEvent event;
        List<SmithingRecipe> list = this.f_40241_.m_7465_().m_44056_(RecipeType.f_44113_, this.f_39769_, this.f_40241_);
        if (list.isEmpty()) {
 -         this.f_39768_.m_6836_(0, ItemStack.f_41583_);
-+         org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPrepareSmithingEvent(getBukkitView(), ItemStack.f_41583_); // CraftBukkit
++         event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPrepareSmithingEvent(getBukkitView(), ItemStack.f_41583_); // CraftBukkit
++         this.f_39768_.m_6836_(0, CraftItemStack.asNMSCopy(event.getResult()));
        } else {
           SmithingRecipe smithingrecipe = list.get(0);
           ItemStack itemstack = smithingrecipe.m_5874_(this.f_39769_, this.f_40241_.m_9598_());
@@ -32,8 +38,10 @@
              this.f_39768_.m_6029_(smithingrecipe);
 -            this.f_39768_.m_6836_(0, itemstack);
 +            // CraftBukkit start
-+            org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPrepareSmithingEvent(getBukkitView(), itemstack);
++            event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPrepareSmithingEvent(getBukkitView(), itemstack);
 +            // CraftBukkit end
++            this.f_39768_.m_6836_(0, CraftItemStack.asNMSCopy(event.getResult()));
++
           }
        }
  
