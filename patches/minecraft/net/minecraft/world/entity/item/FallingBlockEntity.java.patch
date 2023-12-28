@@ -1,5 +1,14 @@
 --- a/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/net/minecraft/world/entity/item/FallingBlockEntity.java
+@@ -1,6 +_,8 @@
+ package net.minecraft.world.entity.item;
+ 
+ import com.mojang.logging.LogUtils;
++
++import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.Predicate;
+ import javax.annotation.Nullable;
+ import net.minecraft.CrashReportCategory;
 @@ -19,7 +_,6 @@
  import net.minecraft.network.syncher.SynchedEntityData;
  import net.minecraft.server.level.ServerLevel;
@@ -8,11 +17,12 @@
  import net.minecraft.util.Mth;
  import net.minecraft.world.damagesource.DamageSource;
  import net.minecraft.world.entity.Entity;
-@@ -44,6 +_,7 @@
+@@ -44,6 +_,8 @@
  import net.minecraft.world.phys.BlockHitResult;
  import net.minecraft.world.phys.HitResult;
  import net.minecraft.world.phys.Vec3;
 +import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
++import org.bukkit.event.entity.CreatureSpawnEvent;
  import org.slf4j.Logger;
  
  public class FallingBlockEntity extends Entity {
@@ -30,25 +40,38 @@
     @Nullable
     public CompoundTag f_31944_;
     protected static final EntityDataAccessor<BlockPos> f_31945_ = SynchedEntityData.m_135353_(FallingBlockEntity.class, EntityDataSerializers.f_135038_);
-@@ -76,9 +_,17 @@
+@@ -75,12 +_,29 @@
+       this.m_31959_(this.m_20183_());
     }
  
-    public static FallingBlockEntity m_201971_(Level p_201972_, BlockPos p_201973_, BlockState p_201974_) {
-+      // CraftBukkit start
-+      return fall(p_201972_,p_201973_, p_201974_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
++   // Magma - Move SpawnReason to different constructor
++   public static AtomicReference<CreatureSpawnEvent.SpawnReason> fallSpawnReason = new AtomicReference<>(CreatureSpawnEvent.SpawnReason.DEFAULT);
++   public static void prepareFall(CreatureSpawnEvent.SpawnReason spawnReason) {
++      fallSpawnReason.set(spawnReason);
 +   }
++   // Magma end
 +
-+   public static FallingBlockEntity fall(Level p_201972_, BlockPos p_201973_, BlockState p_201974_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
-+      // CraftBukkit end
+    public static FallingBlockEntity m_201971_(Level p_201972_, BlockPos p_201973_, BlockState p_201974_) {
        FallingBlockEntity fallingblockentity = new FallingBlockEntity(p_201972_, (double)p_201973_.m_123341_() + 0.5D, (double)p_201973_.m_123342_(), (double)p_201973_.m_123343_() + 0.5D, p_201974_.m_61138_(BlockStateProperties.f_61362_) ? p_201974_.m_61124_(BlockStateProperties.f_61362_, Boolean.valueOf(false)) : p_201974_);
 +      if (!CraftEventFactory.callEntityChangeBlockEvent(fallingblockentity, p_201973_, p_201974_.m_60819_().m_76188_())) return fallingblockentity; // CraftBukkit
 +
        p_201972_.m_7731_(p_201973_, p_201974_.m_60819_().m_76188_(), 3);
 -      p_201972_.m_7967_(fallingblockentity);
-+      p_201972_.addFreshEntity(fallingblockentity, spawnReason); // CraftBukkit
++      p_201972_.addFreshEntity(fallingblockentity, fallSpawnReason.getAndSet(CreatureSpawnEvent.SpawnReason.DEFAULT)); // CraftBukkit
        return fallingblockentity;
-    }
+-   }
++
++   }
++
++   // CraftBukkit start
++   public static FallingBlockEntity fall(Level p_201972_, BlockPos p_201973_, BlockState p_201974_, CreatureSpawnEvent.SpawnReason spawnReason) {
++      prepareFall(spawnReason);
++      return m_201971_(p_201972_,p_201973_, p_201974_);
++   }
++   // CraftBukkit end
  
+    public boolean m_6097_() {
+       return false;
 @@ -120,11 +_,11 @@
           if (!this.m_9236_().f_46443_) {
              BlockPos blockpos = this.m_20183_();
