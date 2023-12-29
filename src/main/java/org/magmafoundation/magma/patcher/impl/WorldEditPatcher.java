@@ -18,7 +18,6 @@
 
 package org.magmafoundation.magma.patcher.impl;
 
-import org.magmafoundation.magma.common.MagmaConstants;
 import org.magmafoundation.magma.patcher.Patcher;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -39,16 +38,11 @@ import java.util.function.Consumer;
  */
 @Patcher.PatcherInfo(name = "WorldEdit", description = "Patches WorldEdit")
 public class WorldEditPatcher extends Patcher {
-
-    private static final String PAPERWEIGHT_ADAPTER = "com.sk89q.worldedit.bukkit.adapter.impl."
-            + MagmaConstants.BUKKIT_VERSION + ".PaperweightAdapter$SpigotWatchdog";
-
     @Override
     public byte[] transform(String className, byte[] basicClass) {
         Consumer<ClassNode> patcher = switch (className) {
             case "com.sk89q.worldedit.bukkit.BukkitAdapter" -> WorldEditPatcher::handleBukkitAdapter;
             case "com.sk89q.worldedit.bukkit.adapter.Refraction" -> WorldEditPatcher::handlePickName;
-            case PAPERWEIGHT_ADAPTER -> WorldEditPatcher::handleWatchdog;
             default -> null;
         };
         return patcher == null ? basicClass : patch(basicClass, patcher);
@@ -63,9 +57,8 @@ public class WorldEditPatcher extends Patcher {
         return writer.toByteArray();
     }
 
-    private static void handleBukkitAdapter(ClassNode node) {
-        MethodNode standardize = new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC, "patcher$standardize",
-                Type.getMethodDescriptor(Type.getType(String.class), Type.getType(String.class)), null, null);
+    public static void handleBukkitAdapter(ClassNode node) {
+        MethodNode standardize = new MethodNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_STATIC | Opcodes.ACC_SYNTHETIC, "patcher$standardize", Type.getMethodDescriptor(Type.getType(String.class), Type.getType(String.class)), null, null);
         try {
             GeneratorAdapter adapter = new GeneratorAdapter(standardize, standardize.access, standardize.name, standardize.desc);
             adapter.loadArg(0);
@@ -83,7 +76,7 @@ public class WorldEditPatcher extends Patcher {
             adapter.returnValue();
             adapter.endMethod();
         } catch (Throwable t) {
-            t.printStackTrace();
+            t.fillInStackTrace();
         }
         node.methods.add(standardize);
         for (MethodNode method : node.methods) {
@@ -95,10 +88,7 @@ public class WorldEditPatcher extends Patcher {
 
     private static void handleAdapt(ClassNode node, MethodNode standardize, MethodNode method) {
         switch (method.desc) {
-            case "(Lcom/sk89q/worldedit/world/item/ItemType;)Lorg/bukkit/Material;":
-            case "(Lcom/sk89q/worldedit/world/block/BlockType;)Lorg/bukkit/Material;":
-            case "(Lcom/sk89q/worldedit/world/biome/BiomeType;)Lorg/bukkit/block/Biome;":
-            case "(Lcom/sk89q/worldedit/world/entity/EntityType;)Lorg/bukkit/entity/EntityType;": {
+            case "(Lcom/sk89q/worldedit/world/item/ItemType;)Lorg/bukkit/Material;", "(Lcom/sk89q/worldedit/world/block/BlockType;)Lorg/bukkit/Material;", "(Lcom/sk89q/worldedit/world/biome/BiomeType;)Lorg/bukkit/block/Biome;", "(Lcom/sk89q/worldedit/world/entity/EntityType;)Lorg/bukkit/entity/EntityType;" -> {
                 for (AbstractInsnNode instruction : method.instructions) {
                     if (instruction.getOpcode() == Opcodes.ATHROW) {
                         InsnList list = new InsnList();
@@ -106,23 +96,15 @@ public class WorldEditPatcher extends Patcher {
                         list.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, Type.getMethodType(method.desc).getArgumentTypes()[0].getInternalName(), "getId", "()Ljava/lang/String;", false));
                         list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, node.name, standardize.name, standardize.desc, false));
                         switch (Type.getMethodType(method.desc).getReturnType().getInternalName()) {
-                            case "org/bukkit/Material":
-                                list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "org/bukkit/Material", "getMaterial", "(Ljava/lang/String;)Lorg/bukkit/Material;", false));
-                                break;
-                            case "org/bukkit/block/Biome":
-                                list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "org/bukkit/block/Biome", "valueOf", "(Ljava/lang/String;)Lorg/bukkit/block/Biome;", false));
-                                break;
-                            case "org/bukkit/entity/EntityType":
-                                list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "org/bukkit/entity/EntityType", "fromName", "(Ljava/lang/String;)Lorg/bukkit/entity/EntityType;", false));
-                                break;
+                            case "org/bukkit/Material" -> list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "org/bukkit/Material", "getMaterial", "(Ljava/lang/String;)Lorg/bukkit/Material;", false));
+                            case "org/bukkit/block/Biome" -> list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "org/bukkit/block/Biome", "valueOf", "(Ljava/lang/String;)Lorg/bukkit/block/Biome;", false));
+                            case "org/bukkit/entity/EntityType" -> list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "org/bukkit/entity/EntityType", "fromName", "(Ljava/lang/String;)Lorg/bukkit/entity/EntityType;", false));
                         }
                         list.add(new InsnNode(Opcodes.ARETURN));
                         method.instructions.insert(instruction, list);
                         method.instructions.set(instruction, new InsnNode(Opcodes.POP));
-                        return;
                     }
                 }
-                break;
             }
         }
     }
@@ -133,25 +115,6 @@ public class WorldEditPatcher extends Patcher {
                 method.instructions.clear();
                 method.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
                 method.instructions.add(new InsnNode(Opcodes.ARETURN));
-                return;
-            }
-        }
-    }
-
-    private static void handleWatchdog(ClassNode node) {
-        if (node.interfaces.size() == 1 && node.interfaces.get(0).equals("com/sk89q/worldedit/extension/platform/Watchdog")
-            && node.name.contains("SpigotWatchdog")) {
-            for (MethodNode method : node.methods) {
-                if (method.name.equals("<init>")) {
-                    method.instructions.clear();
-                    method.instructions.add(new TypeInsnNode(Opcodes.NEW, "java/lang/ClassNotFoundException"));
-                    method.instructions.add(new InsnNode(Opcodes.DUP));
-                    method.instructions.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, "java/lang/ClassNotFoundException", "<init>", "()V", false));
-                    method.instructions.add(new InsnNode(Opcodes.ATHROW));
-                    method.tryCatchBlocks.clear();
-                    method.localVariables.clear();
-                    return;
-                }
             }
         }
     }

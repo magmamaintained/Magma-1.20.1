@@ -134,7 +134,7 @@
     public final ChunkProgressListenerFactory f_129756_;
     @Nullable
     private ServerStatus f_129757_;
-@@ -242,12 +_,40 @@
+@@ -242,12 +_,41 @@
     private String f_129739_;
     public MinecraftServer.ReloadableResources f_129740_;
     private final StructureTemplateManager f_236720_;
@@ -164,6 +164,7 @@
 +   // Magma start
 +   private static MinecraftServer instance;
 +   private Magma magma;
++   private static Metrics metrics;
 +   // Magma end
 +
 +   public static MinecraftServer getServerInstance() {
@@ -207,7 +208,7 @@
           this.f_129756_ = p_236730_;
           this.f_129744_ = p_236724_;
           this.f_129745_ = p_236724_.m_78301_();
-@@ -289,7 +_,43 @@
+@@ -289,7 +_,45 @@
           this.f_129725_ = p_236723_;
           this.f_129738_ = Util.m_183991_();
        }
@@ -223,6 +224,8 @@
 +      }
 +
 +      // Magma start - Add magma
++      metrics = new Metrics();
++
 +      magma = Magma.getInstance();
 +
 +      //init patcher

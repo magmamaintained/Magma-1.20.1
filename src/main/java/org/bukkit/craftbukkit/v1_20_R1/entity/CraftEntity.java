@@ -64,6 +64,7 @@ import org.bukkit.util.Vector;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.craftbukkit.entity.*;
+import org.magmafoundation.magma.forge.ForgeInject;
 
 import java.util.List;
 import java.util.Set;
@@ -82,8 +83,7 @@ public abstract class CraftEntity implements org.bukkit.entity.Entity {
     public CraftEntity(final CraftServer server, final Entity entity) {
         this.server = server;
         this.entity = entity;
-        org.bukkit.entity.EntityType type = Registry.ENTITY_TYPE.get(CraftNamespacedKey.fromMinecraft(EntityType.getKey(entity.getType())));
-        this.entityType = (type != null) ? type : org.bukkit.entity.EntityType.UNKNOWN;
+        this.entityType = ForgeInject.getBukkitEntityType(entity);
     }
 
     public static CraftEntity getEntity(CraftServer server, Entity entity) {
