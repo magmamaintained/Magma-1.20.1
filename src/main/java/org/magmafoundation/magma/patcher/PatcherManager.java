@@ -20,6 +20,8 @@ package org.magmafoundation.magma.patcher;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.magmafoundation.magma.patcher.impl.FAWEPatcher;
+import org.magmafoundation.magma.patcher.impl.MultiverseCorePatcher;
 import org.magmafoundation.magma.patcher.impl.WorldEditPatcher;
 
 import java.util.ArrayList;
@@ -43,8 +45,10 @@ public class PatcherManager {
     }
 
     private void initPatches() {
-        //TODO: find a way to fix Reflections not working with Magma 1.18
+        //TODO: find a way to fix Reflections not working with Magma 1.20.1
         patcherList.add(new WorldEditPatcher());
+        patcherList.add(new FAWEPatcher());
+        patcherList.add(new MultiverseCorePatcher());
     }
 
     public List<Patcher> getPatcherList() {

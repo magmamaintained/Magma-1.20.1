@@ -35,7 +35,7 @@
  import net.minecraft.server.gui.MinecraftServerGui;
  import net.minecraft.server.level.ServerLevel;
  import net.minecraft.server.level.ServerPlayer;
-@@ -51,6 +_,17 @@
+@@ -51,6 +_,16 @@
  import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.entity.SkullBlockEntity;
  import net.minecraft.world.level.storage.LevelStorageSource;
@@ -48,7 +48,6 @@
 +import org.bukkit.event.server.RemoteServerCommandEvent;
 +import org.bukkit.event.server.ServerCommandEvent;
 +import org.magmafoundation.magma.configuration.MagmaConfig;
-+import org.magmafoundation.magma.metrics.Metrics;
 +import org.magmafoundation.magma.protect.InjectProtect;
  import org.slf4j.Logger;
  
@@ -62,13 +61,12 @@
     @Nullable
     private RconThread f_139603_;
     private final DedicatedServerSettings f_139604_;
-@@ -68,23 +_,58 @@
+@@ -68,23 +_,57 @@
     private MinecraftServerGui f_139605_;
     @Nullable
     private final TextFilterClient f_139606_;
 +   @Nullable
 +   private net.minecraft.client.server.LanServerPinger dediLanPinger;
-+   private static Metrics metrics; // Magma
  
     public DedicatedServer(Thread p_214789_, LevelStorageSource.LevelStorageAccess p_214790_, PackRepository p_214791_, WorldStem p_214792_, DedicatedServerSettings p_214793_, DataFixer p_214794_, Services p_214795_, ChunkProgressListenerFactory p_214796_) {
        super(p_214789_, p_214790_, p_214791_, p_214792_, Proxy.NO_PROXY, p_214794_, p_214795_, p_214796_);
@@ -204,7 +202,7 @@
           f_139598_.warn("To change this, set \"online-mode\" to \"true\" in the server.properties file.");
        }
  
-@@ -152,15 +_,19 @@
+@@ -152,15 +_,18 @@
        if (!OldUsersConverter.m_11106_(this)) {
           return false;
        } else {
@@ -220,7 +218,6 @@
           long j = Util.m_137569_() - i;
           String s = String.format(Locale.ROOT, "%.3fs", (double)j / 1.0E9D);
           f_139598_.info("Done ({})! For help, type \"help\"", (Object)s);
-+         metrics = new Metrics(); // Magma
 +         this.f_129726_ = Util.m_137550_(); //Forge: Update server time to prevent watchdog/spaming during long load.
           if (dedicatedserverproperties.f_139744_ != null) {
              this.m_129900_().m_46170_(GameRules.f_46153_).m_46246_(dedicatedserverproperties.f_139744_, this);
