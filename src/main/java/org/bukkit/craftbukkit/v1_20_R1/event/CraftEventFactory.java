@@ -1454,7 +1454,7 @@ public class CraftEventFactory {
     public static PrepareSmithingEvent callPrepareSmithingEvent(InventoryView view, ItemStack item) {
         PrepareSmithingEvent event = new PrepareSmithingEvent(view, CraftItemStack.asCraftMirror(item).clone());
         event.getView().getPlayer().getServer().getPluginManager().callEvent(event);
-        event.getInventory().setResult(event.getResult());
+        // event.getInventory().setResult(event.getResult()); Process in SmithingMenu
         return event;
     }
 
