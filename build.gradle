@@ -311,7 +311,6 @@ def sharedDeps = {
     installer 'net.java.dev.jna:jna:5.13.0'
     installer 'it.unimi.dsi:fastutil:8.5.12'
     installer 'commons-io:commons-io:2.11.0'
-    installer 'commons-lang:commons-lang:2.6'
     installer 'com.mojang:javabridge:2.0.25'
     installer 'com.mojang:datafixerupper:6.0.8'
     installer 'com.github.oshi:oshi-core:6.4.0'
@@ -324,9 +323,6 @@ def sharedDeps = {
     installer 'io.netty:netty-transport:4.1.82.Final'
     installer 'io.netty:netty-transport-classes-epoll:4.1.82.Final'
     installer 'io.netty:netty-transport-native-unix-common:4.1.82.Final'
-
-    // Paper
-    installer 'it.unimi.dsi:fastutil:8.5.6'
 
     autolibraries BIN_PATCHER
     autolibraries SPECIAL_SOURCE
