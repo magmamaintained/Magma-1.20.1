@@ -33,9 +33,7 @@ import org.magmafoundation.magma.common.utils.MD5;
 import org.magmafoundation.magma.utils.LibHelper;
 import org.magmafoundation.magma.utils.ServerInitHelper;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -354,6 +352,7 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
         }
 
         public void downloadLibraries() throws Exception {
+            URL jarURL = new URL("jar:file:" + JarTool.getJarPath() + "!/data/magma_libraries.txt");
             DependencyPathProvider dependencyPathProvider = new CleanupPathProvider() {
 
                 public final Path baseDirPath = JarTool.getJarDir().toPath();
@@ -374,7 +373,7 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
             };
 
             DependencyManager manager = new DependencyManager(dependencyPathProvider);
-            manager.loadFromResource(new URL("jar:file:" + JarTool.getJarPath() + "!/data/magma_libraries.txt"));
+            manager.loadFromResource(jarURL);
 
             List<Repository> standardRepositories = new ArrayList<>();
             standardRepositories.add(new StandardRepository("https://nexus.c0d3m4513r.com/repository/Magma"));
@@ -412,6 +411,19 @@ public class MagmaInstaller extends AbstractMagmaInstaller {
 
             downloadMcp(mcVersion, mcpVersion);
             downloadMinecraftServer(minecraft_server);
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(jarURL.openStream()));
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.equalsIgnoreCase("===ALGORITHM SHA-256")) continue;
+                content.append(line).append("\n");
+            }
+            reader.close();
+
+            FileWriter writer = new FileWriter("libraries/libraries.txt");
+            writer.write(content.toString());
+            writer.close();
         }
 
         public void downloadMcp(String mc_version, String mcp_version) {

@@ -1,172 +1,208 @@
 package org.bukkit.plugin.java;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import mjson.Json;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapping.loaders.RemappingURLClassLoader;
 
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+
+// This is a modified version of https://github.com/MohistMC/Mohist/blob/1.20.1/src/main/java/org/bukkit/plugin/java/LibraryLoader.java
+
 class LibraryLoader {
-    private final Logger logger;
 
-    private static final ExecutorService executorService = Executors.newFixedThreadPool(20);
-
-    public LibraryLoader(@NotNull Logger logger) {
-        this.logger = logger;
+    public LibraryLoader() {
     }
 
     @Nullable
-    public ClassLoader createLoader(@NotNull PluginDescriptionFile desc) {
+    public ClassLoader createLoader(@NotNull PluginDescriptionFile desc) throws IOException {
         if (desc.getLibraries().isEmpty()) {
             return null;
         }
-        logger.log(Level.INFO, "[{0}] Loading {1} libraries... please wait", new Object[]
-                {
-                        desc.getName(), desc.getLibraries().size()
-                });
+        Magma.LOGGER.info("[{}] Loading {} libraries... please wait", desc.getName(), desc.getLibraries().size());
 
         List<Dependency> dependencies = new ArrayList<>();
-        for (String library : desc.getLibraries()) {
-            String[] args = library.split(":");
-            if (args.length >= 2) {
-                Dependency dependency = new Dependency(args[0], args[1], args[2]);
+        for (String libraries : desc.getLibraries()) {
+            String[] args = libraries.split(":");
+            if (args.length > 1) {
+                Dependency dependency = new Dependency(args[0], args[1], args[2], false);
                 dependencies.add(dependency);
             }
-
         }
 
-        List<File> downloaded = new ArrayList<>();
-
+        List<File> libraries = new ArrayList<>();
+        List<Dependency> newDependencies = new ArrayList<>();
+        var d = magmaLibs();
         for (Dependency dependency : dependencies) {
-            String group = dependency.getGroup().replaceAll("\\.", "/");
-            String fileName = dependency.getName() + "-"
-                    + dependency.getVersion() + ".jar";
-            String mavenUrl = "https://repo1.maven.org/maven2/" + group + "/"
-                    + dependency.getName() + "/"
-                    + dependency.getVersion() + "/" + fileName;
+            String group = dependency.group().replace(".", "/");
+            String fileName = "%s-%s.jar".formatted(dependency.name(), dependency.version());
+            if (!d.contains(fileName)) {
+                if (dependency.version().toString().equalsIgnoreCase("LATEST")) {
+                    URL mavenUrl = URI.create("https://repo.maven.apache.org/maven2/" + "%s/%s/%s".formatted(group, dependency.name(), "maven-metadata.xml")).toURL();
+                    Json compile_json2Json = Json.readXml(mavenUrl).at("metadata");
+                    List<Object> v = compile_json2Json.at("versioning").at("versions").at("version").asList();
+                    Dependency dependency0 = new Dependency(group, dependency.name(),  v.get(v.size() - 1), false);
+                    newDependencies.add(dependency0);
+                } else {
+                    newDependencies.add(dependency);
+                    String pomUrl = "https://repo.maven.apache.org/maven2/" + "%s/%s/%s/%s".formatted(group, dependency.name(), dependency.version(), fileName.replace("jar", "pom"));
+                    newDependencies.addAll(initDependencies0(new URL(pomUrl)));
+                }
+            }
+        }
 
-            File file = new File(new File("libraries"), group + "/"
-                    + dependency.getName() + "/"
-                    + dependency.getVersion() + "/" + fileName);
+        Magma.LOGGER.info("[{}] Loading {} extra libraries... please wait", desc.getName(), newDependencies.size() - desc.getLibraries().size());
+
+        for (Dependency dependency : newDependencies) {
+            String group = dependency.group().replace(".", "/");
+            String fileName = "%s-%s.jar".formatted(dependency.name(), dependency.version());
+            String mavenUrl = "https://repo.maven.apache.org/maven2/" + "%s/%s/%s/%s".formatted(group, dependency.name(), dependency.version(), fileName);
+
+            File file = new File(new File("libraries", "plugins-lib"), "%s/%s/%s/%s".formatted(group, dependency.name(), dependency.version(), fileName));
 
             if (file.exists()) {
-                logger.log(Level.INFO, "[{0}] Found library {1}", new Object[]
-                        {
-                                desc.getName(), file
-                        });
-                downloaded.add(file);
+                Magma.LOGGER.info("[{}] Found libraries {}", desc.getName(), file);
+                libraries.add(file);
                 continue;
             }
-
-            Future<Boolean> future = executorService.submit(() -> {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-
-                try {
-                    InputStream inputStream = new URL(mavenUrl).openStream();
-                    writeInputStreamToFile(inputStream, file);
-                    downloaded.add(file);
-                    return true;
-                } catch (IOException e) {
-                    return false;
-                }
-            });
-
-
             try {
-                boolean success = future.get();
-                if (success) {
-                    logger.log(Level.INFO, "[{0}] Downloading Library {1}", new Object[]
-                            {
-                                    desc.getName(), mavenUrl
-                            });
-                }
+                file.getParentFile().mkdirs();
 
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
+                InputStream inputStream = new URL(mavenUrl).openStream();
+                ReadableByteChannel rbc = Channels.newChannel(inputStream);
+                FileChannel fc = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+
+                fc.transferFrom(rbc, 0, Long.MAX_VALUE);
+                fc.close();
+                rbc.close();
+
+                libraries.add(file);
+            } catch (IOException e) {
             }
         }
 
         List<URL> jarFiles = new ArrayList<>();
-        for (File file : downloaded) {
-            URL url;
+        for (File file : libraries) {
             try {
-                url = file.toURI().toURL();
-            } catch (MalformedURLException ex) {
-                throw new AssertionError(ex);
+                jarFiles.add(file.toURI().toURL());
+                Magma.LOGGER.info("[{}] Loaded libraries {}", desc.getName(), file);
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
             }
-
-            jarFiles.add(url);
-            logger.log(Level.INFO, "[{0}] Loaded library {1}", new Object[]
-                    {
-                            desc.getName(), file
-                    });
         }
 
         return new RemappingURLClassLoader(jarFiles.toArray(new URL[0]), getClass().getClassLoader());
     }
 
+    public List<Dependency> initDependencies0(URL url) throws IOException {
+        List<Dependency> list = new ArrayList<>();
+        for (Dependency dependency : initDependencies(url)) {
+            list.add(dependency);
+            if (dependency.extra()) {
+                String group = dependency.group().replace(".", "/");
+                String fileName = "%s-%s.jar".formatted(dependency.name(), dependency.version());
+                String pomUrl = "https://repo.maven.apache.org/maven2/" + "%s/%s/%s/%s".formatted(group, dependency.name(), dependency.version(), fileName.replace("jar", "pom"));
+                if (hasUrl(pomUrl)) list.addAll(initDependencies(new URL(pomUrl)));
+            }
+        }
+        return list;
+    }
 
-    private static void writeInputStreamToFile(InputStream inputStream, File file) {
-        try (inputStream) {
-            try (FileOutputStream outputStream = new FileOutputStream(file)) {
-                byte[] buffer = new byte[8 * 1024];
-                int bytesRead;
-                while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    outputStream.write(buffer, 0, bytesRead);
+    public List<Dependency> initDependencies(URL url) {
+        List<Dependency> list = new ArrayList<>();
+        Json json2Json = Json.readXml(url).at("project");
+        String version = json2Json.has("parent") ? json2Json.at("parent").asString("version") : json2Json.asString("version");
+        String groupId = json2Json.has("parent") ? json2Json.at("parent").asString("groupId") : json2Json.asString("groupId");
+
+        if (!json2Json.has("dependencies")) return list;
+        if (!json2Json.at("dependencies").toString().startsWith("{\"dependency\"")) return list;
+        Json json3Json = json2Json.at("dependencies").at("dependency");
+        if (json3Json.isArray()) {
+            for (Json o : json2Json.at("dependencies").asJsonList("dependency")) {
+                dependency(o, list, version, groupId);
+            }
+        } else {
+            dependency(json3Json, list, version, groupId);
+        }
+        return list;
+    }
+
+    public void dependency(Json json, List<Dependency> list, String version, String parent_groupId) {
+        try {
+            if (json.toString().contains("groupId") && json.toString().contains("artifactId")) {
+                String groupId = json.asString("groupId");
+                String artifactId = json.asString("artifactId");
+                if (json.toString().contains("version")) {
+                    if (json.has("scope") && json.asString("scope").equals("test")) {
+                        return;
+                    }
+                    if (groupId.equals("${project.parent.groupId}")) {
+                        groupId = parent_groupId;
+                    }
+                    String versionAsString = json.asString("version");
+                    if (versionAsString.contains("${project.version}") || versionAsString.contains("${project.parent.version}")) {
+                        Dependency dependency = new Dependency(groupId, artifactId, version, true);
+                        list.add(dependency);
+                    } else if (!versionAsString.contains("${")) {
+                        Dependency dependency = new Dependency(groupId, artifactId, versionAsString, true);
+                        list.add(dependency);
+                    }
+                } else {
+                    if (json.has("scope") && json.asString("scope").equals("compile")) {
+                        URL mavenUrl = URI.create("https://repo.maven.apache.org/maven2/" + "%s/%s/%s".formatted(groupId.replace(".", "/"), artifactId, "maven-metadata.xml")).toURL();
+                        Json compile_json2Json = Json.readXml(mavenUrl).at("metadata");
+                        List<Object> v = compile_json2Json.at("versioning").at("versions").at("version").asList();
+                        Dependency dependency = new Dependency(groupId, artifactId, v.get(v.size() - 1), true);
+                        list.add(dependency);
+                    }
                 }
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
+        } catch (Exception ignored) {}
     }
 
-
-    public class Dependency {
-
-        private final String group;
-        private final String name;
-        private final String version;
-
-        public Dependency(String group, String name, String version) {
-            this.group = group;
-            this.name = name;
-            this.version = version;
+    public List<String> magmaLibs() {
+        List<String> temp = new ArrayList<>();
+        BufferedReader b;
+        try {
+            b = new BufferedReader(new FileReader("libraries" + File.separator + "libraries.txt"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
+        String str;
+        try {
+            while ((str = b.readLine()) != null) {
+                String[] s = str.split(" ");
+                String[] s1 = s[0].split(":");
 
-        public String getGroup() {
-            return group;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        @Override
-        public String toString() {
-            return "Dependency{" +
-                    "group='" + group + '\'' +
-                    ", name='" + name + '\'' +
-                    ", version='" + version + '\'' +
-                    '}';
-        }
+                String fileName = s1[1] + "-" + s1[2] + ".jar";
+                temp.add(new File("libraries/" + s1[0].replaceAll("\\.", "/") + "/" + s1[1] + "/" + s1[2] + "/" + fileName).getName());
+            }
+            b.close();
+        } catch (Exception ignored) {}
+        return temp;
     }
 
+    public record Dependency(String group, String name, Object version, boolean extra) {
+    }
+
+    private boolean hasUrl(String s) {
+        try {
+            URL url = new URL(s);
+            url.openStream();
+            return true;
+        } catch (Exception var2) {
+            return false;
+        }
+    }
 }
