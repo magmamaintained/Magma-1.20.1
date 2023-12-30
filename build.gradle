@@ -250,25 +250,6 @@ def sharedDeps = {
     installer 'org.openjdk.nashorn:nashorn-core:15.3'
     installer "net.minecraftforge:JarJarSelector:${JARJAR_VERSION}"
     installer "net.minecraftforge:JarJarMetadata:${JARJAR_VERSION}"
-
-    // LibraryLoader start
-    installer "org.apache.maven:maven-artifact:3.8.5"
-    installer 'org.apache.maven:maven-builder-support:3.8.5'
-    installer 'org.apache.maven:maven-model:3.8.5'
-    installer 'org.apache.maven:maven-model-builder:3.8.5'
-    installer 'org.apache.maven:maven-repository-metadata:3.8.5'
-    installer 'org.apache.maven:maven-resolver-provider:3.8.5'
-
-    installer 'org.apache.maven.resolver:maven-resolver-api:1.7.3'
-    installer 'org.apache.maven.resolver:maven-resolver-connector-basic:1.7.3'
-    installer 'org.apache.maven.resolver:maven-resolver-impl:1.7.3'
-    installer 'org.apache.maven.resolver:maven-resolver-spi:1.7.3'
-    installer 'org.apache.maven.resolver:maven-resolver-transport-http:1.7.3'
-    installer 'org.apache.maven.resolver:maven-resolver-util:1.7.3'
-    installer 'org.eclipse.sisu:org.eclipse.sisu.inject:0.3.5'
-    installer 'org.codehaus.plexus:plexus-interpolation:1.25'
-    installer 'org.codehaus.plexus:plexus-utils:3.2.1'
-    // LibraryLoader end
     
     installer 'org.joml:joml:1.10.5'
     compileOnly 'org.jetbrains:annotations-java5:24.0.1'
@@ -287,6 +268,7 @@ def sharedDeps = {
 
     // Magma
     installer 'org.magma:magma-common:2.6'
+    installer 'com.mohistmc:json:0.2'
 
     // Spigot
     installer 'net.md-5:bungeecord-chat:1.20-R0.1'
