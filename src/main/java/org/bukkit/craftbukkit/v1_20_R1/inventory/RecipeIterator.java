@@ -38,7 +38,8 @@ public class RecipeIterator implements Iterator<Recipe> {
             return next();
         }
 
-        return current.next().toBukkitRecipe();
+        Recipe next = current.next().toBukkitRecipe();
+        return next == null ? next() : next; //Magma - skip recipes that have a null bukkit recipe
     }
 
     @Override
