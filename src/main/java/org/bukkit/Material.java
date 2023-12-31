@@ -4583,6 +4583,7 @@ public enum Material implements Keyed, Translatable {
      * @return true if this material is a block
      */
     public boolean isBlock() {
+        if (this.modded) { return this.block; } // Magma
         switch (this) {
             //<editor-fold defaultstate="collapsed" desc="isBlock">
             case ACACIA_BUTTON:
@@ -8457,6 +8458,7 @@ public enum Material implements Keyed, Translatable {
      * @return true if this material is an item
      */
     public boolean isItem() {
+        if (this.modded) { return this.item; } // Magma
         switch (this) {
             //<editor-fold defaultstate="collapsed" desc="isItem">
             case ACACIA_WALL_HANGING_SIGN:
