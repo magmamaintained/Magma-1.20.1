@@ -365,7 +365,7 @@
              });
              if (this.f_20935_.m_41619_()) {
                 if (interactionhand == InteractionHand.MAIN_HAND) {
-@@ -883,26 +_,178 @@
+@@ -883,26 +_,181 @@
  
     protected void m_6475_(DamageSource p_36312_, float p_36313_) {
        if (!this.m_6673_(p_36312_)) {
@@ -460,7 +460,10 @@
 +         if (p_36312_.m_7639_() instanceof Player) {
 +            ((Player) p_36312_.m_7639_()).m_36334_(); // Moved from Player in order to make the cooldown reset get called after the damage event is fired
 +         }
-+         if (event.isCancelled()) return;
++         if (event.isCancelled()) {
++            cancelDamage = true;
++            return;
++         }
 +
 +         p_36313_ = (float) event.getFinalDamage();
 +

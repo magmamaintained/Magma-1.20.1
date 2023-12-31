@@ -51,6 +51,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.util.FakePlayer;
 import org.bukkit.*;
 import org.bukkit.Statistic.Type;
 import org.bukkit.block.Block;
@@ -97,6 +98,7 @@ import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.event.world.LootGenerateEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.potion.PotionEffect;
@@ -283,6 +285,7 @@ public class CraftEventFactory {
         CraftServer craftServer = world.getCraftServer();
 
         Player player = (Player) who.getBukkitEntity();
+        PlayerInventory inventory = player.getInventory();
 
         Block blockClicked = craftWorld.getBlockAt(clickedX, clickedY, clickedZ);
         Block placedBlock = replacedBlockState.getBlock();
@@ -291,12 +294,16 @@ public class CraftEventFactory {
 
         org.bukkit.inventory.ItemStack item;
         EquipmentSlot equipmentSlot;
-        if (hand == InteractionHand.MAIN_HAND) {
-            item = player.getInventory().getItemInMainHand();
-            equipmentSlot = EquipmentSlot.HAND;
-        } else {
-            item = player.getInventory().getItemInOffHand();
-            equipmentSlot = EquipmentSlot.OFF_HAND;
+        try { //Magma - catch NPE for non-bukkit inventories [Fixes PlantUtil.tryPlant]
+            if (hand == InteractionHand.MAIN_HAND) {
+                item = inventory.getItemInMainHand();
+                equipmentSlot = EquipmentSlot.HAND;
+            } else {
+                item = inventory.getItemInOffHand();
+                equipmentSlot = EquipmentSlot.OFF_HAND;
+            }
+        } catch (NullPointerException e) {
+            return null;
         }
 
         BlockPlaceEvent event = new BlockPlaceEvent(placedBlock, replacedBlockState, blockClicked, item, player, canBuild, equipmentSlot);
@@ -812,9 +819,28 @@ public class CraftEventFactory {
             Entity damager = source.getEntity();
             DamageCause cause = (source.isSweep()) ? DamageCause.ENTITY_SWEEP_ATTACK : DamageCause.ENTITY_ATTACK;
 
+            //Magma start - custom event in case of a FakePlayer interaction
+            if (damager instanceof FakePlayer) {
+                EntityDamageEvent event = new EntityDamageByBlockEvent(null, entity.getBukkitEntity(), cause, modifiers, modifierFunctions);
+                event.setCancelled(cancelled);
+                callEvent(event);
+                if (!event.isCancelled()) {
+                    event.getEntity().setLastDamageCause(event);
+                } else {
+                    entity.lastDamageCancelled = true;
+                }
+                return event;
+            }
+            //Magma end
+
             if (source.isIndirect() && source.getDirectEntity() != null) {
                 damager = source.getDirectEntity();
             }
+
+            //Magma start - assume that if proximate damage source is null, that the damage source is our damagee
+            if (damager == null)
+                damager = entity;
+            //Magma end
 
             if (damager instanceof net.minecraft.world.entity.projectile.Projectile) {
                 if (damager.getBukkitEntity() instanceof ThrownPotion) {

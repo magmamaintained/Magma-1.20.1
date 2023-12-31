@@ -8,21 +8,27 @@
  import net.minecraft.world.phys.HitResult;
  import net.minecraft.world.phys.Vec3;
  
-@@ -31,7 +_,14 @@
+@@ -31,6 +_,7 @@
     public InteractionResultHolder<ItemStack> m_7203_(Level p_40622_, Player p_40623_, InteractionHand p_40624_) {
        ItemStack itemstack = p_40623_.m_21120_(p_40624_);
        HitResult hitresult = m_41435_(p_40622_, p_40623_, ClipContext.Fluid.ANY);
 +      BlockHitResult blockhitresult = (BlockHitResult)hitresult;
        if (hitresult.m_6662_() == HitResult.Type.MISS) {
-+         // CraftBukkit start - Boat placement
-+         org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPlayerInteractEvent(p_40623_, org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, blockhitresult.m_82425_(), blockhitresult.m_82434_(), itemstack, false, p_40624_, blockhitresult.m_82450_());
-+         if (event.isCancelled()) {
-+            return InteractionResultHolder.m_19098_(itemstack);
-+         }
-+         // CraftBukkit end
           return InteractionResultHolder.m_19098_(itemstack);
        } else {
-          Vec3 vec3 = p_40623_.m_20252_(1.0F);
+@@ -49,6 +_,12 @@
+          }
+ 
+          if (hitresult.m_6662_() == HitResult.Type.BLOCK) {
++            // CraftBukkit start - Boat placement
++            org.bukkit.event.player.PlayerInteractEvent event = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callPlayerInteractEvent(p_40623_, org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK, blockhitresult.m_82425_(), blockhitresult.m_82434_(), itemstack, p_40624_);
++            if (event.isCancelled()) {
++               return InteractionResultHolder.m_19098_(itemstack);
++            }
++            // CraftBukkit end
+             Boat boat = this.m_220016_(p_40622_, hitresult);
+             boat.m_28464_(this.f_40616_);
+             boat.m_146922_(p_40623_.m_146908_());
 @@ -56,7 +_,14 @@
                 return InteractionResultHolder.m_19100_(itemstack);
              } else {
