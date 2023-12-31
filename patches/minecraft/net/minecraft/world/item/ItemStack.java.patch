@@ -174,7 +174,7 @@
     }
  
     public Holder<Item> m_220173_() {
-@@ -226,17 +_,180 @@
+@@ -226,17 +_,181 @@
     }
  
     public InteractionResult m_41661_(UseOnContext p_41662_) {
@@ -186,7 +186,7 @@
 +      return onItemUse(p_41662_, (c) -> m_41720_().onItemUseFirst(this, p_41662_));
 +   }
 +
-+   private InteractionResult onItemUse(UseOnContext p_41662_, java.util.function.Function<UseOnContext, InteractionResult> callback) {
++   public InteractionResult onItemUse(UseOnContext p_41662_, java.util.function.Function<UseOnContext, InteractionResult> callback) {
        Player player = p_41662_.m_43723_();
        BlockPos blockpos = p_41662_.m_8083_();
        BlockInWorld blockinworld = new BlockInWorld(p_41662_.m_43725_(), blockpos, false);
@@ -209,7 +209,7 @@
 +         InteractionResult interactionresult = callback.apply(p_41662_);
 +         CompoundTag newData = this.getTagClone();
 +         int newCount = this.m_41613_();
-+         this.m_41764_(oldCount);
++         this.m_41764_(interactionresult == InteractionResult.PASS && newCount != oldCount ? newCount : oldCount); //Magma - special case for mods that return PASS but do change the count
 +         this.setTagClone(oldData);
 +         world.captureBlockStates = false;
 +         if (interactionresult.m_19077_() && world.captureTreeGeneration && world.capturedBlockStates.size() > 0) {
@@ -244,7 +244,6 @@
 +         }
 +         world.captureTreeGeneration = false;
           if (player != null && interactionresult.m_146666_()) {
--            player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
 +            InteractionHand hand = p_41662_.m_43724_();
 +            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
@@ -345,11 +344,12 @@
 +               }
 +               // SPIGOT-1288 - play sound stripped from ItemBlock
 +               if (this.f_41589_ instanceof BlockItem) {
-+                  SoundType soundeffecttype = ((BlockItem) this.f_41589_).m_40614_().m_49962_(null);
++                  SoundType soundeffecttype = ((BlockItem) this.f_41589_).m_40614_().m_49962_(blockinworld.m_61168_()); //Magma - pass block state instead of null
 +                  world.m_5594_(player, blockpos, soundeffecttype.m_56777_(), SoundSource.BLOCKS, (soundeffecttype.m_56773_() + 1.0F) / 2.0F, soundeffecttype.m_56774_() * 0.8F);
 +               }
 +               player.m_36246_(Stats.f_12982_.m_12902_(item));
 +            }
+             player.m_36246_(Stats.f_12982_.m_12902_(item));
           }
 +         world.capturedTileEntities.clear();
 +         world.capturedBlockStates.clear();

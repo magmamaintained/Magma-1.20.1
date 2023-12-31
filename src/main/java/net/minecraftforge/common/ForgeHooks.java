@@ -582,7 +582,7 @@ public class ForgeHooks
             level.captureBlockSnapshots = true;
 
         ItemStack copy = itemstack.copy();
-        InteractionResult ret = itemstack.getItem().useOn(context);
+        InteractionResult ret = itemstack.onItemUse(context, (c) -> itemstack.getItem().useOn(context)); // Magma
         if (itemstack.isEmpty())
             ForgeEventFactory.onPlayerDestroyItem(player, copy, context.getHand());
 
@@ -1560,7 +1560,7 @@ public class ForgeHooks
     /**
      * Handles living entities being under water. This fires the {@link LivingBreatheEvent} and if the entity's air supply
      * is less than or equal to zero also the {@link LivingDrownEvent}. Additionally when the entity is under water it will
-     * dismount if {@link IForgeEntity#canBeRiddenUnderFluidType(FluidType, Entity)} returns false.
+     * dismount if {@link net.minecraftforge.common.extensions.IForgeEntity#canBeRiddenUnderFluidType(FluidType, Entity)} returns false.
      *
      * @param entity           The living entity which is currently updated
      * @param consumeAirAmount The amount of air to consume when the entity is unable to breathe
