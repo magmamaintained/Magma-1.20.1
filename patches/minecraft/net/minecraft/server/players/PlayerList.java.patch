@@ -58,7 +58,7 @@
     private final Map<UUID, ServerPlayer> f_11197_ = Maps.newHashMap();
     private final UserBanList f_11198_ = new UserBanList(f_11189_);
     private final IpBanList f_11199_ = new IpBanList(f_11190_);
-@@ -126,14 +_,25 @@
+@@ -126,14 +_,26 @@
     private boolean f_11205_;
     private final LayeredRegistryAccess<RegistryLayer> f_243858_;
     private final RegistryAccess.Frozen f_256838_;
@@ -70,9 +70,10 @@
     private static final boolean f_143988_ = false;
     private int f_11210_;
 +   private final List<ServerPlayer> playersView = java.util.Collections.unmodifiableList(f_11196_);
++   // CraftBukkit start
 +
 +   private CraftServer cserver;
-+   private final Map<String,ServerPlayer> playersByName = new java.util.HashMap<>();
++   private final Map<String, ServerPlayer> playersByName = new java.util.HashMap<>();
  
     public PlayerList(MinecraftServer p_203842_, LayeredRegistryAccess<RegistryLayer> p_251844_, PlayerDataStorage p_203844_, int p_203845_) {
 +      this.cserver = p_203842_.server = new CraftServer((DedicatedServer) p_203842_, this);

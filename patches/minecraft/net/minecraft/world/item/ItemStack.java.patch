@@ -80,6 +80,25 @@
     private static final Logger f_41585_ = LogUtils.getLogger();
     public static final ItemStack f_41583_ = new ItemStack((Void)null);
     public static final DecimalFormat f_41584_ = Util.m_137469_(new DecimalFormat("#.##"), (p_41704_) -> {
+@@ -119,6 +_,18 @@
+       return this.m_41720_().m_142422_(this);
+    }
+ 
++   //Magma start - forge caps
++   public CompoundTag getForgeCaps() {
++      return this.serializeCaps();
++   }
++
++   public void setForgeCaps(CompoundTag nbt) {
++      this.capNBT = nbt;
++      if (nbt != null)
++         this.deserializeCaps(nbt);
++   }
++   //Magma end
++
+    public ItemStack(ItemLike p_41599_) {
+       this(p_41599_, 1);
+    }
 @@ -136,28 +_,70 @@
        this(p_220155_.m_203334_(), p_220156_);
     }
