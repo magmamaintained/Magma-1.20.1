@@ -79,6 +79,13 @@ public class ForgeInject {
           .put(LevelStem.END, World.Environment.THE_END)
           .build());
 
+  public static BiMap<World.Environment, ResourceKey<LevelStem>> levelStems =
+          HashBiMap.create(ImmutableMap.<World.Environment, ResourceKey<LevelStem>>builder()
+                  .put(World.Environment.NORMAL, LevelStem.OVERWORLD)
+                  .put(World.Environment.NETHER, LevelStem.NETHER)
+                  .put(World.Environment.THE_END, LevelStem.END)
+                  .build());
+
   public static final Map<Villager.Profession, ResourceLocation> PROFESSION_MAP = new ConcurrentHashMap<>();
   public static final Map<net.minecraft.world.entity.EntityType<?>, String> ENTITY_TYPES = new ConcurrentHashMap<>();
   private static final Map<Class<?>, List<Map.Entry<Block, Material>>> MATERIALS = new ConcurrentHashMap<>();
@@ -482,6 +489,7 @@ public class ForgeInject {
             List.of(ordinal - 1));
         values.add(environment);
         environments.put(key, environment);
+        levelStems.put(environment, key);
         debug(String.format("Injected new Forge DimensionType %s.", environment));
         ordinal++;
       }
