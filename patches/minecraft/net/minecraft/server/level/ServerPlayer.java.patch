@@ -328,7 +328,7 @@
        } catch (Throwable throwable) {
           CrashReport crashreport = CrashReport.m_127521_(throwable, "Ticking player");
           CrashReportCategory crashreportcategory = crashreport.m_127514_("Player being ticked");
-@@ -563,16 +_,58 @@
+@@ -563,16 +_,61 @@
     }
  
     private void m_9104_(ObjectiveCriteria p_9105_, int p_9106_) {
@@ -350,6 +350,11 @@
 +      if (this.m_213877_()) {
 +         return;
 +      }
++
++      if(!this.m_5833_()){
++         this.m_6668_(p_9035_);
++      }
++
 +      java.util.List<org.bukkit.inventory.ItemStack> loot = new java.util.ArrayList<org.bukkit.inventory.ItemStack>(this.m_150109_().m_6643_());
 +      boolean keepInventory = this.m_9236_().m_46469_().m_46207_(GameRules.f_46133_) || this.m_5833_();
 +
@@ -362,9 +367,7 @@
 +      }
 +      // SPIGOT-5071: manually add player loot tables (SPIGOT-5195 - ignores keepInventory rule)
 +      this.m_7625_(p_9035_, this.f_20889_ > 0);
-+      for (org.bukkit.inventory.ItemStack item : this.drops) {
-+         loot.add(item);
-+      }
++      loot.addAll(getAndClearDrops());
 +      this.drops.clear(); // SPIGOT-5188: make sure to clear
 +
 +      Component defaultMessage = this.m_21231_().m_19293_();
@@ -985,7 +988,19 @@
     }
  
     public void m_5661_(Component p_9154_, boolean p_9155_) {
-@@ -1129,12 +_,21 @@
+@@ -1123,18 +_,33 @@
+          this.m_36397_(p_9016_.m_36344_());
+       }
+ 
++      Inventory forgeCaptures = p_9016_.getForgeCaptures();
++      if (forgeCaptures != null)
++         forgeCaptures.f_35974_.stream().filter(item -> !item.m_41619_()).forEach(item -> this.m_150109_().m_36054_(item));
++
++      this.m_150109_().m_6596_();
++
+       this.f_36081_ = p_9016_.f_36081_;
+       this.f_36094_ = p_9016_.f_36094_;
+       this.m_20088_().m_135381_(f_36089_, p_9016_.m_20088_().m_135370_(f_36089_));
        this.f_8920_ = -1;
        this.f_8917_ = -1.0F;
        this.f_8918_ = -1;
