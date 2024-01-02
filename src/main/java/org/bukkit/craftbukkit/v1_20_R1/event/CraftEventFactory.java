@@ -738,6 +738,9 @@ public class CraftEventFactory {
 
         victim.expToDrop = event.getDroppedExp();
 
+        if (victim instanceof ServerPlayer) // Magma - player items will be dropped in callPlayerDeathEvent
+            return event;
+
         for (org.bukkit.inventory.ItemStack stack : event.getDrops()) {
             if (stack == null || stack.getType() == Material.AIR || stack.getAmount() == 0) continue;
 

@@ -804,10 +804,10 @@
 +
 +   private Collection<org.bukkit.inventory.ItemStack> tempDrops = null;
 +
-+   protected @Nullable Collection<org.bukkit.inventory.ItemStack> getAndClearDrops() {
++   protected Collection<org.bukkit.inventory.ItemStack> getAndClearDrops() {
 +      Collection<org.bukkit.inventory.ItemStack> temp = tempDrops;
 +      tempDrops = null;
-+      return temp;
++      return temp == null ? new ArrayList<>() : temp;
 +   }
 +
     protected void m_6668_(DamageSource p_21192_) {
