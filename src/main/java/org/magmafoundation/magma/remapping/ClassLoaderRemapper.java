@@ -1,21 +1,3 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package org.magmafoundation.magma.remapping;
 
 import com.google.common.base.Preconditions;
@@ -29,11 +11,8 @@ import net.md_5.specialsource.JarMapping;
 import net.md_5.specialsource.JarRemapper;
 import net.md_5.specialsource.RemappingClassAdapter;
 import net.md_5.specialsource.repo.ClassRepo;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.magmafoundation.magma.remapping.handlers.MagmaReflectionHandler;
-import org.magmafoundation.magma.remapping.repos.ClassLoaderRepo;
-import org.magmafoundation.magma.remapping.repos.GlobalClassRepo;
+import org.magmafoundation.magma.Magma;
+import org.magmafoundation.magma.remapping.generated.MagmaReflectionHandler;
 import org.objectweb.asm.*;
 import org.objectweb.asm.commons.ClassRemapper;
 import org.objectweb.asm.commons.Remapper;
@@ -57,18 +36,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * ClassLoaderAdapter
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName ClassLoaderAdapter
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/ClassLoaderRepo.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
 public class ClassLoaderRemapper extends LenientJarRemapper {
 
-    private static final Logger LOGGER = LogManager.getLogger("Magma");
     private static final String PREFIX = "net/minecraft/";
     private static final String REPLACED_NAME = Type.getInternalName(MagmaReflectionHandler.class);
 
@@ -199,7 +168,7 @@ public class ClassLoaderRemapper extends LenientJarRemapper {
         if (!internalName.startsWith(PREFIX)) {
             throw new NoClassDefFoundError(internalName);
         }
-        LOGGER.warn("Loading CLIENT side class: {}", internalName);
+        Magma.LOGGER.warn("Loading CLIENT side class: {}", internalName);
         ClassWriter writer = new ClassWriter(0);
         writer.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC | Opcodes.ACC_DEPRECATED, internalName, null, "java/lang/Object", new String[]{});
         writer.visitEnd();
@@ -308,17 +277,17 @@ public class ClassLoaderRemapper extends LenientJarRemapper {
 
     public Product2<byte[], CodeSource> remapClass(String className, Callable<byte[]> byteSource, URLConnection connection) throws ClassNotFoundException {
         try {
-                byte[] bytes = remapClassFile(byteSource.call(), GlobalClassRepo.INSTANCE);
-                URL url;
-                CodeSigner[] signers;
-                if (connection instanceof JarURLConnection) {
-                    url = ((JarURLConnection) connection).getJarFileURL();
-                    signers = ((JarURLConnection) connection).getJarEntry().getCodeSigners();
-                } else {
-                    url = connection.getURL();
-                    signers = null;
-                }
-                return Product.of(bytes, new CodeSource(url, signers));
+            byte[] bytes = remapClassFile(byteSource.call(), GlobalClassRepo.INSTANCE);
+            URL url;
+            CodeSigner[] signers;
+            if (connection instanceof JarURLConnection) {
+                url = ((JarURLConnection) connection).getJarFileURL();
+                signers = ((JarURLConnection) connection).getJarEntry().getCodeSigners();
+            } else {
+                url = connection.getURL();
+                signers = null;
+            }
+            return Product.of(bytes, new CodeSource(url, signers));
         } catch (Exception e) {
             throw new ClassNotFoundException(className, e);
         }
@@ -415,6 +384,7 @@ public class ClassLoaderRemapper extends LenientJarRemapper {
         private String getSuper(final String typeName) {
             ClassNode node = GlobalClassRepo.INSTANCE.findClass(typeName);
             if (node == null) {
+                Magma.LOGGER.warn("Failed to find class {}", typeName);
                 return "java/lang/Object";
             }
             return MagmaRemapper.getNmsMapper().map(node.superName);
@@ -456,7 +426,7 @@ public class ClassLoaderRemapper extends LenientJarRemapper {
             if (o == null || getClass() != o.getClass()) return false;
             WrappedMethod that = (WrappedMethod) o;
             return Objects.equals(name, that.name) &&
-                Arrays.equals(pTypes, that.pTypes);
+                    Arrays.equals(pTypes, that.pTypes);
         }
 
         @Override

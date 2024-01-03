@@ -21,6 +21,7 @@ package org.magmafoundation.magma.forge;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
+import io.izzel.arclight.api.EnumHelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -59,7 +60,6 @@ import org.jetbrains.annotations.NotNull;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.configuration.MagmaConfig;
 import org.magmafoundation.magma.craftbukkit.entity.CraftCustomEntity;
-import org.magmafoundation.magma.helpers.EnumJ17Helper;
 import org.magmafoundation.magma.util.ResourceLocationUtil;
 
 import java.lang.reflect.Modifier;
@@ -219,7 +219,7 @@ public class ForgeInject {
       CraftMagicNumbers.MATERIAL_ITEM.put(material, item);
     }
     debug("Injecting Forge Material into Bukkit: DONE");
-    EnumJ17Helper.addEnums(Material.class, values);
+    EnumHelper.addEnums(Material.class, values);
     Magma.LOGGER.info("Injected {} modded materials ({} blocks, {} items)", ordinal - origin, blocks, items);
   }
 
@@ -262,6 +262,11 @@ public class ForgeInject {
     registerMaterialsFor(materials, CraftSmoker.class, SmokerBlockEntity.class, CraftSmoker::new);
     registerMaterialsFor(materials, CraftCreatureSpawner.class, SpawnerBlockEntity.class, CraftCreatureSpawner::new);
     registerMaterialsFor(materials, CraftStructureBlock.class, StructureBlockEntity.class, CraftStructureBlock::new);
+    registerMaterialsFor(materials, CraftBrushableBlock.class, BrushableBlockEntity.class, CraftBrushableBlock::new);
+    registerMaterialsFor(materials, CraftSuspiciousSand.class, BrushableBlockEntity.class, CraftSuspiciousSand::new);
+    registerMaterialsFor(materials, CraftDecoratedPot.class, DecoratedPotBlockEntity.class, CraftDecoratedPot::new);
+    registerMaterialsFor(materials, CraftCalibratedSculkSensor.class, CalibratedSculkSensorBlockEntity.class, CraftCalibratedSculkSensor::new);
+
     registerChests(materials);
     materials.keySet().forEach(craftClass -> {
       debugWarn("Could not find a matching block entity for " + craftClass.getSimpleName());
@@ -301,6 +306,9 @@ public class ForgeInject {
       materials.addAll(materialsMap.remove(CraftWallSign.class));
     if (materialsMap.containsKey(CraftFloorSign.class))
       materials.addAll(materialsMap.remove(CraftFloorSign.class));
+    if (materialsMap.containsKey(CraftHangingSign.class)) {
+      materials.addAll(materialsMap.remove(CraftHangingSign.class));
+    }
 
     if (materials.isEmpty())
       return;
@@ -394,7 +402,7 @@ public class ForgeInject {
               ? null
               : PotionEffectType.getById(MobEffect.getId(effect.getEffect()));
       try {
-        var potionType = EnumJ17Helper.makeEnum(PotionType.class, enumName, ordinal,
+        var potionType = EnumHelper.makeEnum(PotionType.class, enumName, ordinal,
                 List.of(PotionEffectType.class, boolean.class, boolean.class),
                 List.of(type, false, false));
         ordinal++;
@@ -406,7 +414,7 @@ public class ForgeInject {
       }
     }
     CraftPotionUtil.regular = newRegular;
-    EnumJ17Helper.addEnums(PotionType.class, values);
+    EnumHelper.addEnums(PotionType.class, values);
     debug("Injecting Forge Potion into Bukkit: DONE");
   }
 
@@ -420,7 +428,7 @@ public class ForgeInject {
       }
       var enumName = ResourceLocationUtil.standardize(location);
       try {
-        var biome = EnumJ17Helper.makeEnum(Biome.class, enumName, ordinal, List.of(), List.of());
+        var biome = EnumHelper.makeEnum(Biome.class, enumName, ordinal, List.of(), List.of());
         ordinal++;
         values.add(biome);
         debug("Injecting Forge Biome into Bukkit: " + biome.name());
@@ -428,7 +436,7 @@ public class ForgeInject {
         error("Could not inject biome into Bukkit: " + enumName + ". " + e.getMessage());
       }
     }
-    EnumJ17Helper.addEnums(Biome.class, values);
+    EnumHelper.addEnums(Biome.class, values);
     debug("Injecting Forge Biome into Bukkit: DONE");
   }
 
@@ -444,7 +452,7 @@ public class ForgeInject {
       }
       int typeId = enumName.hashCode();
       try {
-        var bukkitType = EnumJ17Helper.makeEnum(EntityType.class, enumName, ordinal,
+        var bukkitType = EnumHelper.makeEnum(EntityType.class, enumName, ordinal,
             List.of(String.class, Class.class, Integer.TYPE, Boolean.TYPE),
             List.of(enumName.toLowerCase(), CraftCustomEntity.class, typeId, false));
         EntityType.NAME_MAP.put(enumName.toLowerCase(), bukkitType);
@@ -456,7 +464,7 @@ public class ForgeInject {
         error("Could not inject entity into Bukkit: " + enumName + ". " + e.getMessage());
       }
     }
-    EnumJ17Helper.addEnums(EntityType.class, values);
+    EnumHelper.addEnums(EntityType.class, values);
     debug("Injecting Forge Entity into Bukkit: DONE");
   }
 
@@ -466,7 +474,7 @@ public class ForgeInject {
       if (!location.getNamespace().equals(NamespacedKey.MINECRAFT)) {
         var enumName = ResourceLocationUtil.standardize(location);
         try {
-          var profession = EnumJ17Helper.addEnum(Villager.Profession.class, enumName, List.of(), List.of());
+          var profession = EnumHelper.addEnum(Villager.Profession.class, enumName, List.of(), List.of());
           PROFESSION_MAP.put(profession, location);
           debug("Injecting Forge VillagerProfession into Bukkit: " + profession.name());
         } catch (Throwable e) {
@@ -485,7 +493,7 @@ public class ForgeInject {
       var environment = environments.get(key);
       if (environment == null) {
         var enumName = ResourceLocationUtil.standardize(key.location());
-        environment = EnumJ17Helper.makeEnum(World.Environment.class, enumName, ordinal, List.of(Integer.TYPE),
+        environment = EnumHelper.makeEnum(World.Environment.class, enumName, ordinal, List.of(Integer.TYPE),
             List.of(ordinal - 1));
         values.add(environment);
         environments.put(key, environment);
@@ -494,7 +502,7 @@ public class ForgeInject {
         ordinal++;
       }
     }
-    EnumJ17Helper.addEnums(World.Environment.class, values);
+    EnumHelper.addEnums(World.Environment.class, values);
   }
 
   public static void addForgeStatistics() {
@@ -506,7 +514,7 @@ public class ForgeInject {
       if (!statistics.containsKey(resourceLocation)) {
         var name = ResourceLocationUtil.standardize(resourceLocation);
         try {
-          var statistic = EnumJ17Helper.makeEnum(Statistic.class, name, ordinal, List.of(), List.of());
+          var statistic = EnumHelper.makeEnum(Statistic.class, name, ordinal, List.of(), List.of());
           statistic.setInjected();
           values.add(statistic);
           statistics.put(resourceLocation, statistic);
@@ -516,7 +524,7 @@ public class ForgeInject {
         }
       }
     });
-    EnumJ17Helper.addEnums(Statistic.class, values);
+    EnumHelper.addEnums(Statistic.class, values);
     CraftStatistic.statistics = statistics;
     debug("Injecting Forge Statistic into Bukkit: DONE");
   }

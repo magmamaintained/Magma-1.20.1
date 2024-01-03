@@ -1,5 +1,11 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by FernFlower decompiler)
+//
+
 package io.izzel.arclight.api;
 
+import java.lang.StackWalker.Option;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -9,48 +15,24 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.Objects;
 
-@SuppressWarnings("all")
 public class Unsafe {
-
     private static final sun.misc.Unsafe unsafe;
     private static final MethodHandles.Lookup lookup;
     private static final MethodHandle defineClass;
+    private static final MethodHandle H_DEF_CLASS;
+    private static final CallerClass INSTANCE;
 
-    static {
-        try {
-            Field theUnsafe = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            unsafe = (sun.misc.Unsafe) theUnsafe.get(null);
-            Unsafe.ensureClassInitialized(MethodHandles.Lookup.class);
-            Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-            Object base = unsafe.staticFieldBase(field);
-            long offset = unsafe.staticFieldOffset(field);
-            lookup = (MethodHandles.Lookup) unsafe.getObject(base, offset);
-            MethodHandle mh;
-            try {
-                Method sunMisc = unsafe.getClass().getMethod("defineClass", String.class, byte[].class, int.class, int.class, ClassLoader.class, ProtectionDomain.class);
-                mh = lookup.unreflect(sunMisc).bindTo(unsafe);
-            } catch (Exception e) {
-                Class<?> jdkInternalUnsafe = Class.forName("jdk.internal.misc.Unsafe");
-                Field internalUnsafeField = jdkInternalUnsafe.getDeclaredField("theUnsafe");
-                Object internalUnsafe = unsafe.getObject(unsafe.staticFieldBase(internalUnsafeField), unsafe.staticFieldOffset(internalUnsafeField));
-                Method internalDefineClass = jdkInternalUnsafe.getMethod("defineClass", String.class, byte[].class, int.class, int.class, ClassLoader.class, ProtectionDomain.class);
-                mh = lookup.unreflect(internalDefineClass).bindTo(internalUnsafe);
-            }
-            defineClass = Objects.requireNonNull(mh);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public Unsafe() {
     }
 
     public static <T> T getStatic(Class<?> cl, String name) {
         try {
-            Unsafe.ensureClassInitialized(cl);
+            ensureClassInitialized(cl);
             Field field = cl.getDeclaredField(name);
-            Object materialByNameBase = Unsafe.staticFieldBase(field);
-            long materialByNameOffset = Unsafe.staticFieldOffset(field);
-            return (T) Unsafe.getObject(materialByNameBase, materialByNameOffset);
-        } catch (Exception e) {
+            Object materialByNameBase = staticFieldBase(field);
+            long materialByNameOffset = staticFieldOffset(field);
+            return (T) getObject(materialByNameBase, materialByNameOffset);
+        } catch (Exception var6) {
             return null;
         }
     }
@@ -266,31 +248,10 @@ public class Unsafe {
     public static Class<?> defineClass(String s, byte[] bytes, int i, int i1, ClassLoader classLoader, ProtectionDomain protectionDomain) {
         try {
             return (Class<?>) defineClass.invokeExact(s, bytes, i, i1, classLoader, protectionDomain);
-        } catch (Throwable throwable) {
-            throwException(throwable);
+        } catch (Throwable var7) {
+            throwException(var7);
             return null;
         }
-    }
-
-    private static final MethodHandle H_DEF_CLASS;
-
-    static {
-        MethodHandle handle;
-        try {
-            handle = lookup().findStatic(ClassLoader.class, "defineClass0", MethodType.methodType(Class.class,
-                    ClassLoader.class, Class.class, String.class, byte[].class, int.class, int.class, ProtectionDomain.class,
-                    boolean.class, int.class, Object.class));
-        } catch (Throwable t) {
-            try {
-                handle = MethodHandles.dropArguments(
-                        lookup().findVirtual(ClassLoader.class, "defineClassInternal", MethodType.methodType(Class.class,
-                                Class.class, String.class, byte[].class, ProtectionDomain.class, boolean.class, int.class, Object.class)),
-                        4, Arrays.asList(int.class, int.class));
-            } catch (Throwable t2) {
-                handle = null;
-            }
-        }
-        H_DEF_CLASS = handle;
     }
 
     public static Object allocateInstance(Class<?> aClass) throws InstantiationException {
@@ -445,46 +406,90 @@ public class Unsafe {
         return INSTANCE.getCallerClass();
     }
 
-    private static final CallerClass INSTANCE;
-
     static {
+        try {
+            Field theUnsafe = sun.misc.Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
+            unsafe = (sun.misc.Unsafe)theUnsafe.get((Object)null);
+            ensureClassInitialized(MethodHandles.Lookup.class);
+            Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
+            Object base = unsafe.staticFieldBase(field);
+            long offset = unsafe.staticFieldOffset(field);
+            lookup = (MethodHandles.Lookup)unsafe.getObject(base, offset);
+
+            MethodHandle mh;
+            try {
+                Method sunMisc = unsafe.getClass().getMethod("defineClass", String.class, byte[].class, Integer.TYPE, Integer.TYPE, ClassLoader.class, ProtectionDomain.class);
+                mh = lookup.unreflect(sunMisc).bindTo(unsafe);
+            } catch (Exception var14) {
+                Class<?> jdkInternalUnsafe = Class.forName("jdk.internal.misc.Unsafe");
+                Field internalUnsafeField = jdkInternalUnsafe.getDeclaredField("theUnsafe");
+                Object internalUnsafe = unsafe.getObject(unsafe.staticFieldBase(internalUnsafeField), unsafe.staticFieldOffset(internalUnsafeField));
+                Method internalDefineClass = jdkInternalUnsafe.getMethod("defineClass", String.class, byte[].class, Integer.TYPE, Integer.TYPE, ClassLoader.class, ProtectionDomain.class);
+                mh = lookup.unreflect(internalDefineClass).bindTo(internalUnsafe);
+            }
+
+            defineClass = (MethodHandle)Objects.requireNonNull(mh);
+        } catch (Exception var15) {
+            throw new RuntimeException(var15);
+        }
+
+        MethodHandle handle;
+        try {
+            handle = lookup().findStatic(ClassLoader.class, "defineClass0", MethodType.methodType(Class.class, ClassLoader.class, Class.class, String.class, byte[].class, Integer.TYPE, Integer.TYPE, ProtectionDomain.class, Boolean.TYPE, Integer.TYPE, Object.class));
+        } catch (Throwable var13) {
+            try {
+                handle = MethodHandles.dropArguments(lookup().findVirtual(ClassLoader.class, "defineClassInternal", MethodType.methodType(Class.class, Class.class, String.class, byte[].class, ProtectionDomain.class, Boolean.TYPE, Integer.TYPE, Object.class)), 4, Arrays.asList(Integer.TYPE, Integer.TYPE));
+            } catch (Throwable var12) {
+                handle = null;
+            }
+        }
+
+        H_DEF_CLASS = handle;
         boolean securityManagerPresent = false;
+
         try {
             Class.forName("java.lang.SecurityManager");
             securityManagerPresent = true;
-        } catch (Throwable ignored) {}
+        } catch (Throwable var11) {
+        }
+
         if (securityManagerPresent) {
             INSTANCE = new SecurityManagerCallerClass();
         } else {
             INSTANCE = new StackWalkerCallerClassimplements();
         }
+
+    }
+
+    private interface CallerClass {
+        Class<?> getCallerClass();
+    }
+
+    private static class StackWalkerCallerClassimplements implements CallerClass {
+        private final StackWalker walker;
+
+        private StackWalkerCallerClassimplements() {
+            this.walker = StackWalker.getInstance(Option.RETAIN_CLASS_REFERENCE);
+        }
+
+        public Class<?> getCallerClass() {
+            return (Class)this.walker.walk((s) -> {
+                return ((StackWalker.StackFrame)s.skip(3L).findFirst().orElseThrow()).getDeclaringClass();
+            });
+        }
     }
 
     private static class SecurityManagerCallerClass extends SecurityManager implements CallerClass {
+        private SecurityManagerCallerClass() {
+        }
 
-        @Override
         public Class<?>[] getClassContext() {
             return super.getClassContext();
         }
 
-        @Override
         public Class<?> getCallerClass() {
             return super.getClassContext()[3];
         }
-    }
-
-    private static class StackWalkerCallerClassimplements implements CallerClass {
-
-        private final StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
-
-        @Override
-        public Class<?> getCallerClass() {
-            return walker.walk(s -> s.skip(3).findFirst().orElseThrow().getDeclaringClass());
-        }
-    }
-
-    private interface CallerClass {
-
-        Class<?> getCallerClass();
     }
 }

@@ -1,60 +1,27 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package org.magmafoundation.magma.remapping.adapters;
+package org.magmafoundation.magma.remapping;
 
 import com.google.common.collect.ImmutableMap;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.remapping.ClassLoaderRemapper;
-import org.magmafoundation.magma.remapping.MagmaRemapper;
-import org.magmafoundation.magma.remapping.PluginTransformer;
-import org.magmafoundation.magma.remapping.loaders.RemappingClassLoader;
-import org.magmafoundation.magma.remapping.loaders.RemappingURLClassLoader;
-import org.magmafoundation.magma.remapping.repos.GlobalClassRepo;
+import org.magmafoundation.magma.remapping.generated.RemappingURLClassLoader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * ClassLoaderAdapter
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName ClassLoaderAdapter
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/ClassLoaderAdapter.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
-
 public class ClassLoaderAdapter implements PluginTransformer {
 
     public static final ClassLoaderAdapter INSTANCE = new ClassLoaderAdapter();
-    private static final Marker MARKER = MarkerManager.getMarker("CLADAPTER");
+    private static final Marker MARKER = MarkerFactory.getMarker("CLADAPTER");
     private static final String CLASSLOADER = "java/lang/ClassLoader";
 
     private final Map<String, String> classLoaderTypes = ImmutableMap.<String, String>builder()
-        .put(Type.getInternalName(URLClassLoader.class), Type.getInternalName(RemappingURLClassLoader.class))
-        .build();
+            .put(Type.getInternalName(URLClassLoader.class), Type.getInternalName(RemappingURLClassLoader.class))
+            .build();
 
     @Override
     public void handleClass(ClassNode node, ClassLoaderRemapper remapper) {
@@ -69,7 +36,7 @@ public class ClassLoaderAdapter implements PluginTransformer {
                             next = next.getNext();
                         }
                         if (next == null) continue;
-                        Magma.LOGGER.debug(MARKER, "Found new {}/{} call in {} {}", typeInsnNode.desc, ((MethodInsnNode) next).name + ((MethodInsnNode) next).desc, node.name, methodNode.name + methodNode.desc);
+                        Magma.LOGGER.debug("Found new {}/{} call in {} {}", typeInsnNode.desc, ((MethodInsnNode) next).name + ((MethodInsnNode) next).desc, node.name, methodNode.name + methodNode.desc);
                         ((MethodInsnNode) next).owner = replace;
                         typeInsnNode.desc = replace;
                     }
@@ -78,7 +45,7 @@ public class ClassLoaderAdapter implements PluginTransformer {
         }
         ClassInfo info = classInfo(node);
         if (info == null) return;
-        Magma.LOGGER.debug(MARKER, "Transforming classloader class {}", node.name);
+        Magma.LOGGER.debug("Transforming classloader class {}", node.name);
         if (!info.remapping) {
             implementIntf(node);
         }
@@ -95,7 +62,7 @@ public class ClassLoaderAdapter implements PluginTransformer {
     }
 
     private void implementIntf(ClassNode node) {
-        Magma.LOGGER.debug(MARKER, "Implementing RemappingClassLoader for class {}", node.name);
+        Magma.LOGGER.debug("Implementing RemappingClassLoader for class {}", node.name);
         FieldNode remapper = new FieldNode(Opcodes.ACC_PRIVATE | Opcodes.ACC_SYNTHETIC, "remapper", Type.getDescriptor(ClassLoaderRemapper.class), null, null);
         MethodNode methodNode = new MethodNode(Opcodes.ACC_PUBLIC | Opcodes.ACC_SYNTHETIC, "getRemapper", Type.getMethodDescriptor(Type.getType(ClassLoaderRemapper.class)), null, null);
         InsnList list = new InsnList();
@@ -108,6 +75,9 @@ public class ClassLoaderAdapter implements PluginTransformer {
         list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, Type.getInternalName(MagmaRemapper.class), "createClassLoaderRemapper", Type.getMethodDescriptor(Type.getType(ClassLoaderRemapper.class), Type.getType(ClassLoader.class)), false));
         list.add(new FieldInsnNode(Opcodes.PUTFIELD, node.name, remapper.name, remapper.desc));
         list.add(labelNode);
+        if ((node.version & 0xFFFF) >= Opcodes.V1_6) {
+            list.add(new FrameNode(Opcodes.F_SAME, 0, null, 0, null));
+        }
         list.add(new VarInsnNode(Opcodes.ALOAD, 0));
         list.add(new FieldInsnNode(Opcodes.GETFIELD, node.name, remapper.name, remapper.desc));
         list.add(new InsnNode(Opcodes.ARETURN));

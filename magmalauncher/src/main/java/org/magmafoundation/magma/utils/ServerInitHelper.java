@@ -24,19 +24,17 @@ import org.magmafoundation.magma.common.utils.JarTool;
 import org.magmafoundation.magma.common.utils.SystemType;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.module.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessControlContext;
 import java.util.*;
 import java.util.function.Function;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
@@ -115,33 +113,27 @@ public class ServerInitHelper {
     //Code snipped from (https://github.com/IzzelAliz/Arclight/blob/f98046185ebfc183a242ac5497619dc35d741042/forge-installer/src/main/java/io/izzel/arclight/forgeinstaller/ForgeInstaller.java)
 
     public static void addToPath(Path path) {
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
         try {
-            Field ucpField;
-            try {
-                ucpField = loader.getClass().getDeclaredField("ucp");
-            } catch (NoSuchFieldException e) {
-                ucpField = loader.getClass().getSuperclass().getDeclaredField("ucp");
-            }
-            long offset = Unsafe.objectFieldOffset(ucpField);
-            Object ucp = Unsafe.getObject(loader, offset);
-            if(ucp == null) {
-                var cl = Class.forName("jdk.internal.loader.URLClassPath");
-                var handle = Unsafe.lookup().findConstructor(cl, MethodType.methodType(void.class, URL[].class, AccessControlContext.class));
-                ucp = handle.invoke(new URL[]{}, (AccessControlContext) null);
-                Unsafe.putObjectVolatile(loader, offset, ucp);
-            }
-            Method method = ucp.getClass().getDeclaredMethod("addURL", URL.class);
-            Unsafe.lookup().unreflect(method).invoke(ucp, path.toUri().toURL());
-        } catch (Throwable t) {
-            t.printStackTrace();
+            appendJarFile(new JarFile(String.valueOf(path)));
+        } catch (IOException e) {
+            System.out.println("Error on add library " + path);
         }
     }
 
+    public static Instrumentation instrumentation;
+
     public static void agentmain(final String a, final Instrumentation inst) {
+        ServerInitHelper.instrumentation = inst;
     }
 
     public static void premain(String agentArgs, Instrumentation inst) {
+        ServerInitHelper.instrumentation = inst;
+    }
+
+    public static void appendJarFile(JarFile file) throws IOException {
+        if (instrumentation != null) {
+            instrumentation.appendToSystemClassLoaderSearch(file);
+        }
     }
 
     public static void addExports(String module, String pkg, String target) {
@@ -305,6 +297,5 @@ public class ServerInitHelper {
             }
         }))));
     }
-
 }
 

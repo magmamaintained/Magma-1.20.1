@@ -5,7 +5,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.remapping.loaders.RemappingURLClassLoader;
+import org.magmafoundation.magma.remapping.generated.RemappingURLClassLoader;
 
 import java.io.*;
 import java.net.MalformedURLException;

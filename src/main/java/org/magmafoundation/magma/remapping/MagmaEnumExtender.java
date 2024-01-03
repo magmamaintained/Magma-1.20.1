@@ -1,21 +1,3 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package org.magmafoundation.magma.remapping;
 
 import org.apache.logging.log4j.LogManager;
@@ -28,17 +10,7 @@ import org.objectweb.asm.tree.*;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static org.magmafoundation.magma.remapping.adapters.MagmaRedirectAdapter.loadInt;
 
-/**
- * MagmaEnumExtender
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName ArclightEnumExtender
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/ArclightEnumExtender.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
 @SuppressWarnings("unused")
 public class MagmaEnumExtender {
 
@@ -69,11 +41,11 @@ public class MagmaEnumExtender {
                         list.add(new TypeInsnNode(Opcodes.NEW, node.name));
                         list.add(new InsnNode(Opcodes.DUP));
                         list.add(new LdcInsnNode(name));
-                        list.add(loadInt(count));
+                        list.add(MagmaRedirectAdapter.loadInt(count));
                         list.add(new MethodInsnNode(Opcodes.INVOKESPECIAL, node.name, "<init>", "(Ljava/lang/String;I)V", false));
                         list.add(new FieldInsnNode(Opcodes.PUTSTATIC, node.name, name, desc));
                         postList.add(new InsnNode(Opcodes.DUP));
-                        postList.add(loadInt(count));
+                        postList.add(MagmaRedirectAdapter.loadInt(count));
                         postList.add(new FieldInsnNode(Opcodes.GETSTATIC, node.name, name, desc));
                         postList.add(new InsnNode(Opcodes.AASTORE));
                         LOGGER.info("Added {} to {}", name, node.name);
@@ -81,13 +53,13 @@ public class MagmaEnumExtender {
                     count++;
                 }
                 list.add(new FieldInsnNode(Opcodes.GETSTATIC, node.name, values.name, values.desc));
-                list.add(loadInt(0));
-                list.add(loadInt(count));
+                list.add(MagmaRedirectAdapter.loadInt(0));
+                list.add(MagmaRedirectAdapter.loadInt(count));
                 list.add(new TypeInsnNode(Opcodes.ANEWARRAY, node.name));
                 list.add(new InsnNode(Opcodes.DUP));
                 list.add(new FieldInsnNode(Opcodes.PUTSTATIC, node.name, values.name, values.desc));
-                list.add(loadInt(0));
-                list.add(loadInt(set.size()));
+                list.add(MagmaRedirectAdapter.loadInt(0));
+                list.add(MagmaRedirectAdapter.loadInt(set.size()));
                 list.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "java/lang/System", "arraycopy", "(Ljava/lang/Object;ILjava/lang/Object;II)V"));
                 list.add(new FieldInsnNode(Opcodes.GETSTATIC, node.name, values.name, values.desc));
                 postList.add(new InsnNode(Opcodes.POP));
@@ -124,10 +96,10 @@ public class MagmaEnumExtender {
 
     private static String standardize(String str) {
         return str
-            .replace(':', '_')
-            .replaceAll("\\s+", "_")
-            .replaceAll("\\W", "")
-            .toUpperCase(Locale.ENGLISH);
+                .replace(':', '_')
+                .replaceAll("\\s+", "_")
+                .replaceAll("\\W", "")
+                .toUpperCase(Locale.ENGLISH);
     }
 
     private static Set<String> countEnum(ClassNode node) {

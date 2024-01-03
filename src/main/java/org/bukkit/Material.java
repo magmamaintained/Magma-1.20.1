@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Consumer;
+
+import io.izzel.arclight.api.EnumHelper;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
@@ -115,7 +117,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.magmafoundation.magma.helpers.EnumJ17Helper;
 
 /**
  * An enum of all material IDs accepted by the official server and client
@@ -10999,7 +11000,7 @@ public enum Material implements Keyed, Translatable {
     // Magma - start <Used from https://github.com/magmafoundation/Magma-1.16.x/blob/1.16.x/src/main/java/org/bukkit/Material.java>
     public static Material addMaterial(String name, int id, NamespacedKey key, boolean block, boolean item) {
         try {
-            var material = EnumJ17Helper.makeEnum(Material.class, name, id, List.of(Integer.TYPE, NamespacedKey.class, Boolean.TYPE, Boolean.TYPE), List.of(id, key, block, item));
+            var material = EnumHelper.makeEnum(Material.class, name, id, List.of(Integer.TYPE, NamespacedKey.class, Boolean.TYPE, Boolean.TYPE), List.of(id, key, block, item));
             BY_NAME.put(name, material);
             return material;
         } catch (Throwable e) {
@@ -11010,7 +11011,7 @@ public enum Material implements Keyed, Translatable {
 
     public static Material addMaterial(String name, int id, Class<?> data, NamespacedKey key, boolean block, boolean item) {
         try {
-            var material = EnumJ17Helper.makeEnum(Material.class, name, id, List.of(Integer.TYPE, Integer.TYPE, Integer.TYPE, Class.class, NamespacedKey.class, Boolean.TYPE, Boolean.TYPE), List.of(id, 64, 0, data, key, block, item));
+            var material = EnumHelper.makeEnum(Material.class, name, id, List.of(Integer.TYPE, Integer.TYPE, Integer.TYPE, Class.class, NamespacedKey.class, Boolean.TYPE, Boolean.TYPE), List.of(id, 64, 0, data, key, block, item));
             BY_NAME.put(name, material);
             return material;
         } catch (Throwable e) {
