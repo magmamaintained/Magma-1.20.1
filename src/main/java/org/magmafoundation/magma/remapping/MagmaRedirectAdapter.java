@@ -1,22 +1,4 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package org.magmafoundation.magma.remapping.adapters;
+package org.magmafoundation.magma.remapping;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableMap;
@@ -26,19 +8,16 @@ import io.izzel.tools.func.Func4;
 import io.izzel.tools.product.Product;
 import io.izzel.tools.product.Product2;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.magmafoundation.magma.Magma;
-import org.magmafoundation.magma.remapping.ClassLoaderRemapper;
-import org.magmafoundation.magma.remapping.PluginTransformer;
-import org.magmafoundation.magma.remapping.handlers.MagmaReflectionHandler;
-import org.magmafoundation.magma.remapping.repos.GlobalClassRepo;
+import org.magmafoundation.magma.remapping.generated.MagmaReflectionHandler;
 import org.magmafoundation.magma.util.ArrayUtil;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.spongepowered.asm.util.Bytecode;
 
 import java.lang.invoke.MethodHandles;
@@ -53,19 +32,10 @@ import java.security.SecureClassLoader;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * MagmaRedirectAdapter
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName ArclightRedirectAdapter
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/ArclightRedirectAdapter.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
 public class MagmaRedirectAdapter implements PluginTransformer {
 
     public static final MagmaRedirectAdapter INSTANCE = new MagmaRedirectAdapter();
-    private static final Marker MARKER = MarkerManager.getMarker("REDIRECT");
+    private static final Marker MARKER = MarkerFactory.getMarker("REDIRECT");
     private static final String REPLACED_NAME = Type.getInternalName(MagmaReflectionHandler.class);
     private static final Multimap<String, Product2<String, MethodInsnNode>> METHOD_MODIFY = HashMultimap.create();
     private static final Multimap<String, Product2<String, MethodInsnNode>> METHOD_REDIRECT = HashMultimap.create();
@@ -140,7 +110,7 @@ public class MagmaRedirectAdapter implements PluginTransformer {
 
     public static void scanMethod(byte[] bytes) {
         ClassReader reader = new ClassReader(bytes);
-        Magma.LOGGER.debug(MARKER, "Scanning {}", reader.getClassName());
+        Magma.LOGGER.debug("Scanning " + reader.getClassName());
         ClassNode node = new ClassNode();
         reader.accept(node, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG);
         for (MethodNode method : node.methods) {
@@ -166,7 +136,7 @@ public class MagmaRedirectAdapter implements PluginTransformer {
                             if (target != null) {
                                 Func4<ClassLoaderRemapper, Method, Object, Object[], Object[]> bridge = METHOD_TO_HANDLER.get(methodToString(target));
                                 if (bridge != null) {
-                                    Magma.LOGGER.debug(MARKER, "Creating bridge handler {}/{}{} to {}", node.name, method.name, method.desc, methodToString(target));
+                                    Magma.LOGGER.debug("Creating bridge handler {}/{}{} to {}", node.name, method.name, method.desc, methodToString(target));
                                     METHOD_TO_HANDLER.put(node.name + '/' + method.name + method.desc, new BridgeHandler(bridge, target));
                                 }
                             }
@@ -191,9 +161,9 @@ public class MagmaRedirectAdapter implements PluginTransformer {
             for (AbstractInsnNode insnNode : methodNode.instructions) {
                 if (insnNode instanceof MethodInsnNode from) {
                     if (from.getOpcode() == Opcodes.INVOKESPECIAL
-                        && Objects.equals(from.owner, classNode.superName)
-                        && Objects.equals(from.name, methodNode.name)
-                        && Objects.equals(from.desc, methodNode.desc)) {
+                            && Objects.equals(from.owner, classNode.superName)
+                            && Objects.equals(from.name, methodNode.name)
+                            && Objects.equals(from.desc, methodNode.desc)) {
                         continue;
                     }
                     process(from, methodNode.instructions, remapper, classNode);
@@ -431,7 +401,7 @@ public class MagmaRedirectAdapter implements PluginTransformer {
         };
     }
 
-    public static AbstractInsnNode loadInt(int i) {
+    static AbstractInsnNode loadInt(int i) {
         if (i >= -1 && i < 6) {
             return new InsnNode(Opcodes.ICONST_0 + i);
         } else if (i >= -128 && i < 128) {

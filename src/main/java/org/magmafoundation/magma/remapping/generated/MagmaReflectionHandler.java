@@ -1,29 +1,11 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package org.magmafoundation.magma.remapping.handlers;
+package org.magmafoundation.magma.remapping.generated;
 
 import io.izzel.arclight.api.Unsafe;
 import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.remapping.ClassLoaderRemapper;
-import org.magmafoundation.magma.remapping.adapters.MagmaRedirectAdapter;
-import org.magmafoundation.magma.remapping.loaders.RemappingClassLoader;
-import org.magmafoundation.magma.remapping.repos.GlobalClassRepo;
+import org.magmafoundation.magma.remapping.GlobalClassRepo;
+import org.magmafoundation.magma.remapping.MagmaRedirectAdapter;
+import org.magmafoundation.magma.remapping.RemappingClassLoader;
 import org.magmafoundation.magma.util.ASMUtils;
 import org.magmafoundation.magma.util.Enumerations;
 import org.magmafoundation.magma.util.ReflectionUtils;
@@ -47,15 +29,6 @@ import java.security.SecureClassLoader;
 import java.util.Enumeration;
 import java.util.StringJoiner;
 
-/**
- * MagmaReflectionHandler
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName ArclightReflectionHandler
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/generated/ArclightReflectionHandler.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
 @SuppressWarnings("unused")
 public class MagmaReflectionHandler extends ClassLoader {
 
@@ -198,7 +171,7 @@ public class MagmaReflectionHandler extends ClassLoader {
 
     // srg -> bukkit
     public static String redirectTypeGetName(java.lang.reflect.Type type) {
-        if (type instanceof Class cl) {
+        if (type instanceof Class<?> cl) {
             if (cl.isArray()) {
                 return redirectTypeGetName(cl) + "[]";
             }

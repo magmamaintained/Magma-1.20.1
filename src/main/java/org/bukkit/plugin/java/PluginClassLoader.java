@@ -2,27 +2,6 @@ package org.bukkit.plugin.java;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLConnection;
-import java.security.CodeSigner;
-import java.security.CodeSource;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.logging.Level;
-
 import io.izzel.tools.product.Product2;
 import org.bukkit.plugin.InvalidPluginException;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -33,8 +12,24 @@ import org.magmafoundation.magma.Magma;
 import org.magmafoundation.magma.patcher.Patcher;
 import org.magmafoundation.magma.remapping.ClassLoaderRemapper;
 import org.magmafoundation.magma.remapping.MagmaRemapper;
-import org.magmafoundation.magma.remapping.loaders.RemappingClassLoader;
+import org.magmafoundation.magma.remapping.RemappingClassLoader;
 import org.magmafoundation.magma.util.JavaPluginLoaderBridge;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLConnection;
+import java.security.CodeSource;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
+import java.util.logging.Level;
 
 /**
  * A ClassLoader for plugins, to allow shared classes across multiple plugins
@@ -184,6 +179,7 @@ final class PluginClassLoader extends URLClassLoader implements RemappingClassLo
                     byteSource = () -> {
                         try (InputStream is = connection.getInputStream()) {
                             byte[] classBytes = ByteStreams.toByteArray(is);
+                            classBytes = MagmaRemapper.SWITCH_TABLE_FIXER.apply(classBytes);
                             classBytes = loader.server.getUnsafe().processClass(description, path, classBytes);
 
                             // Magma start - Plugin Patcher

@@ -1,27 +1,8 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-package org.magmafoundation.magma.remapping.handlers;
+package org.magmafoundation.magma.remapping;
 
 import com.google.common.collect.ImmutableSet;
 import net.md_5.specialsource.provider.InheritanceProvider;
 import net.md_5.specialsource.repo.ClassRepo;
-import org.magmafoundation.magma.remapping.MagmaRemapper;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.util.Collection;
@@ -31,15 +12,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-/**
- * PluginInheritanceProvider
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName PluginInheritanceProvider
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/PluginInheritanceProvider.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
 public class PluginInheritanceProvider implements InheritanceProvider {
 
     private static final Map<String, Collection<String>> SHARED_INHERITANCE_MAP = new ConcurrentHashMap<>();
@@ -82,7 +54,7 @@ public class PluginInheritanceProvider implements InheritanceProvider {
         return parents;
     }
 
-    public static class Remapping extends PluginInheritanceProvider {
+    static class Remapping extends PluginInheritanceProvider {
 
         private final PluginInheritanceProvider provider;
 

@@ -1,21 +1,3 @@
-/*
- * Magma Server
- * Copyright (C) 2019-2023.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
 package org.magmafoundation.magma.remapping;
 
 import com.google.common.collect.BiMap;
@@ -27,10 +9,7 @@ import net.md_5.specialsource.JarRemapper;
 import net.md_5.specialsource.provider.ClassLoaderProvider;
 import net.md_5.specialsource.provider.JointProvider;
 import org.magmafoundation.magma.asm.SwitchTableFixer;
-import org.magmafoundation.magma.remapping.adapters.ClassLoaderAdapter;
-import org.magmafoundation.magma.remapping.adapters.MagmaRedirectAdapter;
-import org.magmafoundation.magma.remapping.handlers.RemapSourceHandler;
-import org.magmafoundation.magma.remapping.repos.GlobalClassRepo;
+import org.magmafoundation.magma.remapping.resource.RemapSourceHandler;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,26 +18,20 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
-/**
- * MagmaRemapper
- *
- * @author Mainly by IzzelAliz and modified Malcolm
- * @originalClassName ArclightRemapper
- * @classFrom <a href="https://github.com/IzzelAliz/Arclight/blob/1.18/arclight-common/src/main/java/io/izzel/arclight/common/mod/util/remapper/ArclightRemapper.java">Click here to get to github</a>
- *
- * This classes is modified by Magma to support the Magma software.
- */
 @SuppressWarnings("unchecked")
 public class MagmaRemapper {
 
     public static final MagmaRemapper INSTANCE;
     public static final File DUMP;
+    public static final Function<byte[], byte[]> SWITCH_TABLE_FIXER;
 
     static {
         try {
             INSTANCE = new MagmaRemapper();
             DUMP = null;
+            SWITCH_TABLE_FIXER = (Function<byte[], byte[]>) SwitchTableFixer.class.getField("INSTANCE").get(null);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,8 +49,8 @@ public class MagmaRemapper {
         this.toBukkitMapping = new JarMapping();
         this.inheritanceMap = new InheritanceMap();
         this.toNmsMapping.loadMappings(
-            new BufferedReader(new InputStreamReader(MagmaRemapper.class.getClassLoader().getResourceAsStream("mappings/nms.srg"))),
-            null, null, false
+                new BufferedReader(new InputStreamReader(MagmaRemapper.class.getClassLoader().getResourceAsStream("mappings/nms.srg"))),
+                null, null, false
         );
         // TODO workaround for https://github.com/md-5/SpecialSource/pull/81
         //  remove on update
@@ -86,12 +59,12 @@ public class MagmaRemapper {
         var nextSection = content.substring(i).lines().skip(1).dropWhile(it -> it.startsWith("\t")).findFirst().orElseThrow();
         var nextIndex = content.indexOf(nextSection);
         this.toBukkitMapping.loadMappings(
-            new BufferedReader(new StringReader(content.substring(0, i) + content.substring(nextIndex))),
-            null, null, true
+                new BufferedReader(new StringReader(content.substring(0, i) + content.substring(nextIndex))),
+                null, null, true
         );
         this.toBukkitMapping.loadMappings(
-            new BufferedReader(new StringReader(content.substring(i, nextIndex))),
-            null, null, true
+                new BufferedReader(new StringReader(content.substring(i, nextIndex))),
+                null, null, true
         );
         BiMap<String, String> inverseClassMap = HashBiMap.create(toNmsMapping.classes).inverse();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(MagmaRemapper.class.getClassLoader().getResourceAsStream("mappings/inheritanceMap.txt")))) {
@@ -105,7 +78,6 @@ public class MagmaRemapper {
         this.transformerList.add(MagmaInterfaceInvokerGen.INSTANCE);
         this.transformerList.add(MagmaRedirectAdapter.INSTANCE);
         this.transformerList.add(ClassLoaderAdapter.INSTANCE);
-        this.transformerList.add((node, remapper) -> SwitchTableFixer.handleClass(node));
         toBukkitMapping.setFallbackInheritanceProvider(GlobalClassRepo.inheritanceProvider());
         this.toBukkitRemapper = new LenientJarRemapper(toBukkitMapping);
         this.toNmsRemapper = new LenientJarRemapper(toNmsMapping);
