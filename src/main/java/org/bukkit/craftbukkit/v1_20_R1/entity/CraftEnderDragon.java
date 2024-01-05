@@ -9,6 +9,7 @@ import org.bukkit.craftbukkit.v1_20_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_20_R1.boss.CraftDragonBattle;
 import org.bukkit.entity.ComplexEntityPart;
 import org.bukkit.entity.EnderDragon;
+import org.magmafoundation.magma.forge.ForgeInject;
 
 import java.util.Set;
 
@@ -50,6 +51,11 @@ public class CraftEnderDragon extends CraftMob implements EnderDragon, CraftEnem
     }
 
     public static Phase getBukkitPhase(EnderDragonPhase phase) {
+        // Magma start
+        if (phase.getId() > 10) {
+            return ForgeInject.PHASE_TYPES.get(phase.getId());
+        }
+        // Magma end
         return Phase.values()[phase.getId()];
     }
 

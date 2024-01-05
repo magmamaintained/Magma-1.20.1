@@ -97,4 +97,8 @@ public enum TreeType {
      * Cherry tree
      */
     CHERRY,
+    /**
+     * Forge custom trees
+     */
+    MODDED
 }
