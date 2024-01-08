@@ -55,7 +55,7 @@
     }
  
     protected void channelRead0(ChannelHandlerContext p_129487_, Packet<?> p_129488_) {
-@@ -285,12 +_,15 @@
+@@ -285,13 +_,20 @@
     }
  
     public void m_129507_(Component p_129508_) {
@@ -68,10 +68,16 @@
  
        if (this.m_129536_()) {
 -         this.f_129468_.close().awaitUninterruptibly();
-+         this.f_129468_.close(); // We can't wait as this may be called from an event loop.
-          this.f_129471_ = p_129508_;
+-         this.f_129471_ = p_129508_;
++         if (this.f_129468_.close() != null) { // We can't wait as this may be called from an event loop.
++            this.f_129471_ = p_129508_;
++            return;
++         }
++
++         this.f_129468_.close().awaitUninterruptibly(); // Magma - Fix mod issues
        }
  
+    }
 @@ -316,6 +_,8 @@
     }
  
