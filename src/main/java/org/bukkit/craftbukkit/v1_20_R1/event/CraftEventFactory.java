@@ -891,8 +891,22 @@ public class CraftEventFactory {
                 cause = DamageCause.MAGIC;
             } else if (source.is(DamageTypes.IN_FIRE)) {
                 cause = DamageCause.FIRE;
+            } else if (source.is(DamageTypes.ON_FIRE)) {
+                cause = DamageCause.FIRE_TICK;
+            } else if (source.is(DamageTypes.LAVA)) {
+                cause = DamageCause.LAVA;
+            } else if (damager instanceof LightningStrike) {
+                cause = DamageCause.LIGHTNING;
+            } else if (source.isMelting()) {
+                cause = DamageCause.MELTING;
+            } else if (source.isPoison()) {
+                cause = DamageCause.POISON;
+            } else if (source.is(DamageTypes.LIGHTNING_BOLT)) {
+                cause = DamageCause.LIGHTNING;
+            } else if (source.is(DamageTypes.GENERIC)) {
+                cause = DamageCause.CUSTOM;
             } else {
-                throw new IllegalStateException(String.format("Unhandled damage of %s by %s from %s", entity, damager, source.getMsgId()));
+                cause = DamageCause.CUSTOM;
             }
             EntityDamageEvent event = new EntityDamageByBlockEvent(damager, entity.getBukkitEntity(), cause, modifiers, modifierFunctions);
             event.setCancelled(cancelled);
