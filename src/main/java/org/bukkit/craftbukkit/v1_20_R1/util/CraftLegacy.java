@@ -9,6 +9,8 @@ import org.bukkit.material.MaterialData;
  */
 @Deprecated
 public final class CraftLegacy {
+    private static Material[] moddedMaterials; // Magma
+    private static int offset; // Magma
 
     private CraftLegacy() {
         //
@@ -27,16 +29,27 @@ public final class CraftLegacy {
     }
 
     public static Material[] modern_values() {
-        Material[] values = Material.values();
-        return Arrays.copyOfRange(values, 0, Material.LEGACY_AIR.ordinal());
+        // Magma start
+        if (moddedMaterials == null) {
+            int origin = Material.values().length;
+            moddedMaterials = Arrays.stream(Material.values()).filter(it -> !it.isLegacy()).toArray(Material[]::new);
+            offset = origin - moddedMaterials.length;
+        }
+        return Arrays.copyOf(moddedMaterials, moddedMaterials.length);
+        // Magma end
     }
 
     public static int modern_ordinal(Material material) {
-        if (material.isLegacy()) {
-            // SPIGOT-4002: Fix for eclipse compiler manually compiling in default statements to lookupswitch
-            throw new NoSuchFieldError("Legacy field ordinal: " + material);
+        // Magma start
+        if (moddedMaterials == null) {
+            modern_values();
         }
-
-        return material.ordinal();
+        if (material.isLegacy()) {
+            throw new NoSuchFieldError("Legacy field ordinal: " + material);
+        } else {
+            int ordinal = material.ordinal();
+            return ordinal < Material.LEGACY_AIR.ordinal() ? ordinal : ordinal - offset;
+        }
+        // Magma end
     }
 }
