@@ -33,7 +33,7 @@ Magma 1.20.1 is **not** compatible with **vanilla** [Velocity](https://velocityp
 
 ### Installation
 
-1. Download the recommended builds from the [**Releases** section](https://github.com/magmamaintained/Magma-1.19.3/releases/latest) (**Download** the one that ends in server)
+1. Download the recommended builds from the [**Releases** section](https://github.com/magmamaintained/Magma-1.20.1/releases/latest) (**Download** the one that ends in server)
 2. Make a new directory (folder) for the server
 3. Move the jar that you downloaded into the new directory
 4. Run the jar with your command prompt or terminal, going to your directory and entering `java -jar Magma-[version]-server.jar`. Change [version] to your Magma version number.
