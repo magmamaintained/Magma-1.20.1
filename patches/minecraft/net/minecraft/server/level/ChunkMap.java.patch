@@ -168,7 +168,7 @@
           }
  
        }
-@@ -946,21 +_,43 @@
+@@ -946,21 +_,52 @@
  
     private CompletableFuture<Optional<CompoundTag>> m_214963_(ChunkPos p_214964_) {
        return this.m_223454_(p_214964_).thenApplyAsync((p_214907_) -> {
@@ -176,21 +176,29 @@
 +         return p_214907_.map(new Function<CompoundTag, CompoundTag>() { // Magma - Removes the lambda for fix mixin issues
 +            @Override
 +            public CompoundTag apply(CompoundTag compoundTag) {
-+               return upgradeChunkTag(compoundTag, p_214964_);
++               prepareUpgradeChunkTag(p_214964_);
++               return m_214947_(compoundTag);
 +            }
 +         }); // CraftBukkit
        }, Util.m_183991_());
     }
++   
++   // Magma start - Move ChunkPos to different contructor
++   private ChunkPos chunkcoordintpair;
++   public void prepareUpgradeChunkTag(ChunkPos chunkcoordintpair) {
++      this.chunkcoordintpair = chunkcoordintpair;
++   }
++   // Magma end
  
--   private CompoundTag m_214947_(CompoundTag p_214948_) {
++   // CraftBukkit start
+    private CompoundTag m_214947_(CompoundTag p_214948_) {
 -      return this.m_188288_(this.f_140133_.m_46472_(), this.f_140137_, p_214948_, this.f_140136_.m_187743_());
 -   }
-+   // CraftBukkit start
-+   private CompoundTag upgradeChunkTag(CompoundTag p_214948_, ChunkPos chunkcoordintpair) {
-+      return this.upgradeChunkTag(this.f_140133_.m_46472_(), this.f_140137_, p_214948_, this.f_140136_.m_187743_(), chunkcoordintpair, f_140133_);
++      this.prepareUpgradeChunkTag(chunkcoordintpair);
++      return this.upgradeChunkTag(this.f_140133_.m_46472_(), this.f_140137_, p_214948_, this.f_140136_.m_187743_(), f_140133_);
 +      // CraftBukkit end
 +   }
-+
++   
 +   // Magma start - Fix mixin issues
 +   AtomicBoolean reducedRange0 = new AtomicBoolean(false);
 +   public boolean anyPlayerCloseEnoughForSpawning(ChunkPos pChunkPos, boolean reducedRange) {

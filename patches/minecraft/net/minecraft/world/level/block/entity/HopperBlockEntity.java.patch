@@ -86,7 +86,7 @@
              boolean flag = false;
              if (!p_155582_.m_7983_()) {
 -               flag = m_155562_(p_155579_, p_155580_, p_155581_, p_155582_);
-+               flag = ejectItems(p_155579_, p_155580_, p_155581_, p_155582_, p_155582_); // CraftBukkit
++               flag = ejectItems(p_155579_, p_155580_, p_155581_, p_155582_); // CraftBukkit
              }
  
              if (!p_155582_.m_59404_()) {
@@ -99,25 +99,31 @@
                 m_155232_(p_155579_, p_155580_, p_155581_);
                 return true;
              }
-@@ -130,7 +_,8 @@
+@@ -130,7 +_,13 @@
        return true;
     }
  
 -   private static boolean m_155562_(Level p_155563_, BlockPos p_155564_, BlockState p_155565_, Container p_155566_) {
-+   private static boolean ejectItems(Level p_155563_, BlockPos p_155564_, BlockState p_155565_, HopperBlockEntity p_155566_, HopperBlockEntity hopper) { // CraftBukkit
++   // Magma start - Fix CAPTURE_FAILHARD mixin problems
++   private static CraftItemStack oitemstack;
++   private static org.bukkit.inventory.Inventory destinationInventory;
++   private static InventoryMoveItemEvent event;
++   // Magma end
++   private static boolean ejectItems(Level p_155563_, BlockPos p_155564_, BlockState p_155565_, HopperBlockEntity p_155566_) {
 +      if (net.minecraftforge.items.VanillaInventoryCodeHooks.insertHook(p_155566_)) return true;
        Container container = m_155592_(p_155563_, p_155564_, p_155565_);
        if (container == null) {
           return false;
-@@ -142,12 +_,35 @@
+@@ -141,13 +_,36 @@
+          } else {
              for(int i = 0; i < p_155566_.m_6643_(); ++i) {
                 if (!p_155566_.m_8020_(i).m_41619_()) {
++
                    ItemStack itemstack = p_155566_.m_8020_(i).m_41777_();
 -                  ItemStack itemstack1 = m_59326_(p_155566_, container, p_155566_.m_7407_(i, 1), direction);
 +
 +                  // CraftBukkit start - Call event when pushing items into other inventories
-+                  CraftItemStack oitemstack = CraftItemStack.asCraftMirror(p_155566_.m_7407_(i, p_155563_.spigotConfig.hopperAmount)); // Spigot
-+                  org.bukkit.inventory.Inventory destinationInventory;
++                  oitemstack = CraftItemStack.asCraftMirror(p_155566_.m_7407_(i, p_155563_.spigotConfig.hopperAmount)); // Spigot
 +                  // Have to special case large chests as they work oddly
 +                  if (container instanceof CompoundContainer) {
 +                     destinationInventory = new org.bukkit.craftbukkit.v1_20_R1.inventory.CraftInventoryDoubleChest((CompoundContainer) container);
@@ -126,11 +132,11 @@
 +                  } else {
 +                     destinationInventory = new CraftInventory(p_155566_);
 +                  }
-+                  InventoryMoveItemEvent event = new InventoryMoveItemEvent(p_155566_.getOwner().getInventory(), oitemstack.clone(), destinationInventory, true);
++                  event = new InventoryMoveItemEvent(p_155566_.getOwner().getInventory(), oitemstack.clone(), destinationInventory, true);
 +                  p_155563_.getCraftServer().getPluginManager().callEvent(event);
 +                  if (event.isCancelled()) {
-+                     hopper.m_6836_(i, itemstack);
-+                     hopper.m_59395_(p_155563_.spigotConfig.hopperTransfer); // Spigot
++                     p_155566_.m_6836_(i, itemstack);
++                     p_155566_.m_59395_(p_155563_.spigotConfig.hopperTransfer); // Spigot
 +                     return false;
 +                  }
 +                  int origCount = event.getItem().getAmount(); // Spigot

@@ -309,7 +309,7 @@
        p_155004_.m_7281_(list);
  
        for(Recipe<?> recipe : list) {
-@@ -467,25 +_,42 @@
+@@ -467,18 +_,39 @@
     }
  
     public List<Recipe<?>> m_154995_(ServerLevel p_154996_, Vec3 p_154997_) {
@@ -332,18 +332,32 @@
        return list;
     }
  
--   private static void m_154998_(ServerLevel p_154999_, Vec3 p_155000_, int p_155001_, float p_155002_) {
-+   private static void createExperience(ServerLevel p_154999_, Vec3 p_155000_, int p_155001_, float p_155002_, BlockPos blockposition, ServerPlayer entityhuman, ItemStack itemstack, int amount) { // CraftBukkit
++   // Magma start
++   private static BlockPos blockposition;
++   private static ServerPlayer entityhuman;
++   private static ItemStack itemStack;
++   private static int expAmount;
++   
++   private static void createExperience(ServerLevel p_154999_, Vec3 p_155000_, int p_155001_, float p_155002_, BlockPos blockposition, ServerPlayer entityhuman, ItemStack itemstack, int amount) {
++      AbstractFurnaceBlockEntity.blockposition = blockposition;
++      AbstractFurnaceBlockEntity.entityhuman = entityhuman;
++      AbstractFurnaceBlockEntity.itemStack = itemstack;
++      AbstractFurnaceBlockEntity.expAmount = amount;
++      m_154998_(p_154999_, p_155000_, p_155001_, p_155002_);
++   }
++   // Magma end
++   
+    private static void m_154998_(ServerLevel p_154999_, Vec3 p_155000_, int p_155001_, float p_155002_) {
        int i = Mth.m_14143_((float)p_155001_ * p_155002_);
        float f = Mth.m_14187_((float)p_155001_ * p_155002_);
-       if (f != 0.0F && Math.random() < (double)f) {
+@@ -486,6 +_,17 @@
           ++i;
        }
  
 +      // CraftBukkit start - fire FurnaceExtractEvent / BlockExpEvent
 +      BlockExpEvent event;
-+      if (amount != 0) {
-+         event = new FurnaceExtractEvent((org.bukkit.entity.Player) entityhuman.getBukkitEntity(), CraftBlock.at(p_154999_, blockposition), org.bukkit.craftbukkit.v1_20_R1.util.CraftMagicNumbers.getMaterial(itemstack.m_41720_()), amount, i);
++      if (expAmount != 0) {
++         event = new FurnaceExtractEvent((org.bukkit.entity.Player) entityhuman.getBukkitEntity(), CraftBlock.at(p_154999_, blockposition), org.bukkit.craftbukkit.v1_20_R1.util.CraftMagicNumbers.getMaterial(itemStack.m_41720_()), expAmount, i);
 +      } else {
 +         event = new BlockExpEvent(CraftBlock.at(p_154999_, blockposition), i);
 +      }

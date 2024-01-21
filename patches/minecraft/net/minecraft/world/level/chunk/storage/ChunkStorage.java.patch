@@ -22,7 +22,7 @@
  import net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler;
  import net.minecraft.world.level.storage.DimensionDataStorage;
  
-@@ -35,8 +_,50 @@
+@@ -35,8 +_,57 @@
        return this.f_63495_.m_223471_(p_223452_, p_223453_);
     }
  
@@ -55,12 +55,19 @@
 +      return false;
 +   }
 +
-+   public CompoundTag upgradeChunkTag(ResourceKey<Level> p_188289_, Supplier<DimensionDataStorage> p_188290_, CompoundTag p_188291_, Optional<ResourceKey<Codec<? extends ChunkGenerator>>> p_188292_, ChunkPos pos, @Nullable LevelAccessor generatoraccess) {
++   // Magma start - Move ChunkPos to different constructor
++   public ChunkPos pos;
++   public void prepareUpgradeChunkTag(ChunkPos pos) {
++      this.pos = pos;
++   }
++   // Magma end
++   
++   public CompoundTag upgradeChunkTag(ResourceKey<Level> p_188289_, Supplier<DimensionDataStorage> p_188290_, CompoundTag p_188291_, Optional<ResourceKey<Codec<? extends ChunkGenerator>>> p_188292_, @Nullable LevelAccessor generatoraccess) {
 +      // CraftBukkit end
        int i = m_63505_(p_188291_);
 +
 +      // CraftBukkit start
-+      if (i < 1466) {
++      if (pos != null & i < 1466) {
 +         CompoundTag level = p_188291_.m_128469_("Level");
 +         if (level.m_128471_("TerrainPopulated") && !level.m_128471_("LightPopulated")) {
 +            ServerChunkCache cps = (generatoraccess == null) ? null : ((ServerLevel) generatoraccess).m_7726_();
