@@ -212,7 +212,7 @@
        if (this.m_151570_(p_46605_)) {
           return false;
        } else if (!this.f_46443_ && this.m_46659_()) {
-@@ -198,38 +_,94 @@
+@@ -198,35 +_,42 @@
        } else {
           LevelChunk levelchunk = this.m_46745_(p_46605_);
           Block block = p_46606_.m_60734_();
@@ -250,77 +250,109 @@
              return false;
           } else {
              BlockState blockstate1 = this.m_8055_(p_46605_);
-+
-+            if (blockSnapshot == null) { // Don't notify clients or update physics while capturing blockstates
-+               this.markAndNotifyBlock(p_46605_, levelchunk, blockstate, p_46606_, p_46607_, p_46608_);
-+            }
-+
-+            return true;
-+         }
-+      }
-+   }
-+
-+   // Split off from original setBlockState(BlockPos, BlockState, int, int) method in order to directly send client and physic updates
-+   public void markAndNotifyBlock(BlockPos p_46605_, @Nullable LevelChunk levelchunk, BlockState blockstate, BlockState p_46606_, int p_46607_, int p_46608_) {
-+      Block block = p_46606_.m_60734_();
-+      BlockState blockstate1 = m_8055_(p_46605_);
-+      {
-+         {
-+           /*
-             if (blockstate1 == p_46606_) {
-                if (blockstate != blockstate1) {
+-            if (blockstate1 == p_46606_) {
+-               if (blockstate != blockstate1) {
 -                  this.m_6550_(p_46605_, blockstate, blockstate1);
-+                  this.setBlocksDirty(p_46605_, blockstate, blockstate1);
-                }
- 
+-               }
+-
 -               if ((p_46607_ & 2) != 0 && (!this.f_46443_ || (p_46607_ & 4) == 0) && (this.f_46443_ || levelchunk.m_287138_() != null && levelchunk.m_287138_().m_287205_(FullChunkStatus.BLOCK_TICKING))) {
 -                  this.m_7260_(p_46605_, blockstate, p_46606_, p_46607_);
-+               if ((p_46607_ & 2) != 0 && (!this.isClientSide || (p_46607_ & 4) == 0) && (this.isClientSide || levelchunk.getFullStatus() != null && levelchunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING))) {
-+                  this.sendBlockUpdated(p_46605_, blockstate, p_46606_, p_46607_);
-                }
- 
-                if ((p_46607_ & 1) != 0) {
+-               }
+-
+-               if ((p_46607_ & 1) != 0) {
 -                  this.m_6289_(p_46605_, blockstate.m_60734_());
 -                  if (!this.f_46443_ && p_46606_.m_60807_()) {
 -                     this.m_46717_(p_46605_, block);
-+                  this.blockUpdated(p_46605_, blockstate.getBlock());
-+                  if (!this.isClientSide && p_46606_.hasAnalogOutputSignal()) {
-+                     this.updateNeighbourForOutputSignal(p_46605_, block);
-                   }
-                }
- 
-                if ((p_46607_ & 16) == 0 && p_46608_ > 0) {
-                   int i = p_46607_ & -34;
+-                  }
+-               }
+-
+-               if ((p_46607_ & 16) == 0 && p_46608_ > 0) {
+-                  int i = p_46607_ & -34;
 -                  blockstate.m_60762_(this, p_46605_, i, p_46608_ - 1);
 -                  p_46606_.m_60705_(this, p_46605_, i, p_46608_ - 1);
 -                  p_46606_.m_60762_(this, p_46605_, i, p_46608_ - 1);
 -               }
 -
 -               this.m_6559_(p_46605_, blockstate, blockstate1);
-+                  blockstate.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-+                  p_46606_.updateNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-+                  p_46606_.updateIndirectNeighbourShapes(this, p_46605_, i, p_46608_ - 1);
-+               }
 +
-+            */
-+
++            if (blockSnapshot == null) { // Don't notify clients or update physics while capturing blockstates
++               this.markAndNotifyBlock(p_46605_, levelchunk, blockstate, p_46606_, p_46607_, p_46608_);
+             }
+ 
+             return true;
+@@ -234,6 +_,72 @@
+       }
+    }
+ 
++   // Split off from original setBlockState(BlockPos, BlockState, int, int) method in order to directly send client and physic updates
++   public void markAndNotifyBlock(BlockPos p_46605_, @Nullable LevelChunk levelchunk, BlockState blockstate, BlockState p_46606_, int p_46607_, int p_46608_) {
++      Block block = p_46606_.m_60734_();
++      BlockState blockstate1 = m_8055_(p_46605_);
++      {
++         {
 +            // CraftBukkit start
 +            if (!this.captureBlockStates) { // Don't notify clients or update physics while capturing blockstates
 +               // Modularize client and physic updates
 +               // Spigot start
 +               try {
-+                  notifyAndUpdatePhysics(p_46605_, levelchunk, blockstate, p_46606_, blockstate1, p_46607_, p_46607_);
++                  BlockState iblockdata = p_46606_;
++                  BlockState iblockdata1 = blockstate;
++                  BlockState iblockdata2 = blockstate1;
++                  if (iblockdata2 == iblockdata) {
++                     if (iblockdata1 != iblockdata2) {
++                        this.m_6550_(p_46605_, iblockdata1, iblockdata2);
++                     }
++
++                     if ((p_46607_ & 2) != 0 && (!this.f_46443_ || (p_46607_ & 4) == 0) && (this.f_46443_ || levelchunk == null || (levelchunk.m_287138_() != null && levelchunk.m_287138_().m_287205_(FullChunkStatus.BLOCK_TICKING)))) { // allow chunk to be null here as chunk.isReady() is false when we send our notification during block placement
++                        this.m_7260_(p_46605_, iblockdata1, iblockdata, p_46607_);
++                     }
++
++                     if ((p_46607_ & 1) != 0) {
++                        this.m_6289_(p_46605_, iblockdata1.m_60734_());
++                        if (!this.f_46443_ && iblockdata.m_60807_()) {
++                           this.m_46717_(p_46605_, p_46606_.m_60734_());
++                        }
++                     }
++
++                     if ((p_46607_ & 16) == 0 && p_46607_ > 0) {
++                        int k = p_46607_ & -34;
++
++                        // CraftBukkit start
++                        iblockdata1.m_60762_(this, p_46605_, k, p_46607_ - 1); // Don't call an event for the old block to limit event spam
++                        CraftWorld world = ((ServerLevel) this).getWorld();
++                        if (world != null) {
++                           BlockPhysicsEvent event = new BlockPhysicsEvent(world.getBlockAt(p_46605_.m_123341_(), p_46605_.m_123342_(), p_46605_.m_123343_()), CraftBlockData.fromData(iblockdata));
++                           this.getCraftServer().getPluginManager().callEvent(event);
++
++                           if (event.isCancelled()) {
++                              return;
++                           }
++                        }
++                        // CraftBukkit end
++                        iblockdata.m_60705_(this, p_46605_, k, p_46607_ - 1);
++                        iblockdata.m_60762_(this, p_46605_, k, p_46607_ - 1);
++                     }
++
++                     // CraftBukkit start - SPIGOT-5710
++                     if (!preventPoiUpdated) {
++                        this.m_6559_(p_46605_, iblockdata1, iblockdata2);
++                     }
++                     // CraftBukkit end
++                  }
 +               } catch (StackOverflowError ex) {
 +                  lastPhysicsProblem = new BlockPos(p_46605_);
 +               }
 +               // Spigot end
-             }
++            }
 +            // CraftBukkit end
- 
--            return true;
-          }
-       }
++
++         }
++      }
++   }
++
+    public void m_6559_(BlockPos p_46609_, BlockState p_46610_, BlockState p_46611_) {
     }
+ 
 @@ -279,6 +_,7 @@
     }
  

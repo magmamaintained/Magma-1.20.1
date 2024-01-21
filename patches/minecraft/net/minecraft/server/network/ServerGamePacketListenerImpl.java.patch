@@ -154,7 +154,7 @@
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.CommandBlock;
  import net.minecraft.world.level.block.entity.BlockEntity;
-@@ -176,15 +_,40 @@
+@@ -176,15 +_,41 @@
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.BlockHitResult;
@@ -181,6 +181,7 @@
 +import org.bukkit.inventory.InventoryView;
 +import org.bukkit.inventory.SmithingInventory;
 +import org.magmafoundation.magma.helpers.InventoryViewHelper;
++import org.magmafoundation.magma.util.ExtractedUtils;
  import org.slf4j.Logger;
  
  public class ServerGamePacketListenerImpl implements ServerPlayerConnection, TickablePacketListener, ServerGamePacketListener {
@@ -215,6 +216,19 @@
     private double f_9760_;
     private double f_9761_;
     private double f_9762_;
+@@ -231,6 +_,12 @@
+    private final MessageSignatureCache f_243718_ = MessageSignatureCache.m_246587_();
+    private final FutureChain f_241681_;
+ 
++   // Magma start
++   public MinecraftServer getServer() {
++      return f_9745_;
++   }
++   // Magma end
++
+    public ServerGamePacketListenerImpl(MinecraftServer p_9770_, Connection p_9771_, ServerPlayer p_9772_) {
+       this.f_9745_ = p_9770_;
+       this.f_9742_ = p_9771_;
 @@ -240,10 +_,35 @@
        this.f_9747_ = Util.m_137550_();
        p_9772_.m_8967_().m_7674_();
@@ -290,7 +304,7 @@
     }
  
     public void m_9953_() {
-@@ -337,12 +_,56 @@
+@@ -337,12 +_,50 @@
        return this.f_9745_.m_7779_(this.f_9743_.m_36316_());
     }
  
@@ -307,13 +321,7 @@
 +         return;
 +      }
 +      if (!this.cserver.isPrimaryThread()) {
-+         Waitable waitable = new Waitable() {
-+            @Override
-+            protected Object evaluate() {
-+               ServerGamePacketListenerImpl.this.disconnect(s);
-+               return null;
-+            }
-+         };
++         Waitable<?> waitable = ExtractedUtils.serverGamePacketListenerImpl(this, s);
 +         this.f_9745_.processQueue.add(waitable);
 +         try {
 +            waitable.get();
@@ -1168,7 +1176,7 @@
              this.m_9829_(new ClientboundSystemChatPacket(Component.m_237115_("chat.disabled.options").m_130940_(ChatFormatting.RED), false));
              return Optional.empty();
           } else {
-@@ -1310,19 +_,149 @@
+@@ -1310,19 +_,121 @@
        return false;
     }
  
@@ -1191,30 +1199,7 @@
 +            // Evil plugins still listening to deprecated event
 +            final PlayerChatEvent queueEvent = new PlayerChatEvent(player, event.getMessage(), event.getFormat(), event.getRecipients());
 +            queueEvent.setCancelled(event.isCancelled());
-+            Waitable waitable = new Waitable() {
-+               @Override
-+               protected Object evaluate() {
-+                  org.bukkit.Bukkit.getPluginManager().callEvent(queueEvent);
-+                  if (queueEvent.isCancelled()) {
-+                     return null;
-+                  }
-+                  String message = String.format(queueEvent.getFormat(), queueEvent.getPlayer().getDisplayName(), queueEvent.getMessage());
-+                  if (((LazyPlayerSet) queueEvent.getRecipients()).isLazy()) {
-+                     if (!org.spigotmc.SpigotConfig.bungee && originalFormat.equals(queueEvent.getFormat()) && originalMessage.equals(queueEvent.getMessage()) && queueEvent.getPlayer().getName().equalsIgnoreCase(queueEvent.getPlayer().getDisplayName())) { // Spigot
-+                        ServerGamePacketListenerImpl.this.f_9745_.m_6846_().m_243049_(original, ServerGamePacketListenerImpl.this.f_9743_, ChatType.m_240980_(ChatType.f_130598_, (Entity) ServerGamePacketListenerImpl.this.f_9743_));
-+                        return null;
-+                     }
-+                     for (ServerPlayer recipient : f_9745_.m_6846_().f_11196_) {
-+                        recipient.getBukkitEntity().sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_20148_(), message);
-+                     }
-+                  } else {
-+                     for (org.bukkit.entity.Player player : queueEvent.getRecipients()) {
-+                        player.sendMessage(ServerGamePacketListenerImpl.this.f_9743_.m_20148_(), message);
-+                     }
-+                  }
-+                  ServerGamePacketListenerImpl.this.f_9745_.console.sendMessage(message);
-+                  return null;
-+               }};
++            Waitable waitable = ExtractedUtils.serverGamePacketListenerImpl(this, queueEvent, originalMessage, originalFormat, original);
 +            if (async) {
 +               f_9745_.processQueue.add(waitable);
 +            } else {
@@ -1289,12 +1274,7 @@
 +         f_9744_.warn(this.f_9743_.m_6302_() + " tried to send an empty message");
 +      } else if (getCraftPlayer().isConversing()) {
 +         final String conversationInput = s;
-+         this.f_9745_.processQueue.add(new Runnable() {
-+            @Override
-+            public void run() {
-+               getCraftPlayer().acceptConversationInput(conversationInput);
-+            }
-+         });
++         this.f_9745_.processQueue.add(ExtractedUtils.serverGamePacketListenerImpl(getCraftPlayer(), conversationInput));
 +      } else if (this.f_9743_.m_9241_() == ChatVisiblity.SYSTEM) { // Re-add "Command Only" flag check
 +         this.m_9829_(new ClientboundSystemChatPacket(Component.m_237115_("chat.cannotSend").m_130940_(ChatFormatting.RED), false));
 +      } else {
