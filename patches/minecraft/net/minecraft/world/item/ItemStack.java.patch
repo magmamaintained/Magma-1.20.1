@@ -193,18 +193,21 @@
     }
  
     public Holder<Item> m_220173_() {
-@@ -226,17 +_,181 @@
+@@ -226,17 +_,187 @@
     }
  
     public InteractionResult m_41661_(UseOnContext p_41662_) {
 +      if (!p_41662_.m_43725_().f_46443_) return net.minecraftforge.common.ForgeHooks.onPlaceItemIntoWorld(p_41662_);
++      this.hand = p_41662_.m_43724_();  // Magma - take hand
 +      return onItemUse(p_41662_, (c) -> m_41720_().m_6225_(p_41662_));
 +   }
 +
 +   public InteractionResult onItemUseFirst(UseOnContext p_41662_) {
++      this.hand = p_41662_.m_43724_();  // Magma - take hand
 +      return onItemUse(p_41662_, (c) -> m_41720_().onItemUseFirst(this, p_41662_));
 +   }
 +
++   public InteractionHand hand; // Magma
 +   public InteractionResult onItemUse(UseOnContext p_41662_, java.util.function.Function<UseOnContext, InteractionResult> callback) {
        Player player = p_41662_.m_43723_();
        BlockPos blockpos = p_41662_.m_8083_();
@@ -225,26 +228,30 @@
 +         }
           Item item = this.m_41720_();
 -         InteractionResult interactionresult = item.m_6225_(p_41662_);
-+         InteractionResult interactionresult = callback.apply(p_41662_);
++         InteractionResult interactionresult;
++         try {
++            interactionresult = callback.apply(p_41662_);
++         } finally {
++            world.captureBlockStates = false;
++         }
 +         CompoundTag newData = this.getTagClone();
 +         int newCount = this.m_41613_();
 +         this.m_41764_(interactionresult == InteractionResult.PASS && newCount != oldCount ? newCount : oldCount); //Magma - special case for mods that return PASS but do change the count
 +         this.setTagClone(oldData);
-+         world.captureBlockStates = false;
 +         if (interactionresult.m_19077_() && world.captureTreeGeneration && world.capturedBlockStates.size() > 0) {
 +            world.captureTreeGeneration = false;
 +            Location location = CraftLocation.toBukkit(blockpos, world.getWorld());
 +            TreeType treeType = SaplingBlock.treeType;
 +            SaplingBlock.treeType = null;
-+            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
++            List<org.bukkit.craftbukkit.v1_20_R1.block.CraftBlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
 +            world.capturedBlockStates.clear();
 +            StructureGrowEvent structureEvent = null;
 +            if (treeType != null) {
 +               boolean isBonemeal = m_41720_() == Items.f_42499_;
-+               structureEvent = new StructureGrowEvent(location, treeType, isBonemeal, (org.bukkit.entity.Player) player.getBukkitEntity(), blocks);
++               structureEvent = new StructureGrowEvent(location, treeType, isBonemeal, (org.bukkit.entity.Player) player.getBukkitEntity(), (List) blocks);
 +               org.bukkit.Bukkit.getPluginManager().callEvent(structureEvent);
 +            }
-+            BlockFertilizeEvent fertilizeEvent = new BlockFertilizeEvent(CraftBlock.at(world, blockpos), (org.bukkit.entity.Player) player.getBukkitEntity(), blocks);
++            BlockFertilizeEvent fertilizeEvent = new BlockFertilizeEvent(CraftBlock.at(world, blockpos), (org.bukkit.entity.Player) player.getBukkitEntity(), (List) blocks);
 +            fertilizeEvent.setCancelled(structureEvent != null && structureEvent.isCancelled());
 +            org.bukkit.Bukkit.getPluginManager().callEvent(fertilizeEvent);
 +            if (!fertilizeEvent.isCancelled()) {
@@ -264,13 +271,12 @@
 +         world.captureTreeGeneration = false;
           if (player != null && interactionresult.m_146666_()) {
 +            org.bukkit.event.block.BlockPlaceEvent placeEvent = null;
-+            InteractionHand hand = p_41662_.m_43724_();
 +            List<org.bukkit.block.BlockState> blocks = new java.util.ArrayList<>(world.capturedBlockStates.values());
 +            world.capturedBlockStates.clear();
 +            if (blocks.size() > 1) {
-+               placeEvent = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callBlockMultiPlaceEvent(world, player, hand, blocks, blockpos.m_123341_(), blockpos.m_123342_(), blockpos.m_123343_());
++               placeEvent = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callBlockMultiPlaceEvent(world, player, this.hand == null ? p_41662_.m_43724_() : this.hand, blocks, blockpos.m_123341_(), blockpos.m_123342_(), blockpos.m_123343_());
 +            } else if (blocks.size() == 1) {
-+               placeEvent = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callBlockPlaceEvent(world, player, hand, blocks.get(0), blockpos.m_123341_(), blockpos.m_123342_(), blockpos.m_123343_());
++               placeEvent = org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory.callBlockPlaceEvent(world, player, this.hand == null ? p_41662_.m_43724_() : this.hand, blocks.get(0), blockpos.m_123341_(), blockpos.m_123342_(), blockpos.m_123343_());
 +            }
 +            if (placeEvent != null && (placeEvent.isCancelled() || !placeEvent.canBuild())) {
 +               interactionresult = InteractionResult.FAIL; // cancel placement

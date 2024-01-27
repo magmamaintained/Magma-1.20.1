@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/level/ServerLevel.java
 +++ b/net/minecraft/server/level/ServerLevel.java
-@@ -18,14 +_,7 @@
+@@ -18,15 +_,9 @@
  import java.io.Writer;
  import java.nio.file.Files;
  import java.nio.file.Path;
@@ -14,8 +14,10 @@
 -import java.util.UUID;
 +import java.util.*;
  import java.util.concurrent.Executor;
++import java.util.concurrent.atomic.AtomicReference;
  import java.util.function.BooleanSupplier;
  import java.util.function.Function;
+ import java.util.function.Predicate;
 @@ -94,7 +_,6 @@
  import net.minecraft.world.entity.animal.Animal;
  import net.minecraft.world.entity.animal.WaterAnimal;
@@ -386,25 +388,22 @@
        }
     }
  
-@@ -799,16 +_,53 @@
+@@ -799,16 +_,50 @@
        return list.isEmpty() ? null : list.get(this.f_46441_.m_188503_(list.size()));
     }
  
 +   // Magma start - Move SpawnReason to different constructor
-+   public CreatureSpawnEvent.SpawnReason reason;
++   public AtomicReference<CreatureSpawnEvent.SpawnReason> reason = new AtomicReference<>(CreatureSpawnEvent.SpawnReason.DEFAULT);
 +   public void prepareAddFreshEntity(CreatureSpawnEvent.SpawnReason reason) {
-+      this.reason = reason;
++      this.reason.set(reason);
 +   }
 +   // Magma end
 +
     public boolean m_7967_(Entity p_8837_) {
 -      return this.m_8872_(p_8837_);
 +      // CraftBukkit start
-+      // Magma start - Reset the result
-+      CreatureSpawnEvent.SpawnReason result = reason == null ? CreatureSpawnEvent.SpawnReason.DEFAULT : reason;
-+      reason = null;
++      CreatureSpawnEvent.SpawnReason result = reason.getAndSet(CreatureSpawnEvent.SpawnReason.DEFAULT);
 +      return this.addFreshEntity(p_8837_, result);
-+      // Magma end
 +   }
 +
 +   // Magma start - Add return value to addFreshEntityReturn
@@ -412,8 +411,8 @@
 +   public boolean addFreshEntity(Entity entity, CreatureSpawnEvent.SpawnReason reason) {
 +      boolean result = this.addEntity(entity, reason);
 +      addFreshEntityReturn = result;
-+      return result;
 +      // Magma end
++      return result;
 +      // CraftBukkit end
     }
  

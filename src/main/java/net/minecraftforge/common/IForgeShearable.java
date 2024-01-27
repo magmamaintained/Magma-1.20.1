@@ -8,6 +8,7 @@ package net.minecraftforge.common;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.BlockPos;
@@ -58,8 +59,11 @@ public interface IForgeShearable
      * @return A List containing all items from this shearing. May be empty.
      */
     @NotNull
-    default List<ItemStack> onSheared(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos, int fortune)
-    {
+    default List<ItemStack> onSheared(@Nullable Player player, @NotNull ItemStack item, Level level, BlockPos pos, int fortune) {
         return Collections.emptyList();
     }
+    
+    // Magma start
+    default void onShearedHand(InteractionHand hand) {}
+    // Magma end
 }
