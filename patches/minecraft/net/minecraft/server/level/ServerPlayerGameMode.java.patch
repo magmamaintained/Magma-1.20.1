@@ -477,7 +477,7 @@
 +               }
 +            }
 +
-+            if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || (!p_9268_.m_41619_() && !p_9266_.m_36335_().m_41519_(p_9268_.m_41720_()))) {
++            if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.ALLOW || (!p_9268_.m_41619_() && !p_9266_.m_36335_().m_41519_(p_9268_.m_41720_()) && !interactResult)) { // add !interactResult SPIGOT-764
 +               if (event.getUseItem() == net.minecraftforge.eventbus.api.Event.Result.DENY) return InteractionResult.PASS;
 +               InteractionResult interactionresult1;
 +               if (this.m_9295_()) {

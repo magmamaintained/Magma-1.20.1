@@ -1,5 +1,15 @@
 --- a/net/minecraft/world/entity/animal/MushroomCow.java
 +++ b/net/minecraft/world/entity/animal/MushroomCow.java
+@@ -1,7 +_,9 @@
+ package net.minecraft.world.entity.animal;
+ 
++import java.util.Collections;
+ import java.util.Optional;
+ import java.util.UUID;
++import java.util.concurrent.atomic.AtomicReference;
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.particles.ParticleTypes;
 @@ -25,7 +_,6 @@
  import net.minecraft.world.entity.LightningBolt;
  import net.minecraft.world.entity.MobSpawnType;
@@ -8,9 +18,11 @@
  import net.minecraft.world.entity.item.ItemEntity;
  import net.minecraft.world.entity.player.Player;
  import net.minecraft.world.item.ItemStack;
-@@ -40,8 +_,13 @@
+@@ -39,9 +_,15 @@
+ import net.minecraft.world.level.block.SuspiciousEffectHolder;
  import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.gameevent.GameEvent;
++import net.minecraftforge.common.IForgeShearable;
  import org.apache.commons.lang3.tuple.Pair;
 +import org.bukkit.Bukkit;
 +import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
@@ -23,26 +35,34 @@
     private static final EntityDataAccessor<String> f_28908_ = SynchedEntityData.m_135353_(MushroomCow.class, EntityDataSerializers.f_135030_);
     private static final int f_148934_ = 1024;
     @Nullable
-@@ -103,7 +_,12 @@
+@@ -103,7 +_,7 @@
  
           this.m_5496_(soundevent, 1.0F, 1.0F);
           return InteractionResult.m_19078_(this.m_9236_().f_46443_);
 -      } else if (itemstack.m_150930_(Items.f_42574_) && this.m_6220_()) {
 +      } else if (false && itemstack.m_41720_() == Items.f_42574_ && this.m_6220_()) { //Forge: Moved to onSheared
-+         // CraftBukkit start
-+         if (!CraftEventFactory.handlePlayerShearEntityEvent(p_28941_, this, itemstack, p_28942_)) {
-+            return InteractionResult.PASS;
-+         }
-+         // CraftBukkit end
           this.m_5851_(SoundSource.PLAYERS);
           this.m_146852_(GameEvent.f_157781_, p_28941_);
           if (!this.m_9236_().f_46443_) {
-@@ -144,13 +_,23 @@
+@@ -144,13 +_,36 @@
        }
     }
  
++   // Magma start - Add hand
++   private AtomicReference<InteractionHand> hand = new AtomicReference<>(InteractionHand.MAIN_HAND);
++   @Override
++   public void onShearedHand(InteractionHand hand) {
++      this.hand.set(hand);
++   }
++   // Magma end
++
 +   @Override
 +   public java.util.List<ItemStack> onSheared(@org.jetbrains.annotations.Nullable Player player, @org.jetbrains.annotations.NotNull ItemStack item, Level world, BlockPos pos, int fortune) {
++      // CraftBukkit start
++      if (!CraftEventFactory.handlePlayerShearEntityEvent(player, this, item, hand.getAndSet(InteractionHand.MAIN_HAND))) {
++         return Collections.emptyList();
++      }
++      // CraftBukkit end
 +      this.m_146852_(GameEvent.f_157781_, player);
 +      return shearInternal(player == null ? SoundSource.BLOCKS : SoundSource.PLAYERS);
 +   }
