@@ -1,5 +1,13 @@
 --- a/net/minecraft/world/entity/EntityType.java
 +++ b/net/minecraft/world/entity/EntityType.java
+@@ -6,6 +_,7 @@
+ import java.util.Optional;
+ import java.util.Spliterator;
+ import java.util.UUID;
++import java.util.concurrent.atomic.AtomicReference;
+ import java.util.function.Consumer;
+ import java.util.function.Function;
+ import java.util.stream.Stream;
 @@ -157,6 +_,7 @@
  import net.minecraft.world.phys.AABB;
  import net.minecraft.world.phys.shapes.Shapes;
@@ -78,32 +86,40 @@
     }
  
     public static <T extends Entity> Consumer<T> m_263562_(ServerLevel p_263583_, ItemStack p_263568_, @Nullable Player p_263575_) {
-@@ -373,11 +_,24 @@
+@@ -371,15 +_,32 @@
+       }) : p_263579_;
+    }
  
++   public static AtomicReference<CreatureSpawnEvent.SpawnReason> spawnReason = new AtomicReference<>(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
     @Nullable
     public T m_262496_(ServerLevel p_262634_, BlockPos p_262707_, MobSpawnType p_262597_) {
 -      return this.m_262455_(p_262634_, (CompoundTag)null, (Consumer<T>)null, p_262707_, p_262597_, false, false);
 +      // CraftBukkit start
-+      return this.spawn(p_262634_, p_262707_, p_262597_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
++      return this.spawn(p_262634_, p_262707_, p_262597_, spawnReason.getAndSet(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT));
 +   }
++   
 +   @Nullable
 +   public T spawn(ServerLevel p_262634_, BlockPos p_262707_, MobSpawnType p_262597_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
 +      return this.spawn(p_262634_, (CompoundTag) null, null, p_262707_, p_262597_, false, false, spawnReason); // CraftBukkit - decompile error
 +      // CraftBukkit ende);
-    }
- 
-    @Nullable
-    public T m_262455_(ServerLevel p_262704_, @Nullable CompoundTag p_262603_, @Nullable Consumer<T> p_262621_, BlockPos p_262672_, MobSpawnType p_262644_, boolean p_262690_, boolean p_262590_) {
-+      // CraftBukkit start
-+      return this.spawn(p_262704_, p_262603_, p_262621_, p_262672_, p_262644_, p_262690_, p_262590_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);
 +   }
 +
 +   @Nullable
 +   public T spawn(ServerLevel p_262704_, @Nullable CompoundTag p_262603_, @Nullable Consumer<T> p_262621_, BlockPos p_262672_, MobSpawnType p_262644_, boolean p_262690_, boolean p_262590_, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason spawnReason) {
++      // CraftBukkit start
++      EntityType.spawnReason.getAndSet(spawnReason);
++      return this.m_262455_(p_262704_, p_262603_, p_262621_, p_262672_, p_262644_, p_262690_, p_262590_);
+    }
+ 
+    @Nullable
+    public T m_262455_(ServerLevel p_262704_, @Nullable CompoundTag p_262603_, @Nullable Consumer<T> p_262621_, BlockPos p_262672_, MobSpawnType p_262644_, boolean p_262690_, boolean p_262590_) {
 +      // CraftBukkit end
        T t = this.m_262451_(p_262704_, p_262603_, p_262621_, p_262672_, p_262644_, p_262690_, p_262590_);
        if (t != null) {
++         p_262704_.prepareAddFreshEntityWithPassengers(spawnReason.getAndSet(org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT)); // CraftBukkit
           p_262704_.m_47205_(t);
+       }
+ 
 @@ -600,14 +_,23 @@
     }
  
