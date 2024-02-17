@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/SimpleContainer.java
 +++ b/net/minecraft/world/SimpleContainer.java
-@@ -12,6 +_,9 @@
+@@ -12,14 +_,68 @@
  import net.minecraft.world.inventory.StackedContentsCompatible;
  import net.minecraft.world.item.Item;
  import net.minecraft.world.item.ItemStack;
@@ -10,7 +10,8 @@
  
  public class SimpleContainer implements Container, StackedContentsCompatible {
     private final int f_19146_;
-@@ -19,7 +_,58 @@
+-   public final NonNullList<ItemStack> f_19147_;
++   public final NonNullList<ItemStack> f_19147_; // Magma - Public
     @Nullable
     private List<ContainerListener> f_19148_;
  

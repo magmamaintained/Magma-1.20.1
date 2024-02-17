@@ -436,17 +436,17 @@
 +
 +         ResourceKey<Level> worldKey = ResourceKey.m_135785_(Registries.f_256858_, dimensionKey.m_135782_());
 +
++
++         Level.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
 +         if (dimensionKey == net.minecraft.world.level.dimension.LevelStem.f_63971_) {
 +            this.f_129749_ = worlddata;
 +            this.f_129749_.m_5458_(((DedicatedServer) this).m_7913_().f_139740_); // From DedicatedServer.init
-+            Level.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
 +            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, levelStem, p_129816_, flag, j, list, true, null);
 +            DimensionDataStorage worldpersistentdata = world.m_8895_();
 +            this.m_129841_(worldpersistentdata);
 +            this.server.scoreboardManager = new org.bukkit.craftbukkit.v1_20_R1.scoreboard.CraftScoreboardManager(this, world.m_6188_());
 +            this.f_129732_ = new CommandStorage(worldpersistentdata);
 +         } else {
-+            Level.craftWorldData(gen, org.bukkit.World.Environment.getEnvironment(dimension), biomeProvider);
 +            world = new ServerLevel(this, this.f_129738_, worldSession, iworlddataserver, worldKey, lS, p_129816_, flag, j, ImmutableList.of(), true, this.m_129783_().m_288231_());
 +         }
 +
