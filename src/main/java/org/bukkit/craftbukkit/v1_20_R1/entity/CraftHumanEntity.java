@@ -51,7 +51,7 @@ import java.util.*;
 
 public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
     private CraftInventoryPlayer inventory;
-    private final CraftInventory enderChest;
+    private CraftInventory enderChest;// Magma - remove final modifier
     protected PermissibleBase perm = new PermissibleBase(this); //Magma - remove final modifier
     private boolean op;
     private GameMode mode;
@@ -65,16 +65,31 @@ public class CraftHumanEntity extends CraftLivingEntity implements HumanEntity {
 
     @Override
     public PlayerInventory getInventory() {
+        // Magma start - Fix null problems
+        if (inventory == null) {
+            inventory = new CraftInventoryPlayer(((ServerPlayer) entity).getInventory());
+        }
+        // Magma end
         return inventory;
     }
 
     @Override
     public EntityEquipment getEquipment() {
+        // Magma start - Fix null problems
+        if (inventory == null) {
+            inventory = new CraftInventoryPlayer(((ServerPlayer) entity).getInventory());
+        }
+        // Magma end
         return inventory;
     }
 
     @Override
     public Inventory getEnderChest() {
+        // Magma start - Fix null problems
+        if (enderChest == null) {
+            enderChest = new CraftInventory(((ServerPlayer) entity).getEnderChestInventory());
+        }
+        // Magma end
         return enderChest;
     }
 
