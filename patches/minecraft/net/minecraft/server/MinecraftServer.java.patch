@@ -457,7 +457,7 @@
 +            world.getWorld().getPopulators().addAll(world.generator.getDefaultPopulators(world.getWorld()));
 +         }
 +         this.server.getPluginManager().callEvent(new org.bukkit.event.world.WorldInitEvent(world.getWorld())); // CraftBukkit - SPIGOT-5569: Call WorldInitEvent before any chunks are generated
-+         this.f_129762_.put(Level.f_46428_, world); // Magma
++         this.f_129762_.put(worldKey, world); // Magma
 +         WorldBorder worldborder = world.m_6857_();
 +         worldborder.m_61931_(worlddata.m_5813_()); // CraftBukkit - move up so that WorldBorder is set during WorldInitEvent
 +         net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.level.LevelEvent.Load(f_129762_.get(worldKey)));
