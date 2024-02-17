@@ -1,6 +1,6 @@
 --- a/net/minecraft/world/inventory/EnchantmentMenu.java
 +++ b/net/minecraft/world/inventory/EnchantmentMenu.java
-@@ -1,6 +_,8 @@
+@@ -1,9 +_,12 @@
  package net.minecraft.world.inventory;
  
  import java.util.List;
@@ -9,8 +9,15 @@
  import net.minecraft.Util;
  import net.minecraft.advancements.CriteriaTriggers;
  import net.minecraft.core.BlockPos;
-@@ -22,20 +_,29 @@
++import net.minecraft.core.Registry;
+ import net.minecraft.core.registries.BuiltInRegistries;
+ import net.minecraft.nbt.CompoundTag;
+ import net.minecraft.server.level.ServerPlayer;
+@@ -20,22 +_,33 @@
+ import net.minecraft.world.item.Items;
+ import net.minecraft.world.item.enchantment.EnchantmentHelper;
  import net.minecraft.world.item.enchantment.EnchantmentInstance;
++import net.minecraft.world.level.Level;
  import net.minecraft.world.level.block.Blocks;
  import net.minecraft.world.level.block.EnchantmentTableBlock;
 +import org.bukkit.Location;
@@ -23,6 +30,7 @@
 +import org.bukkit.enchantments.EnchantmentOffer;
 +import org.bukkit.event.enchantment.EnchantItemEvent;
 +import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
++import org.jetbrains.annotations.Nullable;
  
  public class EnchantmentMenu extends AbstractContainerMenu {
 -   private final Container f_39449_ = new SimpleContainer(2) {
@@ -78,7 +86,7 @@
           }
        });
  
-@@ -79,30 +_,34 @@
+@@ -79,30 +_,35 @@
        this.m_38895_(DataSlot.m_39406_(this.f_39448_, 0));
        this.m_38895_(DataSlot.m_39406_(this.f_39448_, 1));
        this.m_38895_(DataSlot.m_39406_(this.f_39448_, 2));
@@ -91,15 +99,15 @@
        if (p_39461_ == this.f_39449_) {
           ItemStack itemstack = p_39461_.m_8020_(0);
 -         if (!itemstack.m_41619_() && itemstack.m_41792_()) {
-+         if (!itemstack.m_41619_() || itemstack.m_41792_()) { // Magma - Fix mixin issues
++         if (!itemstack.m_41619_()) {  // CraftBukkit - relax condition
++            itemstack.m_41792_(); //Magma - check if item is enchantable, because mixins
              this.f_39450_.m_39292_((p_39485_, p_39486_) -> {
--               int j = 0;
-+               int k = 0;
+                int j = 0;
  
                 for(BlockPos blockpos : EnchantmentTableBlock.f_207902_) {
                    if (EnchantmentTableBlock.m_207909_(p_39485_, p_39486_, blockpos)) {
 -                     ++j;
-+                     k += p_39485_.m_8055_(p_39486_.m_121955_(blockpos)).getEnchantPowerBonus(p_39485_, p_39486_.m_121955_(blockpos));
++                     j += p_39485_.m_8055_(p_39486_.m_121955_(blockpos)).getEnchantPowerBonus(p_39485_, p_39486_.m_121955_(blockpos));
                    }
                 }
  
@@ -112,13 +120,13 @@
 -                  if (this.f_39446_[k] < k + 1) {
 -                     this.f_39446_[k] = 0;
 +               for(int kd = 0; kd < 3; ++kd) {
-+                  this.f_39446_[kd] = EnchantmentHelper.m_220287_(this.f_39451_, kd, (int)kd, itemstack);
++                  this.f_39446_[kd] = EnchantmentHelper.m_220287_(this.f_39451_, kd, (int)j, itemstack);
 +                  this.f_39447_[kd] = -1;
 +                  this.f_39448_[kd] = -1;
 +                  if (this.f_39446_[kd] < kd + 1) {
 +                     this.f_39446_[kd] = 0;
                    }
-+                  this.f_39446_[kd] = net.minecraftforge.event.ForgeEventFactory.onEnchantmentLevelSet(p_39485_, p_39486_, kd, (int)kd, itemstack, f_39446_[kd]);
++                  this.f_39446_[kd] = net.minecraftforge.event.ForgeEventFactory.onEnchantmentLevelSet(p_39485_, p_39486_, kd, (int)j, itemstack, f_39446_[kd]);
                 }
  
                 for(int l = 0; l < 3; ++l) {
@@ -133,18 +141,18 @@
 +                  org.bukkit.enchantments.Enchantment enchantment = (this.f_39447_[o] >= 0) ? org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(BuiltInRegistries.f_256876_.m_7942_(this.f_39447_[o])))) : null;
 +                  offers[o] = (enchantment != null) ? new EnchantmentOffer(enchantment, this.f_39448_[o], this.f_39446_[o]) : null;
 +               }
-+               PrepareItemEnchantEvent event = new PrepareItemEnchantEvent(player, this.getBukkitView(), f_39450_.getLocation().getBlock(), item, offers, k);
++               PrepareItemEnchantEvent event = new PrepareItemEnchantEvent(player, this.getBukkitView(), f_39450_.getLocation().getBlock(), item, offers, j);
 +               event.setCancelled(!itemstack.m_41792_());
 +               p_39485_.getCraftServer().getPluginManager().callEvent(event);
 +               if (event.isCancelled()) {
-+                  for (int kp = 0; kp < 3; ++kp) {
-+                     this.f_39446_[kp] = 0;
-+                     this.f_39447_[kp] = -1;
-+                     this.f_39448_[kp] = -1;
++                  for (j = 0; j < 3; ++j) {
++                     this.f_39446_[j] = 0;
++                     this.f_39447_[j] = -1;
++                     this.f_39448_[j] = -1;
 +                  }
 +                  return;
 +               }
-+               for (k = 0; k < 3; k++) {
++               for (int k = 0; k < 3; k++) {
 +                  EnchantmentOffer offer = event.getOffers()[k];
 +                  if (offer != null) {
 +                     this.f_39446_[k] = offer.getCost();
@@ -161,7 +169,7 @@
                 this.m_38946_();
              });
           } else {
-@@ -142,9 +_,23 @@
+@@ -142,9 +_,15 @@
              this.f_39450_.m_39292_((p_39481_, p_39482_) -> {
                 ItemStack itemstack2 = itemstack;
                 List<EnchantmentInstance> list = this.m_39471_(itemstack, p_39466_, this.f_39446_[p_39466_]);
@@ -169,25 +177,17 @@
 -                  p_39465_.m_7408_(itemstack, i);
 +               // CraftBukkit start
 +               if (true || !list.isEmpty()) {
++                  //p_39465_.onEnchantmentPerformed(itemstack, i); // Move down
                    boolean flag = itemstack.m_150930_(Items.f_42517_);
-+                  Map<Enchantment, Integer> enchants = new java.util.HashMap<org.bukkit.enchantments.Enchantment, Integer>();
-+                  for (Object obj : list) {
-+                     EnchantmentInstance instance = (EnchantmentInstance) obj;
-+                     enchants.put(org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(instance.f_44947_))), instance.f_44948_);
-+                  }
-+                  CraftItemStack item = CraftItemStack.asCraftMirror(itemstack2);
-+                  org.bukkit.enchantments.Enchantment hintedEnchantment = org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(net.minecraft.world.item.enchantment.Enchantment.m_44697_(f_39447_[i]))));
-+                  int hintedEnchantmentLevel = f_39448_[i];
-+                  EnchantItemEvent event = new EnchantItemEvent((org.bukkit.entity.Player) p_39465_.getBukkitEntity(), this.getBukkitView(), f_39450_.getLocation().getBlock(), item, this.f_39446_[i], enchants, hintedEnchantment, hintedEnchantmentLevel, i);
-+                  p_39481_.getCraftServer().getPluginManager().callEvent(event);
-+                  int level = event.getExpLevelCost();
-+                  if (event.isCancelled() || (level > p_39465_.f_36078_ && !p_39465_.m_150110_().f_35937_) || event.getEnchantsToAdd().isEmpty()) {
++
++                  //Magma start - mixin inject
++                  if (!bukkitEnchant(p_39465_, p_39466_, p_39481_, list, itemstack2))
 +                     return;
-+                  }
++                  
                    if (flag) {
                       itemstack2 = new ItemStack(Items.f_42690_);
                       CompoundTag compoundtag = itemstack.m_41783_();
-@@ -155,15 +_,28 @@
+@@ -155,15 +_,29 @@
                       this.f_39449_.m_6836_(0, itemstack2);
                    }
  
@@ -197,22 +197,24 @@
 -                        EnchantedBookItem.m_41153_(itemstack2, enchantmentinstance);
 -                     } else {
 -                        itemstack2.m_41663_(enchantmentinstance.f_44947_, enchantmentinstance.f_44948_);
-+                  for (Map.Entry<org.bukkit.enchantments.Enchantment, Integer> entry : event.getEnchantsToAdd().entrySet()) {
+-                     }
++                  // Magma - this is just a mess, but it has to be done this way to prevent a mixin injection error
++                  for (int j = 0; j < bukkitEnchant_event.getEnchantsToAdd().entrySet().size(); ++j) {
++                     getNms(((Enchantment) bukkitEnchant_event.getEnchantsToAdd().keySet().toArray()[j]).getKey());
++
++                     if (enchant_nms == null)
++                        continue;
++
++                     EnchantmentInstance enchantmentinstance = new EnchantmentInstance(enchant_nms, bukkitEnchant_event.getEnchantsToAdd().get(((Enchantment) bukkitEnchant_event.getEnchantsToAdd().keySet().toArray()[j])));
++
 +                     try {
-+                        if (flag) {
-+                           NamespacedKey enchantId = entry.getKey().getKey();
-+                           net.minecraft.world.item.enchantment.Enchantment nms = BuiltInRegistries.f_256876_.m_7745_(CraftNamespacedKey.toMinecraft(enchantId));
-+                           if (nms == null) {
-+                              continue;
-+                           }
-+                           EnchantmentInstance weightedrandomenchant = new EnchantmentInstance(nms, entry.getValue());
-+                           EnchantedBookItem.m_41153_(itemstack2, weightedrandomenchant);
-+                        } else {
-+                           item.addUnsafeEnchantment(entry.getKey(), entry.getValue());
-+                        }
-+                     } catch (IllegalArgumentException e) {
-+                        /* Just swallow invalid enchantments */
-                      }
++                        if (flag)
++                           EnchantedBookItem.m_41153_(itemstack2, enchantmentinstance);
++                        else
++                           itemstack2.m_41663_(enchant_nms, bukkitEnchant_event.getEnchantsToAdd().get(((Enchantment) bukkitEnchant_event.getEnchantsToAdd().keySet().toArray()[j])));
++                     } catch (IllegalArgumentException ignored) {}
++
++                     enchant_nms = null;
                    }
  
 +                  p_39465_.m_7408_(itemstack, i);
@@ -222,6 +224,37 @@
                    if (!p_39465_.m_150110_().f_35937_) {
                       itemstack1.m_41774_(i);
                       if (itemstack1.m_41619_()) {
+@@ -191,6 +_,30 @@
+       }
+    }
+ 
++   // Magma start
++   private @Nullable EnchantItemEvent bukkitEnchant_event;
++   private boolean bukkitEnchant(Player p_39465_, int p_39466_, Level p_39481_, List<EnchantmentInstance> list, ItemStack itemstack2) {
++      bukkitEnchant_event = null;
++      Map<Enchantment, Integer> enchants = new java.util.HashMap<org.bukkit.enchantments.Enchantment, Integer>();
++      for (Object obj : list) {
++         EnchantmentInstance instance = (EnchantmentInstance) obj;
++         enchants.put(org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(instance.f_44947_))), instance.f_44948_);
++      }
++      CraftItemStack item = CraftItemStack.asCraftMirror(itemstack2);
++      org.bukkit.enchantments.Enchantment hintedEnchantment = org.bukkit.enchantments.Enchantment.getByKey(CraftNamespacedKey.fromMinecraft(BuiltInRegistries.f_256876_.m_7981_(net.minecraft.world.item.enchantment.Enchantment.m_44697_(f_39447_[p_39466_]))));
++      int hintedEnchantmentLevel = f_39448_[p_39466_];
++      bukkitEnchant_event = new EnchantItemEvent((org.bukkit.entity.Player) p_39465_.getBukkitEntity(), this.getBukkitView(), f_39450_.getLocation().getBlock(), item, this.f_39446_[p_39466_], enchants, hintedEnchantment, hintedEnchantmentLevel, p_39466_);
++      p_39481_.getCraftServer().getPluginManager().callEvent(bukkitEnchant_event);
++      int level = bukkitEnchant_event.getExpLevelCost();
++      return !bukkitEnchant_event.isCancelled() && (level <= p_39465_.f_36078_ || p_39465_.m_150110_().f_35937_) && !bukkitEnchant_event.getEnchantsToAdd().isEmpty();
++   }
++
++   private @Nullable net.minecraft.world.item.enchantment.Enchantment enchant_nms;
++   private void getNms(NamespacedKey enchantId) {
++      enchant_nms = BuiltInRegistries.f_256876_.m_7745_(CraftNamespacedKey.toMinecraft(enchantId));
++   }
++   //Magma end
++
+    private List<EnchantmentInstance> m_39471_(ItemStack p_39472_, int p_39473_, int p_39474_) {
+       this.f_39451_.m_188584_((long)(this.f_39452_.m_6501_() + p_39473_));
+       List<EnchantmentInstance> list = EnchantmentHelper.m_220297_(this.f_39451_, p_39472_, p_39474_, false);
 @@ -218,6 +_,7 @@
     }
  
