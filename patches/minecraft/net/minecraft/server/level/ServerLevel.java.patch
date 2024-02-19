@@ -57,7 +57,7 @@
  import net.minecraft.world.level.levelgen.structure.BoundingBox;
  import net.minecraft.world.level.levelgen.structure.Structure;
  import net.minecraft.world.level.levelgen.structure.StructureCheck;
-@@ -146,16 +_,21 @@
+@@ -146,16 +_,22 @@
  import net.minecraft.world.level.portal.PortalForcer;
  import net.minecraft.world.level.saveddata.maps.MapIndex;
  import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -71,6 +71,7 @@
  import net.minecraft.world.phys.shapes.Shapes;
  import net.minecraft.world.phys.shapes.VoxelShape;
  import net.minecraft.world.ticks.LevelTicks;
++import org.bukkit.World;
 +import org.bukkit.craftbukkit.v1_20_R1.event.CraftEventFactory;
 +import org.bukkit.craftbukkit.v1_20_R1.generator.CustomWorldChunkManager;
 +import org.bukkit.craftbukkit.v1_20_R1.util.WorldUUID;
@@ -149,10 +150,11 @@
           return p_214999_.m_129783_().m_8895_();
        });
        this.f_8547_.m_255415_().m_254958_();
-@@ -240,6 +_,14 @@
+@@ -240,7 +_,21 @@
              return new RandomSequences(i);
           }, "random_sequences");
        });
+-   }
 +      this.initCapabilities();
 +
 +      this.spigotConfig = new SpigotWorldConfig(f_8549_.m_5462_()); // Spigot
@@ -160,10 +162,17 @@
 +      m_6857_().world = this;
 +      // CraftBukkit end
 +
-+      this.getCraftServer().addWorld(this.getWorld()); //Magma - add world to bukkit's world list
-    }
++      this.getCraftServer().addWorld(this.getWorld()); // Magma - add world to bukkit's world list
++   }
++
++   // Magma start - Add bukkit constructor
++   public ServerLevel(MinecraftServer p_214999_, Executor p_215000_, LevelStorageSource.LevelStorageAccess p_215001_, PrimaryLevelData p_215002_, ResourceKey<Level> p_215003_, LevelStem p_215004_, ChunkProgressListener p_215005_, boolean p_215006_, long p_215007_, List<CustomSpawner> p_215008_, boolean p_215009_, @Nullable RandomSequences p_288977_, World.Environment env, org.bukkit.generator.ChunkGenerator gen, org.bukkit.generator.BiomeProvider bp) {
++      this(Level.craftWorldData(p_214999_, gen, env, bp), p_215000_, p_215001_, p_215002_, p_215003_, p_215004_, p_215005_, p_215006_, p_215007_, p_215008_, p_215009_, p_288977_);
++   }
++   // Magma end
  
     /** @deprecated */
+    @Deprecated
 @@ -275,8 +_,8 @@
        int i = this.m_46469_().m_46215_(GameRules.f_151486_);
        if (this.f_143245_.m_144002_(i) && this.f_143245_.m_144004_(i, this.f_8546_)) {

@@ -65,7 +65,7 @@
     public static final Codec<ResourceKey<Level>> f_46427_ = ResourceKey.m_195966_(Registries.f_256858_);
     public static final ResourceKey<Level> f_46428_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("overworld"));
     public static final ResourceKey<Level> f_46429_ = ResourceKey.m_135785_(Registries.f_256858_, new ResourceLocation("the_nether"));
-@@ -110,8 +_,68 @@
+@@ -110,8 +_,75 @@
     private final RegistryAccess f_268710_;
     private final DamageSources f_268497_;
     private long f_186455_;
@@ -117,6 +117,13 @@
 +      generator = gen;
 +      environment = env;
 +      biomeProvider = bp;
++   }
++
++   public static MinecraftServer craftWorldData(MinecraftServer minecraftServer, org.bukkit.generator.ChunkGenerator gen, org.bukkit.World.Environment env, org.bukkit.generator.BiomeProvider bp) {
++      generator = gen;
++      environment = env;
++      biomeProvider = bp;
++      return minecraftServer;
 +   }
 +   // Magma end
  
