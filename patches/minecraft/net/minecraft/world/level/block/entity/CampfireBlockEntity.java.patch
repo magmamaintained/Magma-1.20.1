@@ -12,14 +12,25 @@
  
  public class CampfireBlockEntity extends BlockEntity implements Clearable {
     private static final int f_155298_ = 2;
+@@ -37,6 +_,10 @@
+       super(BlockEntityType.f_58911_, p_155301_, p_155302_);
+    }
+ 
++   
++   private static CraftItemStack source;
++   private static org.bukkit.inventory.ItemStack result;
++   private static BlockCookEvent blockCookEvent;
+    public static void m_155306_(Level p_155307_, BlockPos p_155308_, BlockState p_155309_, CampfireBlockEntity p_155310_) {
+       boolean flag = false;
+ 
 @@ -51,6 +_,18 @@
                    return p_270054_.m_5874_(container, p_155307_.m_9598_());
                 }).orElse(itemstack);
                 if (itemstack1.m_246617_(p_155307_.m_246046_())) {
 +                  // CraftBukkit start - fire BlockCookEvent
-+                  CraftItemStack source = CraftItemStack.asCraftMirror(itemstack);
-+                  org.bukkit.inventory.ItemStack result = CraftItemStack.asBukkitCopy(itemstack1);
-+                  BlockCookEvent blockCookEvent = new BlockCookEvent(CraftBlock.at(p_155307_, p_155308_), source, result);
++                  source = CraftItemStack.asCraftMirror(itemstack);
++                  result = CraftItemStack.asBukkitCopy(itemstack1);
++                  blockCookEvent = new BlockCookEvent(CraftBlock.at(p_155307_, p_155308_), source, result);
 +                  p_155307_.getCraftServer().getPluginManager().callEvent(blockCookEvent);
 +                  if (blockCookEvent.isCancelled()) {
 +                     return;
