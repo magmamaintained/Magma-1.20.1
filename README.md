@@ -1,3 +1,10 @@
+# Ketting
+Magma never finished this version. I have done a lot of bug fixing, but part of the old Magma team has made a new server called Ketting. It is much better than Magma and I am working on it a little bit too. Thank you all very much.
+
+- Discord: https://discord.gg/ARBXFQaP68
+- GitHub: https://github.com/kettingpowered
+
+# Archived
 <div align="center">
 <img src="https://i.imgur.com/zTCTCWG.png" alt="Magma logo" align="middle"></img>
 
